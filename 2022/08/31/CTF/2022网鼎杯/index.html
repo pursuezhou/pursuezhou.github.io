@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="Reversere694魔改了特征码，需要用010将FUK改成UPX，然后用upx -d进行脱壳，读者也可以用upxfix进行尝试，用IDA打开脱壳后的程序，发现进行了两次加密，还是比较简单的。 WP如下： 123456789s &#x3D; [0x4B, 0x48, 0x79, 0x13, 0x45, 0x30, 0x5C, 0x49, 0x5A, 0x79,     0x13, 0x70, 0x6D,">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2022 网鼎杯 青龙组">
+<meta property="og:url" content="http://example.com/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/index.html">
+<meta property="og:site_name" content="Pursue&#39;s blog">
+<meta property="og:description" content="Reversere694魔改了特征码，需要用010将FUK改成UPX，然后用upx -d进行脱壳，读者也可以用upxfix进行尝试，用IDA打开脱壳后的程序，发现进行了两次加密，还是比较简单的。 WP如下： 123456789s &#x3D; [0x4B, 0x48, 0x79, 0x13, 0x45, 0x30, 0x5C, 0x49, 0x5A, 0x79,     0x13, 0x70, 0x6D,">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-08-30T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-11-28T13:29:26.210Z">
+<meta property="article:author" content="Pursue">
+<meta property="article:tag" content="网鼎杯">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>2022 网鼎杯 青龙组</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a href="/links/">links</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="https://gitee.com/rmrfsad/rmrfsad">Projects</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2022/09/19/CTF/2022%E7%BE%8A%E5%9F%8E%E6%9D%AF/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/08/25/CTF/2022%E9%95%BF%E5%9F%8E%E6%9D%AF/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/&text=2022 网鼎杯 青龙组"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/&title=2022 网鼎杯 青龙组"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/&is_video=false&description=2022 网鼎杯 青龙组"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=2022 网鼎杯 青龙组&body=Check out this article: http://example.com/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/&title=2022 网鼎杯 青龙组"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/&title=2022 网鼎杯 青龙组"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/&title=2022 网鼎杯 青龙组"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/&title=2022 网鼎杯 青龙组"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/&name=2022 网鼎杯 青龙组&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/&t=2022 网鼎杯 青龙组"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Reverse"><span class="toc-number">1.</span> <span class="toc-text">Reverse</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#re694"><span class="toc-number">1.1.</span> <span class="toc-text">re694</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#re693"><span class="toc-number">1.2.</span> <span class="toc-text">re693</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Pwn"><span class="toc-number">2.</span> <span class="toc-text">Pwn</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#BabyV8"><span class="toc-number">2.1.</span> <span class="toc-text">BabyV8</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pwn497-minishell-pwn349"><span class="toc-number">2.2.</span> <span class="toc-text">pwn497(minishell) &amp; pwn349</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        2022 网鼎杯 青龙组
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">Pursue</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-08-30T16:00:00.000Z" class="dt-published" itemprop="datePublished">2022-08-31</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/%E7%BD%91%E9%BC%8E%E6%9D%AF/" rel="tag">网鼎杯</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="Reverse"><a href="#Reverse" class="headerlink" title="Reverse"></a>Reverse</h2><h3 id="re694"><a href="#re694" class="headerlink" title="re694"></a>re694</h3><p>魔改了特征码，需要用010将FUK改成UPX，然后用<code>upx -d</code>进行脱壳，读者也可以用upxfix进行尝试，用IDA打开脱壳后的程序，发现进行了两次加密，还是比较简单的。</p>
+<p>WP如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">s = [<span class="number">0x4B</span>, <span class="number">0x48</span>, <span class="number">0x79</span>, <span class="number">0x13</span>, <span class="number">0x45</span>, <span class="number">0x30</span>, <span class="number">0x5C</span>, <span class="number">0x49</span>, <span class="number">0x5A</span>, <span class="number">0x79</span>, </span><br><span class="line">    <span class="number">0x13</span>, <span class="number">0x70</span>, <span class="number">0x6D</span>, <span class="number">0x78</span>, <span class="number">0x13</span>, <span class="number">0x6F</span>, <span class="number">0x48</span>, <span class="number">0x5D</span>, <span class="number">0x64</span>, <span class="number">0x64</span>]</span><br><span class="line">flag = <span class="string">&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> s:</span><br><span class="line">    flag += <span class="built_in">chr</span>(((i ^ <span class="number">80</span>) - <span class="number">10</span>) ^ <span class="number">102</span>)</span><br><span class="line"></span><br><span class="line">flag = <span class="string">&#x27;flag&#123;&#x27;</span> + flag + <span class="string">&#x27;&#125;&#x27;</span></span><br><span class="line"><span class="built_in">print</span>(flag)</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="re693"><a href="#re693" class="headerlink" title="re693"></a>re693</h3><p>用go语言写的程序，将后缀名改成<code>.go</code>，用vscode打开，代码量比较大有一万五千行左右。程序会输出两句提示，根据提示找到关键输入，接下来就比较简单了，下面是关键代码和写的一些注释：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GwSqNHQ7dPXpIG64</span><span class="params">(cJPTR <span class="type">string</span>)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	YrXQd := hex.EncodeToString([]<span class="type">byte</span>(cJPTR)) <span class="comment">// change to hex</span></span><br><span class="line">	<span class="keyword">return</span> fmt.Sprintf(<span class="string">&quot;%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c&quot;</span>, YrXQd[<span class="number">22</span>], YrXQd[<span class="number">19</span>], YrXQd[<span class="number">20</span>], YrXQd[<span class="number">21</span>], YrXQd[<span class="number">28</span>], YrXQd[<span class="number">10</span>], YrXQd[<span class="number">20</span>], YrXQd[<span class="number">7</span>], YrXQd[<span class="number">29</span>], YrXQd[<span class="number">14</span>], YrXQd[<span class="number">0</span>], YrXQd[<span class="number">18</span>], YrXQd[<span class="number">3</span>], YrXQd[<span class="number">24</span>], YrXQd[<span class="number">27</span>], YrXQd[<span class="number">31</span>])</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> nFAzj, CuSkl <span class="type">string</span></span><br><span class="line">	jjxXf := []<span class="type">byte</span>&#123;</span><br><span class="line">		<span class="number">37</span>, <span class="number">73</span>, <span class="number">151</span>, <span class="number">135</span>, <span class="number">65</span>, <span class="number">58</span>, <span class="number">241</span>, <span class="number">90</span>, <span class="number">33</span>, <span class="number">86</span>, <span class="number">71</span>, <span class="number">41</span>, <span class="number">102</span>, <span class="number">241</span>, <span class="number">213</span>, <span class="number">234</span>, <span class="number">67</span>, <span class="number">144</span>, <span class="number">139</span>, <span class="number">20</span>, <span class="number">112</span>, <span class="number">150</span>, <span class="number">41</span>, <span class="number">7</span>, <span class="number">158</span>, <span class="number">251</span>, <span class="number">167</span>, <span class="number">249</span>, <span class="number">24</span>, <span class="number">129</span>, <span class="number">72</span>, <span class="number">64</span>, <span class="number">83</span>, <span class="number">142</span>, <span class="number">166</span>, <span class="number">236</span>, <span class="number">67</span>, <span class="number">18</span>, <span class="number">211</span>, <span class="number">100</span>, <span class="number">91</span>, <span class="number">38</span>, <span class="number">83</span>, <span class="number">147</span>, <span class="number">40</span>, <span class="number">78</span>, <span class="number">239</span>, <span class="number">113</span>, <span class="number">232</span>, <span class="number">83</span>, <span class="number">227</span>, <span class="number">47</span>, <span class="number">192</span>, <span class="number">227</span>, <span class="number">70</span>, <span class="number">167</span>, <span class="number">201</span>, <span class="number">249</span>, <span class="number">156</span>, <span class="number">101</span>, <span class="number">216</span>, <span class="number">159</span>, <span class="number">116</span>, <span class="number">210</span>, <span class="number">152</span>, <span class="number">234</span>, <span class="number">38</span>, <span class="number">145</span>, <span class="number">198</span>, <span class="number">58</span>, <span class="number">24</span>, <span class="number">183</span>, <span class="number">72</span>, <span class="number">143</span>, <span class="number">136</span>, <span class="number">234</span>, <span class="number">246</span>&#125;</span><br><span class="line">	KdlaH := []<span class="type">byte</span>&#123;</span><br><span class="line">		<span class="number">191</span>, <span class="number">140</span>, <span class="number">114</span>, <span class="number">245</span>, <span class="number">142</span>, <span class="number">55</span>, <span class="number">190</span>, <span class="number">30</span>, <span class="number">161</span>, <span class="number">18</span>, <span class="number">200</span>, <span class="number">7</span>, <span class="number">21</span>, <span class="number">59</span>, <span class="number">17</span>, <span class="number">44</span>, <span class="number">34</span>, <span class="number">181</span>, <span class="number">109</span>, <span class="number">116</span>, <span class="number">146</span>, <span class="number">145</span>, <span class="number">189</span>, <span class="number">68</span>, <span class="number">142</span>, <span class="number">113</span>, <span class="number">0</span>, <span class="number">33</span>, <span class="number">46</span>, <span class="number">184</span>, <span class="number">21</span>, <span class="number">33</span>, <span class="number">66</span>, <span class="number">99</span>, <span class="number">124</span>, <span class="number">167</span>, <span class="number">201</span>, <span class="number">88</span>, <span class="number">133</span>, <span class="number">20</span>, <span class="number">211</span>, <span class="number">67</span>, <span class="number">133</span>, <span class="number">250</span>, <span class="number">62</span>, <span class="number">28</span>, <span class="number">138</span>, <span class="number">229</span>, <span class="number">105</span>, <span class="number">102</span>, <span class="number">125</span>, <span class="number">124</span>, <span class="number">208</span>, <span class="number">180</span>, <span class="number">50</span>, <span class="number">146</span>, <span class="number">67</span>, <span class="number">39</span>, <span class="number">55</span>, <span class="number">240</span>, <span class="number">239</span>, <span class="number">203</span>, <span class="number">230</span>, <span class="number">142</span>, <span class="number">20</span>, <span class="number">90</span>, <span class="number">205</span>, <span class="number">27</span>, <span class="number">128</span>, <span class="number">136</span>, <span class="number">151</span>, <span class="number">140</span>, <span class="number">222</span>, <span class="number">92</span>, <span class="number">152</span>, <span class="number">1</span>, <span class="number">222</span>, <span class="number">138</span>, <span class="number">254</span>, <span class="number">246</span>, <span class="number">223</span>, <span class="number">224</span>, <span class="number">236</span>, <span class="number">33</span>, <span class="number">60</span>, <span class="number">170</span>, <span class="number">189</span>, <span class="number">77</span>, <span class="number">124</span>, <span class="number">72</span>, <span class="number">135</span>, <span class="number">46</span>, <span class="number">235</span>, <span class="number">17</span>, <span class="number">32</span>, <span class="number">28</span>, <span class="number">245</span>&#125;</span><br><span class="line">	fmt.Print(MPyt9GWTRfAFNvb1(jjxXf)) <span class="comment">// Input the first function, which has 6 parameters and the third named gLIhR:</span></span><br><span class="line">	<span class="comment">// nFAzj = &#x27;ZlXDJkH3OZN4Mayd&#x27;</span></span><br><span class="line">	fmt.Scanf(<span class="string">&quot;%20s&quot;</span>, &amp;nFAzj)</span><br><span class="line">	fmt.Print(kZ2BFvOxepd5ALDR(KdlaH)) <span class="comment">// Input the second function, which has 3 callers and invokes the function named cHZv5op8rOmlAkb6:</span></span><br><span class="line">	<span class="comment">// CuSkl = &#x27;UhnCm82SDGE0zLYO&#x27;</span></span><br><span class="line">	fmt.Scanf(<span class="string">&quot;%20s&quot;</span>, &amp;CuSkl)</span><br><span class="line">	vNvUO := GwSqNHQ7dPXpIG64(nFAzj)</span><br><span class="line">	YJCya := <span class="string">&quot;&quot;</span></span><br><span class="line">	mvOxK := YI3z8ZxOKhfLmTPC(CuSkl)</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    func UhnCm82SDGE0zLYO() string &#123;</span></span><br><span class="line"><span class="comment">        SythK := []byte&#123;</span></span><br><span class="line"><span class="comment">            159, 141, 72, 106, 196, 62, 16, 205, 170, 159, 36, 232, 125, 239, 208, 3&#125;</span></span><br><span class="line"><span class="comment">        var Vw2mJ, Nij87, zVclR string</span></span><br><span class="line"><span class="comment">        return cHZv5op8rOmlAkb6(SythK, Vw2mJ, Nij87, zVclR)</span></span><br><span class="line"><span class="comment">    &#125;</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    func cHZv5op8rOmlAkb6(HIGXt []byte, VGvny string, ZOkKV string, eU0uD string) string &#123;</span></span><br><span class="line"><span class="comment">	QTk4l := make([]byte, 20)</span></span><br><span class="line"><span class="comment">	Ek08m := [16]byte&#123;</span></span><br><span class="line"><span class="comment">		167, 238, 45, 89, 160, 95, 34, 175, 158, 169, 20, 217, 68, 137, 231, 54&#125;</span></span><br><span class="line"><span class="comment">	for i := 0; i &lt; 16; i++ &#123;</span></span><br><span class="line"><span class="comment">		QTk4l[i] += Ek08m[i] ^ HIGXt[i]</span></span><br><span class="line"><span class="comment">	&#125;</span></span><br><span class="line"><span class="comment">	return string(QTk4l)</span></span><br><span class="line"><span class="comment">    &#125;</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">	<span class="keyword">if</span> mvOxK != <span class="literal">nil</span> &#123;</span><br><span class="line">		YJCya = mvOxK()</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> YJCya != <span class="string">&quot;&quot;</span> &amp;&amp; vNvUO != <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;flag&#123;%s%s&#125;\n&quot;</span>, vNvUO, YJCya)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>做以下变更，然后运行一下flag就出来了：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// var nFAzj, CuSkl string</span></span><br><span class="line">	jjxXf := []<span class="type">byte</span>&#123;</span><br><span class="line">		<span class="number">37</span>, <span class="number">73</span>, <span class="number">151</span>, <span class="number">135</span>, <span class="number">65</span>, <span class="number">58</span>, <span class="number">241</span>, <span class="number">90</span>, <span class="number">33</span>, <span class="number">86</span>, <span class="number">71</span>, <span class="number">41</span>, <span class="number">102</span>, <span class="number">241</span>, <span class="number">213</span>, <span class="number">234</span>, <span class="number">67</span>, <span class="number">144</span>, <span class="number">139</span>, <span class="number">20</span>, <span class="number">112</span>, <span class="number">150</span>, <span class="number">41</span>, <span class="number">7</span>, <span class="number">158</span>, <span class="number">251</span>, <span class="number">167</span>, <span class="number">249</span>, <span class="number">24</span>, <span class="number">129</span>, <span class="number">72</span>, <span class="number">64</span>, <span class="number">83</span>, <span class="number">142</span>, <span class="number">166</span>, <span class="number">236</span>, <span class="number">67</span>, <span class="number">18</span>, <span class="number">211</span>, <span class="number">100</span>, <span class="number">91</span>, <span class="number">38</span>, <span class="number">83</span>, <span class="number">147</span>, <span class="number">40</span>, <span class="number">78</span>, <span class="number">239</span>, <span class="number">113</span>, <span class="number">232</span>, <span class="number">83</span>, <span class="number">227</span>, <span class="number">47</span>, <span class="number">192</span>, <span class="number">227</span>, <span class="number">70</span>, <span class="number">167</span>, <span class="number">201</span>, <span class="number">249</span>, <span class="number">156</span>, <span class="number">101</span>, <span class="number">216</span>, <span class="number">159</span>, <span class="number">116</span>, <span class="number">210</span>, <span class="number">152</span>, <span class="number">234</span>, <span class="number">38</span>, <span class="number">145</span>, <span class="number">198</span>, <span class="number">58</span>, <span class="number">24</span>, <span class="number">183</span>, <span class="number">72</span>, <span class="number">143</span>, <span class="number">136</span>, <span class="number">234</span>, <span class="number">246</span>&#125;</span><br><span class="line">	KdlaH := []<span class="type">byte</span>&#123;</span><br><span class="line">		<span class="number">191</span>, <span class="number">140</span>, <span class="number">114</span>, <span class="number">245</span>, <span class="number">142</span>, <span class="number">55</span>, <span class="number">190</span>, <span class="number">30</span>, <span class="number">161</span>, <span class="number">18</span>, <span class="number">200</span>, <span class="number">7</span>, <span class="number">21</span>, <span class="number">59</span>, <span class="number">17</span>, <span class="number">44</span>, <span class="number">34</span>, <span class="number">181</span>, <span class="number">109</span>, <span class="number">116</span>, <span class="number">146</span>, <span class="number">145</span>, <span class="number">189</span>, <span class="number">68</span>, <span class="number">142</span>, <span class="number">113</span>, <span class="number">0</span>, <span class="number">33</span>, <span class="number">46</span>, <span class="number">184</span>, <span class="number">21</span>, <span class="number">33</span>, <span class="number">66</span>, <span class="number">99</span>, <span class="number">124</span>, <span class="number">167</span>, <span class="number">201</span>, <span class="number">88</span>, <span class="number">133</span>, <span class="number">20</span>, <span class="number">211</span>, <span class="number">67</span>, <span class="number">133</span>, <span class="number">250</span>, <span class="number">62</span>, <span class="number">28</span>, <span class="number">138</span>, <span class="number">229</span>, <span class="number">105</span>, <span class="number">102</span>, <span class="number">125</span>, <span class="number">124</span>, <span class="number">208</span>, <span class="number">180</span>, <span class="number">50</span>, <span class="number">146</span>, <span class="number">67</span>, <span class="number">39</span>, <span class="number">55</span>, <span class="number">240</span>, <span class="number">239</span>, <span class="number">203</span>, <span class="number">230</span>, <span class="number">142</span>, <span class="number">20</span>, <span class="number">90</span>, <span class="number">205</span>, <span class="number">27</span>, <span class="number">128</span>, <span class="number">136</span>, <span class="number">151</span>, <span class="number">140</span>, <span class="number">222</span>, <span class="number">92</span>, <span class="number">152</span>, <span class="number">1</span>, <span class="number">222</span>, <span class="number">138</span>, <span class="number">254</span>, <span class="number">246</span>, <span class="number">223</span>, <span class="number">224</span>, <span class="number">236</span>, <span class="number">33</span>, <span class="number">60</span>, <span class="number">170</span>, <span class="number">189</span>, <span class="number">77</span>, <span class="number">124</span>, <span class="number">72</span>, <span class="number">135</span>, <span class="number">46</span>, <span class="number">235</span>, <span class="number">17</span>, <span class="number">32</span>, <span class="number">28</span>, <span class="number">245</span>&#125;</span><br><span class="line">	fmt.Print(MPyt9GWTRfAFNvb1(jjxXf)) <span class="comment">// Input the first function, which has 6 parameters and the third named gLIhR:</span></span><br><span class="line">	<span class="comment">// nFAzj = &#x27;ZlXDJkH3OZN4Mayd&#x27;</span></span><br><span class="line">	<span class="comment">// fmt.Scanf(&quot;%20s&quot;, &amp;nFAzj)</span></span><br><span class="line">	fmt.Print(kZ2BFvOxepd5ALDR(KdlaH)) <span class="comment">// Input the second function, which has 3 callers and invokes the function named cHZv5op8rOmlAkb6:</span></span><br><span class="line">	<span class="comment">// CuSkl = &#x27;UhnCm82SDGE0zLYO&#x27;</span></span><br><span class="line">	<span class="comment">// fmt.Scanf(&quot;%20s&quot;, &amp;CuSkl)</span></span><br><span class="line">	vNvUO := GwSqNHQ7dPXpIG64(<span class="string">&quot;ZlXDJkH3OZN4Mayd&quot;</span>)</span><br><span class="line">	YJCya := <span class="string">&quot;&quot;</span></span><br><span class="line">	mvOxK := YI3z8ZxOKhfLmTPC(<span class="string">&quot;UhnCm82SDGE0zLYO&quot;</span>)</span><br><span class="line">    <span class="comment">// ......</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Pwn"><a href="#Pwn" class="headerlink" title="Pwn"></a>Pwn</h2><p>两道非预期解</p>
+<h3 id="BabyV8"><a href="#BabyV8" class="headerlink" title="BabyV8"></a>BabyV8</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(<span class="built_in">read</span>(<span class="string">&quot;/flag&quot;</span>))</span><br><span class="line">&lt;EOF&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="pwn497-minishell-pwn349"><a href="#pwn497-minishell-pwn349" class="headerlink" title="pwn497(minishell) &amp; pwn349"></a>pwn497(minishell) &amp; pwn349</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 利用编译器报错打印功能</span></span><br><span class="line">./cc1 /flag -o /pwn</span><br></pre></td></tr></table></figure>
+
+
+
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/categories/">categories</a></li>
+        
+          <li><a href="/tags/">tags</a></li>
+        
+          <li><a href="/links/">links</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="https://gitee.com/rmrfsad/rmrfsad">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Reverse"><span class="toc-number">1.</span> <span class="toc-text">Reverse</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#re694"><span class="toc-number">1.1.</span> <span class="toc-text">re694</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#re693"><span class="toc-number">1.2.</span> <span class="toc-text">re693</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Pwn"><span class="toc-number">2.</span> <span class="toc-text">Pwn</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#BabyV8"><span class="toc-number">2.1.</span> <span class="toc-text">BabyV8</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pwn497-minishell-pwn349"><span class="toc-number">2.2.</span> <span class="toc-text">pwn497(minishell) &amp; pwn349</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/&text=2022 网鼎杯 青龙组"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/&title=2022 网鼎杯 青龙组"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/&is_video=false&description=2022 网鼎杯 青龙组"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=2022 网鼎杯 青龙组&body=Check out this article: http://example.com/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/&title=2022 网鼎杯 青龙组"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/&title=2022 网鼎杯 青龙组"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/&title=2022 网鼎杯 青龙组"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/&title=2022 网鼎杯 青龙组"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/&name=2022 网鼎杯 青龙组&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/&t=2022 网鼎杯 青龙组"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2021-2024
+    Pursue
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a href="/links/">links</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="https://gitee.com/rmrfsad/rmrfsad">Projects</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

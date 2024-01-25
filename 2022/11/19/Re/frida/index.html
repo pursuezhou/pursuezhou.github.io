@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="环境安装下载Frida，注意frida和frida-tools的版本要相互匹配，在Frida资源库上查看： 12pip install frida -i https:&#x2F;&#x2F;pypi.tuna.tsinghua.edu.cn&#x2F;simplepip install frida-tools -i https:&#x2F;&#x2F;pypi.tuna.tsinghua.edu.cn&#x2F;simple    Android上进行Ho">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Frida Hook 技术">
+<meta property="og:url" content="http://example.com/2022/11/19/Re/frida/index.html">
+<meta property="og:site_name" content="Pursue&#39;s blog">
+<meta property="og:description" content="环境安装下载Frida，注意frida和frida-tools的版本要相互匹配，在Frida资源库上查看： 12pip install frida -i https:&#x2F;&#x2F;pypi.tuna.tsinghua.edu.cn&#x2F;simplepip install frida-tools -i https:&#x2F;&#x2F;pypi.tuna.tsinghua.edu.cn&#x2F;simple    Android上进行Ho">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-11-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-11-28T13:31:25.200Z">
+<meta property="article:author" content="Pursue">
+<meta property="article:tag" content="Frida">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Frida Hook 技术</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a href="/links/">links</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="https://gitee.com/rmrfsad/rmrfsad">Projects</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2022/11/20/CTF/2022%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%81/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/11/05/CTF/2022dasctf_x_gfctf/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/11/19/Re/frida/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/11/19/Re/frida/&text=Frida Hook 技术"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/11/19/Re/frida/&title=Frida Hook 技术"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/11/19/Re/frida/&is_video=false&description=Frida Hook 技术"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Frida Hook 技术&body=Check out this article: http://example.com/2022/11/19/Re/frida/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/11/19/Re/frida/&title=Frida Hook 技术"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/11/19/Re/frida/&title=Frida Hook 技术"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/11/19/Re/frida/&title=Frida Hook 技术"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/11/19/Re/frida/&title=Frida Hook 技术"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/11/19/Re/frida/&name=Frida Hook 技术&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/11/19/Re/frida/&t=Frida Hook 技术"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85"><span class="toc-number">1.</span> <span class="toc-text">环境安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Android%E4%B8%8A%E8%BF%9B%E8%A1%8CHook"><span class="toc-number">2.</span> <span class="toc-text">Android上进行Hook</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="toc-number">2.1.</span> <span class="toc-text">环境准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hook%E5%91%BD%E4%BB%A4"><span class="toc-number">2.2.</span> <span class="toc-text">Hook命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Native-Hook"><span class="toc-number">2.3.</span> <span class="toc-text">Native Hook</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#js%E8%84%9A%E6%9C%AC%E7%9A%84%E7%BC%96%E5%86%99"><span class="toc-number">3.</span> <span class="toc-text">js脚本的编写</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E8%84%9A%E6%9C%AC"><span class="toc-number">3.1.</span> <span class="toc-text">基础脚本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Native%E8%84%9A%E6%9C%AC"><span class="toc-number">3.2.</span> <span class="toc-text">Native脚本</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Frida Hook 技术
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">Pursue</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-11-18T16:00:00.000Z" class="dt-published" itemprop="datePublished">2022-11-19</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/Re/">Re</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Frida/" rel="tag">Frida</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="环境安装"><a href="#环境安装" class="headerlink" title="环境安装"></a>环境安装</h2><p>下载Frida，注意<code>frida</code>和<code>frida-tools</code>的版本要相互匹配，在<a target="_blank" rel="noopener" href="https://github.com/frida/frida/releases?page=1">Frida资源库</a>上查看：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pip install frida -i https://pypi.tuna.tsinghua.edu.cn/simple</span><br><span class="line">pip install frida-tools -i https://pypi.tuna.tsinghua.edu.cn/simple</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Android上进行Hook"><a href="#Android上进行Hook" class="headerlink" title="Android上进行Hook"></a>Android上进行Hook</h2><h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><p>首先，需要设置安卓机或者安卓模拟器为Root权限，还需要准备adb(安卓调试桥)工具。</p>
+<p>adb的使用可以参考：<a target="_blank" rel="noopener" href="https://developer.android.google.cn/studio/command-line/adb?hl=zh-cn#shellcommands">Android 调试桥 (adb)  | Android 开发者  | Android Developers (google.cn)</a>，总结了部分命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">adb start-server	# 启动adb服务</span><br><span class="line">adb kill-server		# 关闭adb服务</span><br><span class="line"></span><br><span class="line">adb devices			# 显示已连接的设备信息</span><br><span class="line">adb root</span><br><span class="line">adb shell			# 启动交互式的shell</span><br><span class="line"></span><br><span class="line">adb shell pm list packages		# 显示所有的应用</span><br><span class="line">adb shell pm list packages -3	# 显示第三方的应用</span><br></pre></td></tr></table></figure>
+
+<p>接着，我们需要在安卓机或者安卓模拟器上安装对应Frida版本，在<a target="_blank" rel="noopener" href="https://github.com/frida/frida/releases?page=1">Frida资源库</a>上查看：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">真机：</span><br><span class="line">frida-server-16.0.2-android-arm.xz</span><br><span class="line">frida-server-16.0.2-android-arm64.xz</span><br><span class="line"></span><br><span class="line">模拟器：</span><br><span class="line">frida-server-16.0.2-android-x86.xz</span><br><span class="line">frida-server-16.0.2-android-x86_64.xz</span><br></pre></td></tr></table></figure>
+
+<p>将下载的服务塞到机子里：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">adb push frida-server-16.0.2-android-x86_64 /data/local/tmp</span><br><span class="line">adb shell &quot;chmod 777 /data/local/tmp/frida-server-16.0.2-android-x86_64&quot;</span><br><span class="line">adb shell &quot;/data/local/tmp/frida-server-16.0.2-android-x86_64 &amp;&quot;</span><br><span class="line">adb shell &quot;/data/local/tmp/frida-server-16.0.2-android-x86_64 -l 127.0.0.1:8888&quot;	# 按指定的端口启动</span><br><span class="line">adb forward tcp:27042 tcp:27042		# 默认使用27042端口进行转发</span><br></pre></td></tr></table></figure>
+
+<p>这时候我们可以看到安卓机里的<code>27042</code>端口开启了frida的监听，同时我们也可以在Windows终端查看服务：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">adb shell</span></span><br><span class="line">netstat -napt</span><br><span class="line"></span><br><span class="line">Active Internet connections (established and servers)</span><br><span class="line">Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program Name</span><br><span class="line">tcp        0      0 127.0.0.1:27042         0.0.0.0:*               LISTEN      2939/frida-server-16.0.2-android-x86_64</span><br><span class="line">tcp6       0      0 :::5555                 :::*                    LISTEN      1437/adbd</span><br><span class="line">tcp6       0      0 ::ffff:172.16.1.15:5555 ::ffff:172.16.1.2:55963 ESTABLISHED 1437/adbd</span><br><span class="line"></span><br><span class="line">-----------------------------------------------------------------------------------</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">windows shell</span></span><br><span class="line">frida-ps -U		# 显示一个进程列表</span><br><span class="line"></span><br><span class="line"> PID  Name</span><br><span class="line">----  -----------------------------------------------</span><br><span class="line">1437  adbd</span><br><span class="line">1959  android.ext.services</span><br><span class="line">1411  android.hardware.audio@2.0-service</span><br><span class="line">1412  android.hardware.bluetooth@1.0-service-qti</span><br><span class="line">1413  android.hardware.broadcastradio@1.1-service</span><br><span class="line">1414  android.hardware.camera.provider@2.4-service</span><br><span class="line">... ...</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="Hook命令"><a href="#Hook命令" class="headerlink" title="Hook命令"></a>Hook命令</h3><p><code>frida-trace</code>使得我们可以跟踪APK中的函数调用，使用如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">frida-trace -i &quot;&lt;函数名&gt;&quot; -U &lt;进程名&gt;</span><br><span class="line">frida-trace -i &quot;&lt;函数名&gt;&quot; -U -f &lt;包名&gt;</span><br><span class="line"></span><br><span class="line">frida-trace -i &quot;open*&quot; -U -f &lt;包名&gt;		# 使用通配符 *</span><br><span class="line"></span><br><span class="line">-----------------------------------------------------------------------------------</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">例如</span></span><br><span class="line">frida-trace -i &quot;open&quot; -U -f hk.gov.ogcio.leavehomesafe</span><br><span class="line">-----------------------------------------------------------</span><br><span class="line">Instrumenting...</span><br><span class="line">open: Loaded handler at &quot;E:\\ctf\\Re\\Frida\\__handlers__\\libc.so\\open.js&quot;</span><br><span class="line">Started tracing 1 function. Press Ctrl+C to stop.</span><br><span class="line">           /* TID 0x278a */</span><br><span class="line">    27 ms  open()</span><br><span class="line">    30 ms  open()</span><br><span class="line">    42 ms  open()</span><br><span class="line">    42 ms  open()</span><br><span class="line">    43 ms  open()</span><br><span class="line">    43 ms  open()</span><br><span class="line">    43 ms  open()</span><br><span class="line">    43 ms  open()</span><br><span class="line">    43 ms  open()</span><br><span class="line">    44 ms  open()</span><br><span class="line">           /* TID 0x27b7 */</span><br><span class="line">    50 ms  open()</span><br><span class="line">           /* TID 0x27b8 */</span><br><span class="line">    54 ms  open()</span><br><span class="line">    55 ms  open()</span><br><span class="line">    55 ms  open()</span><br></pre></td></tr></table></figure>
+
+<p>下面介绍两种hook方式：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">Attach 进程</span></span><br><span class="line">frida -U -l &lt;脚本文件&gt; &lt;进程名&gt;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">Spawn 重启app</span></span><br><span class="line">frida -U -f &lt;包名&gt; -l &lt;脚本文件&gt; --no-pause</span><br><span class="line"></span><br><span class="line">-----------------------------------------------------------------------------------</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">例如</span></span><br><span class="line">frida -U -f com.example.frida -l .\test.js</span><br><span class="line">-----------------------------------------------------------</span><br><span class="line">     ____</span><br><span class="line">    / _  |   Frida 16.0.2 - A world-class dynamic instrumentation toolkit</span><br><span class="line">   | (_| |</span><br><span class="line">    &gt; _  |   Commands:</span><br><span class="line">   /_/ |_|       help      -&gt; Displays the help system</span><br><span class="line">   . . . .       object?   -&gt; Display information about &#x27;object&#x27;</span><br><span class="line">   . . . .       exit/quit -&gt; Exit</span><br><span class="line">   . . . .</span><br><span class="line">   . . . .   More info at https://frida.re/docs/home/</span><br><span class="line">   . . . .</span><br><span class="line">   . . . .   Connected to Android Emulator 5554 (id=emulator-5554)</span><br><span class="line">Spawned `com.example.frida`. Resuming main thread!</span><br><span class="line">[Android Emulator 5554::com.example.frida ]-&gt; p1: 10</span><br><span class="line">p2: 21</span><br><span class="line">result: 31</span><br></pre></td></tr></table></figure>
+
+<p>除了可以在终端中进行hook命令，同时我们也可以编写Python的脚本进行hook。还有，也可以通过雷电APK分析软件的Frida功能进行hook。<strong>注意两点</strong>：一是，尽量不要同时用adb和雷电分析软件同时进行hook，也就是不要在终端敲完了命令再去雷电里搞点操作，似乎两者不兼容，由此可能会报错，要反复重启安卓机才可能解决问题，推荐直接敲命令，不然雷电报错了都不知道什么原因；二是，尽量开启安卓机的Root权限。</p>
+<h3 id="Native-Hook"><a href="#Native-Hook" class="headerlink" title="Native Hook"></a>Native Hook</h3><p>首先，了解Java是什么调用外部库的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> &#123;</span><br><span class="line">    System.loadLibrary(<span class="string">&quot;test&quot;</span>);		<span class="comment">// 引用了 libtest.so 文件</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">native</span> String <span class="title function_">helloPersonFromJNI</span><span class="params">(String str, String str2)</span>;	<span class="comment">// 使用了so文件里面的api</span></span><br></pre></td></tr></table></figure>
+
+<p>在资源文件里我们需要采用对应架构的so文件，常见的安卓机都是arm的架构，而x86和x86_64尝尝用于虚拟机，可以用adb来查看安卓虚拟机的架构：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">adb shell cat /proc/cpuinfo</span><br><span class="line">-----------------------------------------</span><br><span class="line">processor       : 0</span><br><span class="line">vendor_id       : AuthenticAMD</span><br><span class="line">cpu family      : 25</span><br><span class="line">model           : 80</span><br><span class="line">model name      : AMD Ryzen 7 5800H with Radeon Graphics</span><br></pre></td></tr></table></figure>
+
+<p>关于IDA反编译so文件：</p>
+<ul>
+<li>我们可以在导出窗口看到需要的函数。</li>
+<li>一般来说，IDA会把函数所在的类也显示出来，比如调用的是<code>Java.com.example.frida.function()</code>，那么在IDA里面的函数是<code>Java_com_example_frida_function()</code>。</li>
+<li>一般so文件里面函数的参数和Java代码里面的参数数量不同，默认是后面的参数。</li>
+</ul>
+<h2 id="js脚本的编写"><a href="#js脚本的编写" class="headerlink" title="js脚本的编写"></a>js脚本的编写</h2><h3 id="基础脚本"><a href="#基础脚本" class="headerlink" title="基础脚本"></a>基础脚本</h3><p>一个简单的用法示例：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;		<span class="comment">// 确保当前线程连接到 Java VM 并调用</span></span><br><span class="line">    <span class="keyword">const</span> instance = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;com.example.frida.MainActivity&#x27;</span>);	<span class="comment">// 返回包裹好的JS对象</span></span><br><span class="line">    instance.&lt;方法名&gt;.<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">p1, p2</span>) &#123;		<span class="comment">// 参数的数量要和源方法相同</span></span><br><span class="line">        <span class="keyword">var</span> result = <span class="variable language_">this</span>.&lt;方法名&gt;(p1, p2);	<span class="comment">// 调用自身</span></span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;result:&quot;</span>, result);</span><br><span class="line">        ... ...</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> result;		<span class="comment">// 如果源方法具有返回值，那必须 return，否则程序会卡住</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>带有重载函数的编写，需要用<code>overload</code>方法，对于参数的选定，可以在报错中寻找，下面是一个获取数据库密码的一个脚本：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> instance = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;net.sqlcipher.database.SQLiteOpenHelper&#x27;</span>);</span><br><span class="line">    instance.<span class="property">getWritableDatabase</span>.<span class="title function_">overload</span>(<span class="string">&#x27;[C&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">p1</span>) &#123;	<span class="comment">// overload 重载</span></span><br><span class="line">        <span class="keyword">const</span> javaString = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;java.lang.String&#x27;</span>)</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;数据库密码:&quot;</span>, javaString.$new(p1))		<span class="comment">// $new() 表示新建一个对象，这里是 String</span></span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="title function_">getWritableDatabase</span>(p1)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>对于内部类的hook，可以这样编写：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> instance = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;com.example.frida.MainActivity$&lt;内部类的类名&gt;&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>有的时候我们不需要修改方法，只是希望主动去触发一个方法或者函数，这时候怎么办呢？</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不影响进程</span></span><br><span class="line"><span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> instance = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;com.example.frida.MainActivity&#x27;</span>);</span><br><span class="line">    <span class="keyword">var</span> object = instance.$new()	<span class="comment">// 创造该类的一个对象</span></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(object.&lt;方法名&gt;(arg1, arg2))		<span class="comment">// 调用方法</span></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(object.&lt;方法名&gt;.&lt;变量名&gt;)			<span class="comment">// 调用变量</span></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(instance.&lt;静态变量&gt;)		<span class="comment">// 调用静态变量</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="Native脚本"><a href="#Native脚本" class="headerlink" title="Native脚本"></a>Native脚本</h3><p>一个简单的模板：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">// var n_addr_func = Module.findExportByName(&quot;so文件名&quot;, &quot;方法名&quot;)</span></span><br><span class="line">   <span class="keyword">var</span> base_addr = <span class="title class_">Module</span>.<span class="title function_">findBaseAddress</span>(<span class="string">&quot;so文件名&quot;</span>);</span><br><span class="line">   <span class="keyword">var</span> n_addr_func = base_addr.<span class="title function_">add</span>(&lt;地址偏移&gt;);		<span class="comment">// 目标函数的偏移, arm-v7地址偏移+1</span></span><br><span class="line">    <span class="title class_">Interceptor</span>.<span class="title function_">attach</span>(n_addr_func,&#123;        </span><br><span class="line">      <span class="attr">onEnter</span>: <span class="keyword">function</span>(<span class="params">args</span>)&#123;			<span class="comment">// 在hook函数之前</span></span><br><span class="line">         <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;arg 1：&quot;</span> + args[<span class="number">0</span>].<span class="title function_">readCString</span>());		<span class="comment">// readCString() 应该是用来读取对应地址的内容</span></span><br><span class="line">     &#125;, </span><br><span class="line">     <span class="attr">onLeave</span>:<span class="keyword">function</span>(<span class="params">retval</span>)&#123;			<span class="comment">// 在hook函数之后</span></span><br><span class="line">         <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;ret：&quot;</span>, retval);</span><br><span class="line">         retval.<span class="title function_">replace</span>(<span class="number">0</span>);		<span class="comment">// 代替返回值</span></span><br><span class="line">     &#125;  </span><br><span class="line">    &#125;);  </span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>在运行后很有可能会报错，例如：<code>TypeError: cannot read property &#39;add&#39; of null</code>，并不是我们脚本不对，<strong>而是可能没有通过操作来触发这个函数</strong>。解决方法是，重新保存js脚本，这样frida就会重新载入，然后进行点击按钮之类的触发操作即可成功。</p>
+<p>下面是大佬给的脚本，可以完美解决上面的错误，了解即可：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">onLoadModule</span>(<span class="params">onLoadCallback</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> linker = <span class="title class_">Process</span>.<span class="title function_">findModuleByName</span>(<span class="title class_">Process</span>.<span class="property">arch</span>.<span class="title function_">indexOf</span>(<span class="string">&#x27;64&#x27;</span>) &gt;= <span class="number">0</span> ? <span class="string">&#x27;linker64&#x27;</span> : <span class="string">&quot;linker&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (!linker) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;find linker failed&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> interceptors = [];</span><br><span class="line">    <span class="keyword">var</span> symbols = linker.<span class="title function_">enumerateSymbols</span>();</span><br><span class="line">    <span class="keyword">var</span> doDlOpenPtr = <span class="variable constant_">NULL</span>;</span><br><span class="line">    <span class="keyword">var</span> callCtor = <span class="variable constant_">NULL</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> index <span class="keyword">in</span> symbols) &#123;</span><br><span class="line">        <span class="keyword">if</span> (symbols[index].<span class="property">name</span>.<span class="title function_">indexOf</span>(<span class="string">&quot;call_constructor&quot;</span>) &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">            callCtor = symbols[index].<span class="property">address</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (symbols[index].<span class="property">name</span>.<span class="title function_">indexOf</span>(<span class="string">&#x27;do_dlopen&#x27;</span>) &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">            doDlOpenPtr = symbols[index].<span class="property">address</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (callCtor.<span class="title function_">compare</span>(<span class="variable constant_">NULL</span>) &gt; <span class="number">0</span> &amp;&amp; doDlOpenPtr.<span class="title function_">compare</span>(<span class="variable constant_">NULL</span>) &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (callCtor.<span class="title function_">compare</span>(<span class="variable constant_">NULL</span>) &gt; <span class="number">0</span> &amp;&amp; doDlOpenPtr.<span class="title function_">compare</span>(<span class="variable constant_">NULL</span>) &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> moduleName = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">        interceptors.<span class="title function_">push</span>(<span class="title class_">Interceptor</span>.<span class="title function_">attach</span>(callCtor, <span class="keyword">function</span> (<span class="params">args</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (moduleName &amp;&amp; onLoadCallback) &#123;</span><br><span class="line">                <span class="title function_">onLoadCallback</span>(moduleName);</span><br><span class="line">                moduleName = <span class="literal">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;));</span><br><span class="line"></span><br><span class="line">        interceptors.<span class="title function_">push</span>(<span class="title class_">Interceptor</span>.<span class="title function_">attach</span>(doDlOpenPtr, <span class="keyword">function</span> (<span class="params">args</span>) &#123;</span><br><span class="line">            moduleName = args[<span class="number">0</span>].<span class="title function_">readCString</span>();</span><br><span class="line">        &#125;));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 上面是固定写法，下面才是我们的应用部分</span></span><br><span class="line"><span class="title function_">onLoadModule</span>(<span class="keyword">function</span>(<span class="params">moduleName</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(moduleName)</span><br><span class="line">    <span class="keyword">if</span> (moduleName.<span class="title function_">includes</span>(<span class="string">&quot;so文件名&quot;</span>)) &#123;</span><br><span class="line">        <span class="keyword">var</span> base_addr = <span class="title class_">Module</span>.<span class="title function_">findBaseAddress</span>(<span class="string">&quot;so文件名&quot;</span>);</span><br><span class="line">        <span class="title class_">Interceptor</span>.<span class="title function_">attach</span>(base_addr.<span class="title function_">add</span>(&lt;地址偏移&gt;), &#123;</span><br><span class="line">            <span class="attr">onEnter</span>: <span class="keyword">function</span> (<span class="params">args</span>) &#123;</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;arg 1：&quot;</span> + args[<span class="number">0</span>].<span class="title function_">readCString</span>());</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">onLeave</span>: <span class="keyword">function</span>(<span class="params">ret</span>) &#123;</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;ret：&quot;</span>, retval);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/categories/">categories</a></li>
+        
+          <li><a href="/tags/">tags</a></li>
+        
+          <li><a href="/links/">links</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="https://gitee.com/rmrfsad/rmrfsad">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85"><span class="toc-number">1.</span> <span class="toc-text">环境安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Android%E4%B8%8A%E8%BF%9B%E8%A1%8CHook"><span class="toc-number">2.</span> <span class="toc-text">Android上进行Hook</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="toc-number">2.1.</span> <span class="toc-text">环境准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hook%E5%91%BD%E4%BB%A4"><span class="toc-number">2.2.</span> <span class="toc-text">Hook命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Native-Hook"><span class="toc-number">2.3.</span> <span class="toc-text">Native Hook</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#js%E8%84%9A%E6%9C%AC%E7%9A%84%E7%BC%96%E5%86%99"><span class="toc-number">3.</span> <span class="toc-text">js脚本的编写</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E8%84%9A%E6%9C%AC"><span class="toc-number">3.1.</span> <span class="toc-text">基础脚本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Native%E8%84%9A%E6%9C%AC"><span class="toc-number">3.2.</span> <span class="toc-text">Native脚本</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/11/19/Re/frida/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/11/19/Re/frida/&text=Frida Hook 技术"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/11/19/Re/frida/&title=Frida Hook 技术"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/11/19/Re/frida/&is_video=false&description=Frida Hook 技术"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Frida Hook 技术&body=Check out this article: http://example.com/2022/11/19/Re/frida/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/11/19/Re/frida/&title=Frida Hook 技术"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/11/19/Re/frida/&title=Frida Hook 技术"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/11/19/Re/frida/&title=Frida Hook 技术"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/11/19/Re/frida/&title=Frida Hook 技术"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/11/19/Re/frida/&name=Frida Hook 技术&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/11/19/Re/frida/&t=Frida Hook 技术"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2021-2024
+    Pursue
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a href="/links/">links</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="https://gitee.com/rmrfsad/rmrfsad">Projects</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

