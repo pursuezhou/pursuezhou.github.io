@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="总结一些平常用的爬虫模板，爬取的对象是豆瓣读书，一共爬取5页。  豆瓣-新书速递 (douban.com)  推荐文章：  python多线程爬虫入门 - queue消息队列与守护进程 python多线程爬虫入门 -互斥锁以及GIL_爬虫 锁 Python爬虫案例（多线程+消息队列初阶）  多线程队列爬取，一次性写入12345678910111213141516171819202122232425">
+<meta property="og:type" content="article">
+<meta property="og:title" content="多线程和消息队列实现爬虫">
+<meta property="og:url" content="http://example.com/2024/01/27/Web/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%88%AC%E8%99%AB/index.html">
+<meta property="og:site_name" content="Pursue&#39;s blog">
+<meta property="og:description" content="总结一些平常用的爬虫模板，爬取的对象是豆瓣读书，一共爬取5页。  豆瓣-新书速递 (douban.com)  推荐文章：  python多线程爬虫入门 - queue消息队列与守护进程 python多线程爬虫入门 -互斥锁以及GIL_爬虫 锁 Python爬虫案例（多线程+消息队列初阶）  多线程队列爬取，一次性写入12345678910111213141516171819202122232425">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-01-26T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-01-27T09:12:41.475Z">
+<meta property="article:author" content="Pursue">
+<meta property="article:tag" content="爬虫">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>多线程和消息队列实现爬虫</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a href="/links/">links</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="https://gitee.com/rmrfsad/rmrfsad">Projects</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/12/26/Pwn/off_by_null/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/01/27/Web/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%88%AC%E8%99%AB/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/01/27/Web/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%88%AC%E8%99%AB/&text=多线程和消息队列实现爬虫"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/01/27/Web/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%88%AC%E8%99%AB/&title=多线程和消息队列实现爬虫"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/01/27/Web/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%88%AC%E8%99%AB/&is_video=false&description=多线程和消息队列实现爬虫"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=多线程和消息队列实现爬虫&body=Check out this article: http://example.com/2024/01/27/Web/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%88%AC%E8%99%AB/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/01/27/Web/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%88%AC%E8%99%AB/&title=多线程和消息队列实现爬虫"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/01/27/Web/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%88%AC%E8%99%AB/&title=多线程和消息队列实现爬虫"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/01/27/Web/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%88%AC%E8%99%AB/&title=多线程和消息队列实现爬虫"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/01/27/Web/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%88%AC%E8%99%AB/&title=多线程和消息队列实现爬虫"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/01/27/Web/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%88%AC%E8%99%AB/&name=多线程和消息队列实现爬虫&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/01/27/Web/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%88%AC%E8%99%AB/&t=多线程和消息队列实现爬虫"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E9%98%9F%E5%88%97%E7%88%AC%E5%8F%96%EF%BC%8C%E4%B8%80%E6%AC%A1%E6%80%A7%E5%86%99%E5%85%A5"><span class="toc-number">1.</span> <span class="toc-text">多线程队列爬取，一次性写入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E9%98%9F%E5%88%97%E7%88%AC%E5%8F%96%EF%BC%8C%E8%BE%B9%E7%88%AC%E8%BE%B9%E5%86%99"><span class="toc-number">2.</span> <span class="toc-text">多线程队列爬取，边爬边写</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        多线程和消息队列实现爬虫
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">Pursue</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-01-26T16:00:00.000Z" class="dt-published" itemprop="datePublished">2024-01-27</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/Web/">Web</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p>总结一些平常用的爬虫模板，爬取的对象是豆瓣读书，一共爬取5页。</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://book.douban.com/latest?subcat=%E5%85%A8%E9%83%A8&p=1">豆瓣-新书速递 (douban.com)</a></p>
+</blockquote>
+<p>推荐文章：</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/superDE009/article/details/107847070">python多线程爬虫入门 - queue消息队列与守护进程</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/superDE009/article/details/107881944">python多线程爬虫入门 -互斥锁以及GIL_爬虫 锁</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_61529962/article/details/135829137">Python爬虫案例（多线程+消息队列初阶）</a></p>
+</blockquote>
+<h2 id="多线程队列爬取，一次性写入"><a href="#多线程队列爬取，一次性写入" class="headerlink" title="多线程队列爬取，一次性写入"></a>多线程队列爬取，一次性写入</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> threading <span class="keyword">import</span> Thread, Lock</span><br><span class="line"><span class="keyword">import</span> queue</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">requests.packages.urllib3.disable_warnings()</span><br><span class="line">requests.adapters.DEFAULT_RETEIES = <span class="number">5</span></span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">&#x27;Accept&#x27;</span>: <span class="string">&quot;text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,&quot;</span></span><br><span class="line">              <span class="string">&quot;application/signed-exchange;v=b3;q=0.7&quot;</span>,</span><br><span class="line">    <span class="string">&#x27;Accept-Language&#x27;</span>: <span class="string">&#x27;zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;User-Agent&#x27;</span>: <span class="string">&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 &quot;</span></span><br><span class="line">                  <span class="string">&quot;Safari/537.36 Edg/120.0.0.0&quot;</span>,</span><br><span class="line">&#125;</span><br><span class="line">start_urls = [<span class="string">&quot;https://book.douban.com/latest?subcat=%E5%85%A8%E9%83%A8&amp;p=&#123;&#125;&quot;</span>.<span class="built_in">format</span>(idx) <span class="keyword">for</span> idx <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="number">6</span>)]</span><br><span class="line">excel_file = <span class="string">&#x27;demo1.xlsx&#x27;</span></span><br><span class="line">columns = [<span class="string">&#x27;书名&#x27;</span>, <span class="string">&#x27;作者&#x27;</span>, <span class="string">&#x27;出版日期&#x27;</span>, <span class="string">&#x27;出版社&#x27;</span>, <span class="string">&#x27;价格&#x27;</span>]</span><br><span class="line"></span><br><span class="line">url_queue = queue.Queue()</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> start_urls:</span><br><span class="line">    url_queue.put(i)</span><br><span class="line">lock = Lock()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">send</span>(<span class="params">method, url, data=<span class="string">&#x27;&#x27;</span>, cookies=<span class="string">&#x27;&#x27;</span></span>):</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">if</span> method.lower() == <span class="string">&#x27;get&#x27;</span>:</span><br><span class="line">            res = requests.get(url, headers=headers, verify=<span class="literal">False</span>, cookies=cookies)</span><br><span class="line">            <span class="keyword">return</span> res.text</span><br><span class="line"></span><br><span class="line">        <span class="keyword">elif</span> method.lower() == <span class="string">&#x27;post&#x27;</span>:</span><br><span class="line">            res = requests.post(url, headers=headers, data=data, verify=<span class="literal">False</span>, cookies=cookies)</span><br><span class="line">            <span class="keyword">return</span> res.text</span><br><span class="line"></span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(e)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">parse</span>(<span class="params">text</span>):</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        soup = BeautifulSoup(text, <span class="string">&#x27;html.parser&#x27;</span>)</span><br><span class="line"></span><br><span class="line">        bookinfo = soup.find_all(name=<span class="string">&#x27;div&#x27;</span>, attrs=&#123;<span class="string">&#x27;class&#x27;</span>: <span class="string">&#x27;media__body&#x27;</span>&#125;)</span><br><span class="line">        result = []</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> bookinfo:</span><br><span class="line">            bookname = i.find(<span class="string">&#x27;a&#x27;</span>).get_text()</span><br><span class="line">            otherinfo = i.find(<span class="string">&#x27;p&#x27;</span>).get_text().strip().split(<span class="string">&#x27;/&#x27;</span>)</span><br><span class="line">            author = otherinfo[<span class="number">0</span>].strip()</span><br><span class="line">            datetime = otherinfo[<span class="number">1</span>].strip()</span><br><span class="line">            publish = otherinfo[<span class="number">2</span>].strip()</span><br><span class="line">            price = otherinfo[<span class="number">3</span>].strip()</span><br><span class="line">            infodict = &#123;</span><br><span class="line">                <span class="string">&#x27;书名&#x27;</span>: bookname,</span><br><span class="line">                <span class="string">&#x27;作者&#x27;</span>: author,</span><br><span class="line">                <span class="string">&#x27;出版日期&#x27;</span>: datetime,</span><br><span class="line">                <span class="string">&#x27;出版社&#x27;</span>: publish,</span><br><span class="line">                <span class="string">&#x27;价格&#x27;</span>: price,</span><br><span class="line">            &#125;</span><br><span class="line">            result.append(infodict)</span><br><span class="line">        <span class="keyword">return</span> result</span><br><span class="line"></span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(e)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">worker</span>():</span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">not</span> url_queue.empty():</span><br><span class="line">        url = url_queue.get()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;正在爬取:&#x27;</span>, url)</span><br><span class="line">        time.sleep(<span class="number">0.1</span>)</span><br><span class="line">        result = parse(send(<span class="string">&#x27;get&#x27;</span>, url))</span><br><span class="line">        <span class="keyword">if</span> result:</span><br><span class="line">            <span class="keyword">with</span> lock:</span><br><span class="line">                <span class="keyword">global</span> df</span><br><span class="line">                temp_df = pd.DataFrame(result)</span><br><span class="line">                df = pd.concat([df, temp_df], ignore_index=<span class="literal">True</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;爬取完成:&#x27;</span>, url)</span><br><span class="line">        url_queue.task_done()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">df = pd.DataFrame(columns=columns)</span><br><span class="line"></span><br><span class="line">num_threads = <span class="number">5</span></span><br><span class="line">threads = []</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(num_threads):</span><br><span class="line">    thread = Thread(target=worker)</span><br><span class="line">    threads.append(thread)</span><br><span class="line">    thread.start()</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> thread <span class="keyword">in</span> threads:</span><br><span class="line">    thread.join()</span><br><span class="line"></span><br><span class="line">df.to_excel(<span class="string">&#x27;demo3.xlsx&#x27;</span>, index=<span class="literal">False</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="多线程队列爬取，边爬边写"><a href="#多线程队列爬取，边爬边写" class="headerlink" title="多线程队列爬取，边爬边写"></a>多线程队列爬取，边爬边写</h2><p>主要是怕突然出现的故障导致爬的数据没了，而且可以随时中断查看爬取的情况。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> threading <span class="keyword">import</span> Thread, Lock</span><br><span class="line"><span class="keyword">import</span> queue</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">requests.packages.urllib3.disable_warnings()</span><br><span class="line">requests.adapters.DEFAULT_RETEIES = <span class="number">5</span></span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">&#x27;Accept&#x27;</span>: <span class="string">&quot;text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,&quot;</span></span><br><span class="line">              <span class="string">&quot;application/signed-exchange;v=b3;q=0.7&quot;</span>,</span><br><span class="line">    <span class="string">&#x27;Accept-Language&#x27;</span>: <span class="string">&#x27;zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;User-Agent&#x27;</span>: <span class="string">&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 &quot;</span></span><br><span class="line">                  <span class="string">&quot;Safari/537.36 Edg/120.0.0.0&quot;</span>,</span><br><span class="line">&#125;</span><br><span class="line">start_urls = [<span class="string">&quot;https://book.douban.com/latest?subcat=%E5%85%A8%E9%83%A8&amp;p=&#123;&#125;&quot;</span>.<span class="built_in">format</span>(idx) <span class="keyword">for</span> idx <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="number">6</span>)]</span><br><span class="line">excel_file = <span class="string">&#x27;demo1.xlsx&#x27;</span></span><br><span class="line">columns = [<span class="string">&#x27;书名&#x27;</span>, <span class="string">&#x27;作者&#x27;</span>, <span class="string">&#x27;出版日期&#x27;</span>, <span class="string">&#x27;出版社&#x27;</span>, <span class="string">&#x27;价格&#x27;</span>]</span><br><span class="line"></span><br><span class="line">url_queue = queue.Queue()</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> start_urls:</span><br><span class="line">    url_queue.put(i)</span><br><span class="line">lock = Lock()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">send</span>(<span class="params">method, url, data=<span class="string">&#x27;&#x27;</span>, cookies=<span class="string">&#x27;&#x27;</span></span>):</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">if</span> method.lower() == <span class="string">&#x27;get&#x27;</span>:</span><br><span class="line">            res = requests.get(url, headers=headers, verify=<span class="literal">False</span>, cookies=cookies)</span><br><span class="line">            <span class="keyword">return</span> res.text</span><br><span class="line"></span><br><span class="line">        <span class="keyword">elif</span> method.lower() == <span class="string">&#x27;post&#x27;</span>:</span><br><span class="line">            res = requests.post(url, headers=headers, data=data, verify=<span class="literal">False</span>, cookies=cookies)</span><br><span class="line">            <span class="keyword">return</span> res.text</span><br><span class="line"></span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(e)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">parse</span>(<span class="params">text</span>):</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        soup = BeautifulSoup(text, <span class="string">&#x27;html.parser&#x27;</span>)</span><br><span class="line"></span><br><span class="line">        bookinfo = soup.find_all(name=<span class="string">&#x27;div&#x27;</span>, attrs=&#123;<span class="string">&#x27;class&#x27;</span>: <span class="string">&#x27;media__body&#x27;</span>&#125;)</span><br><span class="line">        result = []</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> bookinfo:</span><br><span class="line">            bookname = i.find(<span class="string">&#x27;a&#x27;</span>).get_text()</span><br><span class="line">            otherinfo = i.find(<span class="string">&#x27;p&#x27;</span>).get_text().strip().split(<span class="string">&#x27;/&#x27;</span>)</span><br><span class="line">            author = otherinfo[<span class="number">0</span>].strip()</span><br><span class="line">            datetime = otherinfo[<span class="number">1</span>].strip()</span><br><span class="line">            publish = otherinfo[<span class="number">2</span>].strip()</span><br><span class="line">            price = otherinfo[<span class="number">3</span>].strip()</span><br><span class="line">            infodict = &#123;</span><br><span class="line">                <span class="string">&#x27;书名&#x27;</span>: bookname,</span><br><span class="line">                <span class="string">&#x27;作者&#x27;</span>: author,</span><br><span class="line">                <span class="string">&#x27;出版日期&#x27;</span>: datetime,</span><br><span class="line">                <span class="string">&#x27;出版社&#x27;</span>: publish,</span><br><span class="line">                <span class="string">&#x27;价格&#x27;</span>: price,</span><br><span class="line">            &#125;</span><br><span class="line">            result.append(infodict)</span><br><span class="line">        <span class="keyword">return</span> result</span><br><span class="line"></span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(e)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">worker</span>():</span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">not</span> url_queue.empty():</span><br><span class="line">        url = url_queue.get()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;正在爬取:&#x27;</span>, url)</span><br><span class="line">        time.sleep(<span class="number">0.1</span>)</span><br><span class="line">        result = parse(send(<span class="string">&#x27;get&#x27;</span>, url))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> result:</span><br><span class="line">            <span class="keyword">with</span> lock:</span><br><span class="line">                <span class="keyword">with</span> pd.ExcelWriter(excel_file, mode=<span class="string">&#x27;a&#x27;</span>, if_sheet_exists=<span class="string">&#x27;overlay&#x27;</span>) <span class="keyword">as</span> writer:</span><br><span class="line">                    df_new = pd.DataFrame(result)</span><br><span class="line">                    df_new.to_excel(writer, index=<span class="literal">False</span>, header=<span class="literal">False</span>, startrow=writer.sheets[<span class="string">&#x27;Sheet1&#x27;</span>].max_row)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;爬取完成:&#x27;</span>, url)</span><br><span class="line">        url_queue.task_done()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(excel_file):</span><br><span class="line">    df = pd.DataFrame(columns=columns)</span><br><span class="line">    df.to_excel(excel_file, index=<span class="literal">False</span>)</span><br><span class="line"></span><br><span class="line">num_threads = <span class="number">5</span></span><br><span class="line">threads = []</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(num_threads):</span><br><span class="line">    thread = Thread(target=worker)</span><br><span class="line">    threads.append(thread)</span><br><span class="line">    thread.start()</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> thread <span class="keyword">in</span> threads:</span><br><span class="line">    thread.join()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/categories/">categories</a></li>
+        
+          <li><a href="/tags/">tags</a></li>
+        
+          <li><a href="/links/">links</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="https://gitee.com/rmrfsad/rmrfsad">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E9%98%9F%E5%88%97%E7%88%AC%E5%8F%96%EF%BC%8C%E4%B8%80%E6%AC%A1%E6%80%A7%E5%86%99%E5%85%A5"><span class="toc-number">1.</span> <span class="toc-text">多线程队列爬取，一次性写入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E9%98%9F%E5%88%97%E7%88%AC%E5%8F%96%EF%BC%8C%E8%BE%B9%E7%88%AC%E8%BE%B9%E5%86%99"><span class="toc-number">2.</span> <span class="toc-text">多线程队列爬取，边爬边写</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/01/27/Web/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%88%AC%E8%99%AB/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/01/27/Web/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%88%AC%E8%99%AB/&text=多线程和消息队列实现爬虫"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/01/27/Web/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%88%AC%E8%99%AB/&title=多线程和消息队列实现爬虫"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/01/27/Web/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%88%AC%E8%99%AB/&is_video=false&description=多线程和消息队列实现爬虫"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=多线程和消息队列实现爬虫&body=Check out this article: http://example.com/2024/01/27/Web/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%88%AC%E8%99%AB/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/01/27/Web/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%88%AC%E8%99%AB/&title=多线程和消息队列实现爬虫"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/01/27/Web/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%88%AC%E8%99%AB/&title=多线程和消息队列实现爬虫"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/01/27/Web/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%88%AC%E8%99%AB/&title=多线程和消息队列实现爬虫"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/01/27/Web/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%88%AC%E8%99%AB/&title=多线程和消息队列实现爬虫"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/01/27/Web/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%88%AC%E8%99%AB/&name=多线程和消息队列实现爬虫&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/01/27/Web/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%88%AC%E8%99%AB/&t=多线程和消息队列实现爬虫"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2021-2024
+    Pursue
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a href="/links/">links</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="https://gitee.com/rmrfsad/rmrfsad">Projects</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
