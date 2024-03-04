@@ -13,21 +13,21 @@
 <meta property="og:site_name" content="Pursue&#39;s blog">
 <meta property="og:description" content="前言通过对Fuzzing101项目的学习，逐步深入了解模糊测试，掌握工具的安装与使用，以及模糊测试结果的分析和调试。本文是在作者学习fuzz源码之后所写，根据项目中每一篇挑战的Readme.md进行翻译和学习，并参考了网上师傅们的文章。在这里，特别感谢hollk师傅的文章和指导，希望详细学习模糊测试的读者请查看hollk师傅的博客：hollk的博客_CSDN博客-pwn,模糊测试,堆溢出领域博主">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/fuzz/ex4/image-20230113105602933.png">
-<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/fuzz/ex3/image-20230113110117052.png">
-<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/fuzz/ex4/image-20230111121333366.png">
-<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/fuzz/ex4/image-20230111164840859.png">
-<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/fuzz/ex4/image-20230111165018618.png">
-<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/fuzz/ex4/image-20230112175827228.png">
-<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/fuzz/ex4/image-20230112195957445.png">
-<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/fuzz/ex4/image-20230112213219005.png">
-<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/fuzz/ex5/image-20230130194549115.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230113105602933.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230113110117052.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230111121333366.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230111164840859.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230111165018618.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230112175827228.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230112195957445.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230112213219005.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230130194549115.png">
 <meta property="article:published_time" content="2023-01-12T16:00:00.000Z">
-<meta property="article:modified_time" content="2023-11-28T13:29:41.610Z">
+<meta property="article:modified_time" content="2024-03-04T02:14:24.989Z">
 <meta property="article:author" content="Pursue">
 <meta property="article:tag" content="Fuzz">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/fuzz/ex4/image-20230113105602933.png">
+<meta name="twitter:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230113105602933.png">
     
     
       
@@ -321,11 +321,11 @@
 
 
 <h3 id="结果分析-2"><a href="#结果分析-2" class="headerlink" title="结果分析"></a>结果分析</h3><p>Fuzz的过程有点漫长，近乎跑了半天的程序。</p>
-<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/fuzz/ex4/image-20230113105602933.png" alt="image-20230113105602933"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230113105602933.png" alt="image-20230113105602933"></p>
 <p>运行其中的一个crash样本</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tcpdump-4.9.2/tcpdump -vvvvXX -ee -nn -r out/default/crashes/id:000000,sig:06,src:010739,time:56472860,execs:16241028,op:havoc,rep:8</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/fuzz/ex3/image-20230113110117052.png" alt="image-20230113110117052"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230113110117052.png" alt="image-20230113110117052"></p>
 <h2 id="Exercise-4：LibTIFF"><a href="#Exercise-4：LibTIFF" class="headerlink" title="Exercise 4：LibTIFF"></a>Exercise 4：LibTIFF</h2><p><code>libtiff库</code>是读取和写入tiff文件最主要的一个开源库。</p>
 <p>CVE-2016-9297：越界读取漏洞，可通过构建的<code>TIFF_SETGET_C16_ASCII</code>或<code>TIFF_SETGET_C32_ASCII</code>标记值触发。</p>
 <blockquote>
@@ -343,13 +343,13 @@
 <p>测试程序是否编译成功，这里加上各种参数是为了提高代码出现bug的机会：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$</span><span class="language-bash">HOME/fuzzing_tiff/install/bin/tiffinfo -D -j -c -r -s -w <span class="built_in">test</span>/images/miniswhite-1c-1b.tiff</span></span><br></pre></td></tr></table></figure>
 
-<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/fuzz/ex4/image-20230111121333366.png" alt="image-20230111121333366"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230111121333366.png" alt="image-20230111121333366"></p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">cd $HOME/fuzzing_tiff/tiff-4.0.4/</span><br><span class="line">lcov --zerocounters --directory ./		# 重置以前的计数器</span><br><span class="line">lcov --capture --initial --directory ./ --output-file app.info		# 返回“基线”覆盖数据文件，其中包含每个检测行的零覆盖率</span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">HOME/fuzzing_tiff/install/bin/tiffinfo -D -j -c -r -s -w <span class="variable">$HOME</span>/fuzzing_tiff/tiff-4.0.4/test/images/palette-1c-1b.tiff</span></span><br><span class="line">lcov --no-checksum --directory ./ --capture --output-file app2.info		# 将当前覆盖状态保存到 app2.info 文件中</span><br><span class="line"></span><br><span class="line">genhtml --highlight --legend -output-directory ./html-coverage/ ./app2.info		# 通过html页面显示</span><br></pre></td></tr></table></figure>
 
 <p><strong>注意：在该项目里必须要有<code>.gcno</code>文件才能够进行lcov，否则很有可能是编译失败了。</strong></p>
-<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/fuzz/ex4/image-20230111164840859.png" alt="image-20230111164840859"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230111164840859.png" alt="image-20230111164840859"></p>
 <p>html页面的路径为<code>./html-coverage/index.html</code>：</p>
-<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/fuzz/ex4/image-20230111165018618.png" alt="image-20230111165018618"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230111165018618.png" alt="image-20230111165018618"></p>
 <p>接下来进行插桩编译：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">export LLVM_CONFIG=&quot;llvm-config-11&quot;</span><br><span class="line">export CC=afl-clang-lto</span><br><span class="line">./configure --prefix=&quot;$HOME/fuzzing_tiff/install/&quot; --disable-shared</span><br><span class="line">AFL_USE_ASAN=1 make</span><br><span class="line">AFL_USE_ASAN=1 make install</span><br></pre></td></tr></table></figure>
 
@@ -358,11 +358,11 @@
 
 
 
-<h3 id="结果分析-3"><a href="#结果分析-3" class="headerlink" title="结果分析"></a>结果分析</h3><p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/fuzz/ex4/image-20230112175827228.png" alt="image-20230112175827228"></p>
+<h3 id="结果分析-3"><a href="#结果分析-3" class="headerlink" title="结果分析"></a>结果分析</h3><p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230112175827228.png" alt="image-20230112175827228"></p>
 <p>运行crash的实例就可以得到ASAN提示：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$</span><span class="language-bash">HOME/fuzzing_tiff/install/bin/tiffinfo -D -j -c -r -s -w <span class="built_in">id</span>:000000,sig:06,src:000016,time:52157,execs:64042,op:havoc,rep:2</span></span><br></pre></td></tr></table></figure>
 
-<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/fuzz/ex4/image-20230112195957445.png" alt="image-20230112195957445"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230112195957445.png" alt="image-20230112195957445"></p>
 <ul>
 <li>蓝色部分为读取操作，大概意思就是在线程为T0中，在<code>0x6020000000b1</code>处读取了大小为2的数据，并显示了函数栈的信息。</li>
 <li>绿色部分为溢出的情况，其中还显示了堆块分配的函数栈。</li>
@@ -374,7 +374,7 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> TIFF_SETGET_C32_ASCII:</span><br><span class="line">	&#123;</span><br><span class="line">		uint8* data;</span><br><span class="line">		assert(fip-&gt;field_readcount==TIFF_VARIABLE2);</span><br><span class="line">		assert(fip-&gt;field_passcount==<span class="number">1</span>);</span><br><span class="line">		err=TIFFReadDirEntryByteArray(tif,dp,&amp;data);</span><br><span class="line">		<span class="keyword">if</span> (err==TIFFReadDirEntryErrOk)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="type">int</span> m;</span><br><span class="line">			<span class="keyword">if</span>( data != <span class="number">0</span> &amp;&amp; dp-&gt;tdir_count &gt; <span class="number">0</span> &amp;&amp; data[dp-&gt;tdir_count<span class="number">-1</span>] != <span class="string">&#x27;\0&#x27;</span> )</span><br><span class="line">			&#123;</span><br><span class="line">			    TIFFWarningExt(tif-&gt;tif_clientdata,module,<span class="string">&quot;ASCII value for tag \&quot;%s\&quot; does not end in null byte. Forcing it to be null&quot;</span>,fip-&gt;field_name);</span><br><span class="line">                                          data[dp-&gt;tdir_count<span class="number">-1</span>] = <span class="string">&#x27;\0&#x27;</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			m=TIFFSetField(tif,dp-&gt;tdir_tag,(uint32)(dp-&gt;tdir_count),data);</span><br><span class="line">			<span class="keyword">if</span> (data!=<span class="number">0</span>)</span><br><span class="line">				_TIFFfree(data);</span><br><span class="line">			<span class="keyword">if</span> (!m)</span><br><span class="line">				<span class="keyword">return</span>(<span class="number">0</span>);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
 
 <p>很清楚，这里限制了<code>data</code>这个变量的最后一个字节必须为空字节，用<code>4.2.0</code>版本运行crash的样本，发现没有了ASAN的报告。</p>
-<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/fuzz/ex4/image-20230112213219005.png" alt="image-20230112213219005"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230112213219005.png" alt="image-20230112213219005"></p>
 <h2 id="Exercise-5：LibXML2"><a href="#Exercise-5：LibXML2" class="headerlink" title="Exercise 5：LibXML2"></a>Exercise 5：LibXML2</h2><p>LibXML2是C语言的一个库，可以方便对XML文档的各种操作。</p>
 <p>CVE-2017-9048：堆栈缓冲区溢出漏洞</p>
 <p>在该挑战中我们可以学习到：</p>
@@ -388,7 +388,7 @@
 <h3 id="Fuzz准备-4"><a href="#Fuzz准备-4" class="headerlink" title="Fuzz准备"></a>Fuzz准备</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">cd $HOME</span><br><span class="line">mkdir Fuzzing_libxml2 &amp;&amp; cd Fuzzing_libxml2</span><br><span class="line"></span><br><span class="line">wget http://xmlsoft.org/download/libxml2-2.9.4.tar.gz</span><br><span class="line">tar xvf libxml2-2.9.4.tar.gz &amp;&amp; cd libxml2-2.9.4/</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">build libxml2</span></span><br><span class="line">sudo apt-get install python-dev</span><br><span class="line">export CC=afl-clang-lto </span><br><span class="line">export CXX=afl-clang-lto++ </span><br><span class="line">export CFLAGS=&quot;-fsanitize=address&quot; </span><br><span class="line">export CXXFLAGS=&quot;-fsanitize=address&quot; </span><br><span class="line">export LDFLAGS=&quot;-fsanitize=address&quot;</span><br><span class="line">AFL_USE_ASAN=1 ./configure --prefix=&quot;$HOME/Fuzzing_libxml2/libxml2-2.9.4/install&quot; --disable-shared --without-debug --without-ftp --without-http --without-legacy --without-python LIBS=&#x27;-ldl&#x27;</span><br><span class="line">AFL_USE_ASAN=1 make -j$(nproc)</span><br><span class="line">AFL_USE_ASAN=1 make install</span><br></pre></td></tr></table></figure>
 
 <p>似乎编译的时间挺长，检查一下编译后的二进制文件</p>
-<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/fuzz/ex5/image-20230130194549115.png" alt="image-20230130194549115"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230130194549115.png" alt="image-20230130194549115"></p>
 <p>需要XML实例和字典</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mkdir afl_in</span><br><span class="line">cp ./SampleInput.xml afl_in/</span><br><span class="line"></span><br><span class="line">mkdir dictionaries &amp;&amp; cd dictionaries</span><br><span class="line">wget https://github.com/AFLplusplus/AFLplusplus/blob/stable/dictionaries/xml.dict</span><br><span class="line">cd ..</span><br></pre></td></tr></table></figure>
 
