@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
     <meta name="description" content="前言通过对Fuzzing101项目的学习，逐步深入了解模糊测试，掌握工具的安装与使用，以及模糊测试结果的分析和调试。本文是在作者学习fuzz源码之后所写，根据项目中每一篇挑战的Readme.md进行翻译和学习，并参考了网上师傅们的文章。在这里，特别感谢hollk师傅的文章和指导，希望详细学习模糊测试的读者请查看hollk师傅的博客：hollk的博客_CSDN博客-pwn,模糊测试,堆溢出领域博主">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Fuzzing101学习笔记">
+<meta property="og:title" content="Fuzzing101 学习笔记">
 <meta property="og:url" content="http://example.com/2023/01/13/Pwn/fuzzing101/index.html">
 <meta property="og:site_name" content="Pursue&#39;s blog">
 <meta property="og:description" content="前言通过对Fuzzing101项目的学习，逐步深入了解模糊测试，掌握工具的安装与使用，以及模糊测试结果的分析和调试。本文是在作者学习fuzz源码之后所写，根据项目中每一篇挑战的Readme.md进行翻译和学习，并参考了网上师傅们的文章。在这里，特别感谢hollk师傅的文章和指导，希望详细学习模糊测试的读者请查看hollk师傅的博客：hollk的博客_CSDN博客-pwn,模糊测试,堆溢出领域博主">
@@ -23,7 +23,7 @@
 <meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230112213219005.png">
 <meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230130194549115.png">
 <meta property="article:published_time" content="2023-01-12T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-03-04T02:14:24.989Z">
+<meta property="article:modified_time" content="2024-03-04T09:12:47.068Z">
 <meta property="article:author" content="Pursue">
 <meta property="article:tag" content="Fuzz">
 <meta name="twitter:card" content="summary">
@@ -47,7 +47,7 @@
       
     
     <!-- title -->
-    <title>Fuzzing101学习笔记</title>
+    <title>Fuzzing101 学习笔记</title>
     <!-- async scripts -->
     <!-- Google Analytics -->
 
@@ -115,16 +115,16 @@
     <div id="share" style="display: none">
       <ul>
   <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/01/13/Pwn/fuzzing101/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/01/13/Pwn/fuzzing101/&text=Fuzzing101学习笔记"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/01/13/Pwn/fuzzing101/&title=Fuzzing101学习笔记"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/01/13/Pwn/fuzzing101/&is_video=false&description=Fuzzing101学习笔记"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=Fuzzing101学习笔记&body=Check out this article: http://example.com/2023/01/13/Pwn/fuzzing101/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/01/13/Pwn/fuzzing101/&title=Fuzzing101学习笔记"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/01/13/Pwn/fuzzing101/&title=Fuzzing101学习笔记"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/01/13/Pwn/fuzzing101/&title=Fuzzing101学习笔记"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/01/13/Pwn/fuzzing101/&title=Fuzzing101学习笔记"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/01/13/Pwn/fuzzing101/&name=Fuzzing101学习笔记&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/01/13/Pwn/fuzzing101/&t=Fuzzing101学习笔记"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/01/13/Pwn/fuzzing101/&text=Fuzzing101 学习笔记"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/01/13/Pwn/fuzzing101/&title=Fuzzing101 学习笔记"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/01/13/Pwn/fuzzing101/&is_video=false&description=Fuzzing101 学习笔记"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Fuzzing101 学习笔记&body=Check out this article: http://example.com/2023/01/13/Pwn/fuzzing101/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/01/13/Pwn/fuzzing101/&title=Fuzzing101 学习笔记"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/01/13/Pwn/fuzzing101/&title=Fuzzing101 学习笔记"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/01/13/Pwn/fuzzing101/&title=Fuzzing101 学习笔记"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/01/13/Pwn/fuzzing101/&title=Fuzzing101 学习笔记"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/01/13/Pwn/fuzzing101/&name=Fuzzing101 学习笔记&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/01/13/Pwn/fuzzing101/&t=Fuzzing101 学习笔记"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -144,7 +144,7 @@
   <header>
     
     <h1 class="posttitle p-name" itemprop="name headline">
-        Fuzzing101学习笔记
+        Fuzzing101 学习笔记
     </h1>
 
 
@@ -444,16 +444,16 @@
     <div id="share-footer" style="display: none">
       <ul>
   <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/01/13/Pwn/fuzzing101/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/01/13/Pwn/fuzzing101/&text=Fuzzing101学习笔记"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/01/13/Pwn/fuzzing101/&title=Fuzzing101学习笔记"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/01/13/Pwn/fuzzing101/&is_video=false&description=Fuzzing101学习笔记"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=Fuzzing101学习笔记&body=Check out this article: http://example.com/2023/01/13/Pwn/fuzzing101/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/01/13/Pwn/fuzzing101/&title=Fuzzing101学习笔记"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/01/13/Pwn/fuzzing101/&title=Fuzzing101学习笔记"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/01/13/Pwn/fuzzing101/&title=Fuzzing101学习笔记"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/01/13/Pwn/fuzzing101/&title=Fuzzing101学习笔记"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/01/13/Pwn/fuzzing101/&name=Fuzzing101学习笔记&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/01/13/Pwn/fuzzing101/&t=Fuzzing101学习笔记"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/01/13/Pwn/fuzzing101/&text=Fuzzing101 学习笔记"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/01/13/Pwn/fuzzing101/&title=Fuzzing101 学习笔记"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/01/13/Pwn/fuzzing101/&is_video=false&description=Fuzzing101 学习笔记"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Fuzzing101 学习笔记&body=Check out this article: http://example.com/2023/01/13/Pwn/fuzzing101/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/01/13/Pwn/fuzzing101/&title=Fuzzing101 学习笔记"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/01/13/Pwn/fuzzing101/&title=Fuzzing101 学习笔记"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/01/13/Pwn/fuzzing101/&title=Fuzzing101 学习笔记"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/01/13/Pwn/fuzzing101/&title=Fuzzing101 学习笔记"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/01/13/Pwn/fuzzing101/&name=Fuzzing101 学习笔记&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/01/13/Pwn/fuzzing101/&t=Fuzzing101 学习笔记"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
