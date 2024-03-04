@@ -13,20 +13,20 @@
 <meta property="og:site_name" content="Pursue&#39;s blog">
 <meta property="og:description" content="PhoneAndroid android 各镜像文件img总结   &#x2F;data&#x2F;data&#x2F;[包名]：存储配置文件、聊天数据等。 &#x2F;storage&#x2F;emulated&#x2F;0&#x2F;Android&#x2F;[包名]：包含了缓存、配置文件等。 &#x2F;storage&#x2F;emulated&#x2F;0&#x2F;[应用名]：这个大多数情况下都有。 &#x2F;storage&#x2F;emulated&#x2F;0&#x2F;[包名]：这个少有，多半是空文件夹。  Iphone IOS 设">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/forensic/image-20231102200902380.png">
-<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/forensic/image-20231108111418056.png">
-<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/forensic/image-20231101160916764.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231102200902380.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231108111418056.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231101160916764.png">
 <meta property="og:image" content="https://pic2.zhimg.com/80/v2-02971255a86505e1d51ff69b10efc311_720w.webp">
-<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/forensic/image-20231107094310061.png">
-<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/forensic/image-20231107100859271.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231107094310061.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231107100859271.png">
 <meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/MeiyaCup/image-20231118145911972.png">
 <meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/MeiyaCup/image-20231118145919276.png">
-<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/forensic/image-20231108183621934.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231108183621934.png">
 <meta property="article:published_time" content="2023-11-16T16:00:00.000Z">
-<meta property="article:modified_time" content="2023-11-28T13:27:05.310Z">
+<meta property="article:modified_time" content="2024-03-04T01:09:36.857Z">
 <meta property="article:author" content="Pursue">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/forensic/image-20231102200902380.png">
+<meta name="twitter:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231102200902380.png">
     
     
       
@@ -188,11 +188,11 @@
 <p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/ios8/p/ios-store1.html">IOS 设备备份文件详解</a></p>
 </blockquote>
 <p><strong>Manifest.plist</strong>可以看到屏保密码的形式：</p>
-<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/forensic/image-20231102200902380.png" alt="image-20231102200902380"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231102200902380.png" alt="image-20231102200902380"></p>
 <p>passware导入<strong>Manifest.plist</strong>可以恢复苹果的备份密码。</p>
-<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/forensic/image-20231108111418056.png" alt="image-20231108111418056"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231108111418056.png" alt="image-20231108111418056"></p>
 <p>相册相关数据库<strong>Photos.sqlite</strong>，位置位于<code>/CameraRollDomain/Media/PhotoData/Photos.sqlite</code>，在<strong>ZADDITIONALASSETATTRIBUTES</strong>表中可以找到需要的信息。</p>
-<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/forensic/image-20231101160916764.png" alt="image-20231101160916764"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231101160916764.png" alt="image-20231101160916764"></p>
 <p>隔空投送（com.apple.sharingd）的照片和之前的照片名字上的数字不连贯， 并且时间不连续。元数据是否被修改可以看创建日期是否和修改日期相同。如果聊天分享不发原图的话，EXIF元数据文件就没了。实况照片会创建一个小的MOV。</p>
 <p>GSM媒体访问控制地址就是Mac地址，看无线地址就可以。</p>
 <h2 id="Computer"><a href="#Computer" class="headerlink" title="Computer"></a>Computer</h2><h3 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h3><p>MBR又叫做主引导扇区，是计算机开机后访问磁盘时读取的首个扇区，即位于硬盘的0号柱面(Cylinder)、0号磁头(Side)、1号扇区(Sector)。该扇区占 512 字节（bytes）。它由三个部分组成：主引导程序 446 bytes（boot loader，即主引导记录，现在linux一般由grub2作为boot loader）；硬盘分区表 64 bytes （Disk Partition Table，存放磁盘分区数据的表）；结束标志位 2 bytes （固定为十六进制的55AA）。</p>
@@ -304,7 +304,7 @@
 </tbody></table>
 <p>可以将MBR磁盘转换为GPT磁盘，并且只有在磁盘为空的情况下，才可以将GPT磁盘转换为MBR磁盘。</p>
 <p>一个GPT磁盘可以分为两大部分：保护MBR部分和EFI部分。</p>
-<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/forensic/image-20231107094310061.png" alt="image-20231107094310061"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231107094310061.png" alt="image-20231107094310061"></p>
 <p>FAT32 文件系统结构：</p>
 <table>
 <thead>
@@ -329,7 +329,7 @@
 </tr>
 </tbody></table>
 <p>Boot Sector (FAT32)：</p>
-<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/forensic/image-20231107100859271.png" alt="image-20231107100859271"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231107100859271.png" alt="image-20231107100859271"></p>
 <p>NTFS 文件系统结构：</p>
 <table>
 <thead>
@@ -510,7 +510,7 @@
 
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">timestamp = <span class="number">702012111.637933</span></span><br><span class="line">time_local = time.localtime(timestamp)</span><br><span class="line">dt = time.strftime(<span class="string">&quot;%Y-%m-%d %H:%M:%S&quot;</span>,time_local)</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/forensic/image-20231108183621934.png" alt="image-20231108183621934"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231108183621934.png" alt="image-20231108183621934"></p>
 
   </div>
 </article>

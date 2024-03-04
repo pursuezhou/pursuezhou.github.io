@@ -22,7 +22,7 @@
 <meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/web/image-20231213205251550.png?imageSlim">
 <meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/img/web/image-20231213205311185.png?imageSlim">
 <meta property="article:published_time" content="2023-12-13T16:00:00.000Z">
-<meta property="article:modified_time" content="2023-12-17T12:39:20.970Z">
+<meta property="article:modified_time" content="2024-02-20T01:42:09.446Z">
 <meta property="article:author" content="Pursue">
 <meta property="article:tag" content="PHP">
 <meta name="twitter:card" content="summary">
@@ -262,10 +262,13 @@
 </li>
 </ul>
 <h2 id="绕过技巧"><a href="#绕过技巧" class="headerlink" title="绕过技巧"></a>绕过技巧</h2><ul>
-<li><pre><code class="php">preg_match(&#39;/[oc]:\d+:/i&#39;, $_COOKIE[&#39;user&#39;]);
-// O:11: -&gt; O:+11:
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">- php对类的大小写不敏感</span><br><span class="line"></span><br><span class="line">- 利用大写S表示十六进制</span><br><span class="line"></span><br><span class="line">  ```php</span><br><span class="line">  O:4:&quot;test&quot;:1:&#123;s:4:&quot;data&quot;;S:5:&quot;\x78\x69\x6c\x7a\x79&quot;;&#125;</span><br></pre></td></tr></table></figure>
-</code></pre>
+<li><p>利用正则绕过</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/[oc]:\d+:/i&#x27;</span>, <span class="variable">$_COOKIE</span>[<span class="string">&#x27;user&#x27;</span>]);</span><br><span class="line"><span class="comment">// O:11: -&gt; O:+11:</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>php对类的大小写不敏感</p>
+</li>
+<li><p>利用大写S表示十六进制</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">O:<span class="number">4</span>:<span class="string">&quot;test&quot;</span>:<span class="number">1</span>:&#123;s:<span class="number">4</span>:<span class="string">&quot;data&quot;</span>;S:<span class="number">5</span>:<span class="string">&quot;\x78\x69\x6c\x7a\x79&quot;</span>;&#125;</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>利用 &amp; 进行引用：</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">test</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$token</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$password</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">login</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">$this</span>-&gt;token===<span class="variable language_">$this</span>-&gt;password;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$x</span> = <span class="keyword">new</span> <span class="title function_ invoke__">test</span>();</span><br><span class="line"><span class="variable">$x</span>-&gt;password = &amp;<span class="variable">$x</span>-&gt;token;</span><br><span class="line"><span class="variable">$x</span>-&gt;token = <span class="title function_ invoke__">md5</span>(<span class="title function_ invoke__">mt_rand</span>());</span><br><span class="line"><span class="keyword">if</span>(<span class="variable">$x</span>-&gt;<span class="title function_ invoke__">login</span>())&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;success&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
