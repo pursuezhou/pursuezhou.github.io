@@ -333,6 +333,156 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2024/02/14/Re/Shellcode%E7%BC%96%E5%86%99/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/wechat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pursue">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2024/02/14/Re/Shellcode%E7%BC%96%E5%86%99/" itemprop="url">Shellcode编写</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-02-14T00:00:00+08:00">
+                2024-02-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Re/" itemprop="url" rel="index">
+                    <span itemprop="name">Re</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>本文主要是记录一下自己编写shellcode的过程，实现利用MessageBox弹窗。shellcode是一串与地址无关的二进制代码，因而对于一些地址写定的代码需要做调整，最为突出的就是<strong>函数调用和字符串调用</strong>。</p>
+<p>首先是字符串的调用，来看两种不同写法的汇编就明白了。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">char</span> arry1[] = &#123; <span class="string">&#x27;h&#x27;</span>, <span class="string">&#x27;e&#x27;</span>, <span class="string">&#x27;l&#x27;</span>, <span class="string">&#x27;l&#x27;</span>, <span class="string">&#x27;o&#x27;</span>, <span class="number">0</span>&#125;;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    00111855  mov         byte ptr [arry1],68h  </span></span><br><span class="line"><span class="comment">    00111859  mov         byte ptr [ebp-0Bh],65h  </span></span><br><span class="line"><span class="comment">    0011185D  mov         byte ptr [ebp-0Ah],6Ch  </span></span><br><span class="line"><span class="comment">    00111861  mov         byte ptr [ebp-9],6Ch  </span></span><br><span class="line"><span class="comment">    00111865  mov         byte ptr [ebp-8],6Fh  </span></span><br><span class="line"><span class="comment">    00111869  mov         byte ptr [ebp-7],0</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line"></span><br><span class="line">    <span class="type">char</span> arry2[] = <span class="string">&quot;hello&quot;</span>;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    0011186D  mov         eax,dword ptr [string &quot;hello&quot; (0117B30h)]  </span></span><br><span class="line"><span class="comment">    00111872  mov         dword ptr [arry2],eax  </span></span><br><span class="line"><span class="comment">    00111875  mov         cx,word ptr ds:[117B34h]  </span></span><br><span class="line"><span class="comment">    0011187C  mov         word ptr [ebp-18h],cx</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到第一种写法是将字符串的十六进制写到栈上，与地址是无关的；而第二种写法是从<strong>0117B30h</strong>该地址取字符串，我在x32dbg中调试发现该地址是位于.rodata段上的，因而写到shellcode里面就会出错。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2024/02/14/Re/Shellcode%E7%BC%96%E5%86%99/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2024/02/12/Re/PE%E7%BB%93%E6%9E%84/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -517,7 +667,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -539,7 +689,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
@@ -588,6 +738,10 @@
                   </li>
                 
                   <li class="links-of-blogroll-item">
+                    <a href="https://whoamianony.top/" title="WHOAMI" target="_blank">WHOAMI</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
                     <a href="https://blog.e4l4.com/" title="E4L4" target="_blank">E4L4</a>
                   </li>
                 
@@ -604,10 +758,10 @@
           
 
           <div class="wechat_OA">
-    <span>欢迎关注我的公众号</span>
     <br>
-    <!-- 这里添加你的二维码图片 -->
-    <img src ="https://cdn.jsdelivr.net/gh/happy2h/PicPool_cdn/qrcode_for_gh_13e96145e8ee_344.jpg">
+    <span>Welcome to my wechat</span>
+    <p></p>
+    <img src ="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/wechat.jpg" width="150" height="150">
 </div>
 
         </div>
