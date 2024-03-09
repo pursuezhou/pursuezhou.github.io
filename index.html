@@ -333,7 +333,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2024/02/14/Re/Shellcode%E7%BC%96%E5%86%99/">
+    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2024/02/14/Reverse/Shellcode%E7%BC%96%E5%86%99/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -352,7 +352,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2024/02/14/Re/Shellcode%E7%BC%96%E5%86%99/" itemprop="url">Shellcode编写</a></h1>
+                <a class="post-title-link" href="/2024/02/14/Reverse/Shellcode%E7%BC%96%E5%86%99/" itemprop="url">Shellcode编写</a></h1>
         
 
         <div class="post-meta">
@@ -387,8 +387,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Re/" itemprop="url" rel="index">
-                    <span itemprop="name">Re</span>
+                  <a href="/categories/Reverse/" itemprop="url" rel="index">
+                    <span itemprop="name">Reverse</span>
                   </a>
                 </span>
 
@@ -432,7 +432,7 @@
 <p>可以看到第一种写法是将字符串的十六进制写到栈上，与地址是无关的；而第二种写法是从<strong>0117B30h</strong>该地址取字符串，我在x32dbg中调试发现该地址是位于.rodata段上的，因而写到shellcode里面就会出错。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2024/02/14/Re/Shellcode%E7%BC%96%E5%86%99/#more" rel="contents">
+            <a class="btn" href="/2024/02/14/Reverse/Shellcode%E7%BC%96%E5%86%99/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -483,7 +483,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2024/02/12/Re/PE%E7%BB%93%E6%9E%84/">
+    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2024/02/12/Reverse/PE%E7%BB%93%E6%9E%84/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -502,7 +502,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2024/02/12/Re/PE%E7%BB%93%E6%9E%84/" itemprop="url">PE结构学习</a></h1>
+                <a class="post-title-link" href="/2024/02/12/Reverse/PE%E7%BB%93%E6%9E%84/" itemprop="url">PE结构学习</a></h1>
         
 
         <div class="post-meta">
@@ -537,8 +537,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Re/" itemprop="url" rel="index">
-                    <span itemprop="name">Re</span>
+                  <a href="/categories/Reverse/" itemprop="url" rel="index">
+                    <span itemprop="name">Reverse</span>
                   </a>
                 </span>
 
@@ -579,7 +579,455 @@
 <p>PE文件的结构体都定义在<strong>winnt.h</strong>中，包含使用即可。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2024/02/12/Re/PE%E7%BB%93%E6%9E%84/#more" rel="contents">
+            <a class="btn" href="/2024/02/12/Reverse/PE%E7%BB%93%E6%9E%84/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2023/12/05/Penetration/bugku%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%953/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/wechat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pursue">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2023/12/05/Penetration/bugku%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%953/" itemprop="url">bugku 渗透测试3</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-12-05T00:00:00+08:00">
+                2023-12-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Penetration/" itemprop="url" rel="index">
+                    <span itemprop="name">Penetration</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="场景一"><a href="#场景一" class="headerlink" title="场景一"></a>场景一</h2><p>尝试扫描目录和端口，发现只开启了80端口，目录也没扫出什么东西。在主页抓包试试，发现POST了一个url，判断应该存在ssrf，读&#x2F;etc&#x2F;passwd试试看，成功了。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231205134403149.png?imageSlim" alt="image-20231205134403149"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231205134604726.png?imageSlim" alt="image-20231205134604726"></p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/12/05/Penetration/bugku%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%953/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2023/10/04/Penetration/bugku%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%952/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/wechat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pursue">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2023/10/04/Penetration/bugku%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%952/" itemprop="url">bugku 渗透测试2</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-10-04T00:00:00+08:00">
+                2023-10-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Penetration/" itemprop="url" rel="index">
+                    <span itemprop="name">Penetration</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="场景1"><a href="#场景1" class="headerlink" title="场景1"></a>场景1</h2><p>一个博客系统，没什么入口，扫一下指纹。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230926201750381.png" alt="image-20230926201750381"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230926201811540.png" alt="image-20230926201811540"></p>
+<p>网上找找，该版本的Typecho存在一个反序列化漏洞，直接拿poc试试看。</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/xuandao_ahfengren/article/details/111476577">https://blog.csdn.net/xuandao_ahfengren/article/details/111476577</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/wuhongbin/p/15526142.html">https://www.cnblogs.com/wuhongbin/p/15526142.html</a></p>
+</blockquote>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/10/04/Penetration/bugku%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%952/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2023/09/23/Penetration/bugku%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%951/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/wechat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pursue">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2023/09/23/Penetration/bugku%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%951/" itemprop="url">bugku 渗透测试1</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-09-23T00:00:00+08:00">
+                2023-09-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Penetration/" itemprop="url" rel="index">
+                    <span itemprop="name">Penetration</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="场景1"><a href="#场景1" class="headerlink" title="场景1"></a>场景1</h2><p>看页面源代码就能找到：</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230923131212171.png" alt="image-20230923131212171"></p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/09/23/Penetration/bugku%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%951/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -667,7 +1115,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">5</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -678,7 +1126,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>
@@ -689,7 +1137,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
