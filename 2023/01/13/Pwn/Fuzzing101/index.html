@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/hacker.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hacker.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hacker.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/hacker.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Fuzz," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言通过对Fuzzing101项目的学习，逐步深入了解模糊测试，掌握工具的安装与使用，以及模糊测试结果的分析和调试。本文是在作者学习fuzz源码之后所写，根据项目中每一篇挑战的Readme.md进行翻译和学习，并参考了网上师傅们的文章。在这里，特别感谢hollk师傅的文章和指导，希望详细学习模糊测试的读者请查看hollk师傅的博客：hollk的博客_CSDN博客-pwn,模糊测试,堆溢出领域博主">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Fuzzing101 学习笔记">
+<meta property="og:url" content="https://pursuezhou.github.io/2023/01/13/Pwn/Fuzzing101/index.html">
+<meta property="og:site_name" content="Pursue">
+<meta property="og:description" content="前言通过对Fuzzing101项目的学习，逐步深入了解模糊测试，掌握工具的安装与使用，以及模糊测试结果的分析和调试。本文是在作者学习fuzz源码之后所写，根据项目中每一篇挑战的Readme.md进行翻译和学习，并参考了网上师傅们的文章。在这里，特别感谢hollk师傅的文章和指导，希望详细学习模糊测试的读者请查看hollk师傅的博客：hollk的博客_CSDN博客-pwn,模糊测试,堆溢出领域博主">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230113105602933.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230113110117052.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230111121333366.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230111164840859.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230111165018618.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230112175827228.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230112195957445.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230112213219005.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230130194549115.png">
+<meta property="article:published_time" content="2023-01-12T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-03-13T12:04:08.407Z">
+<meta property="article:author" content="Pursue">
+<meta property="article:tag" content="Fuzz">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230113105602933.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://pursuezhou.github.io/2023/01/13/Pwn/Fuzzing101/"/>
+
+
+
+
+
+  <title>Fuzzing101 学习笔记 | Pursue</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pursue</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Better to light one candle than to curse the darkness.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2023/01/13/Pwn/Fuzzing101/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/wechat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pursue">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Fuzzing101 学习笔记</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-01-13T00:00:00+08:00">
+                2023-01-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Pwn/" itemprop="url" rel="index">
+                    <span itemprop="name">Pwn</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>通过对<code>Fuzzing101</code>项目的学习，逐步深入了解模糊测试，掌握工具的安装与使用，以及模糊测试结果的分析和调试。本文是在作者学习<code>fuzz</code>源码之后所写，根据项目中每一篇挑战的<code>Readme.md</code>进行翻译和学习，并参考了网上师傅们的文章。在这里，特别感谢<code>hollk</code>师傅的文章和指导，希望详细学习模糊测试的读者请查看<code>hollk</code>师傅的博客：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_41202237?type=blog">hollk的博客_CSDN博客-pwn,模糊测试,堆溢出领域博主</a></p>
+<p>项目搭建：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/antonio-morales/Fuzzing101</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h2 id="Exercise-1：Xpdf"><a href="#Exercise-1：Xpdf" class="headerlink" title="Exercise 1：Xpdf"></a>Exercise 1：Xpdf</h2><p>CVE-2019-13288：<code>Parser.cc</code>源码中的<code>Parser::getObj()</code>函数可能会产生无限递归导致程序崩溃。</p>
+<blockquote>
+<p>原文链接：<a target="_blank" rel="noopener" href="https://www.cvedetails.com/cve/CVE-2019-13288/">CVE-2019-13288 : In Xpdf 4.01.01, the Parser::getObj() function in Parser.cc may cause infinite recursion via a crafted file. A remote at (cvedetails.com)</a></p>
+</blockquote>
+<h3 id="Fuzz准备"><a href="#Fuzz准备" class="headerlink" title="Fuzz准备"></a>Fuzz准备</h3><p>搭建<code>Xpdf</code>环境：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">cd $HOME</span><br><span class="line">mkdir fuzzing_xpdf &amp;&amp; cd fuzzing_xpdf/</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">相关依赖</span></span><br><span class="line">sudo apt install build-essential</span><br><span class="line">sudo apt update &amp;&amp; sudo apt install -y build-essential gcc</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">Download Xpdf 3.02</span></span><br><span class="line">wget https://dl.xpdfreader.com/old/xpdf-3.02.tar.gz</span><br><span class="line">tar -xvzf xpdf-3.02.tar.gz</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">Download PDF examples to <span class="built_in">test</span> Xpdf</span></span><br><span class="line">cd $HOME/fuzzing_xpdf</span><br><span class="line">mkdir pdf_examples &amp;&amp; cd pdf_examples</span><br><span class="line">wget https://github.com/mozilla/pdf.js-sample-files/raw/master/helloworld.pdf</span><br><span class="line">wget http://www.africau.edu/images/default/sample.pdf</span><br><span class="line">wget https://www.melbpc.org.au/wp-content/uploads/2017/10/small-example-pdf-file.pdf</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">Build Xpdf</span></span><br><span class="line">cd xpdf-3.02</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+
+<p>测试<code>Xpdf</code>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$</span><span class="language-bash">HOME/fuzzing_xpdf/xpdf-3.02/xpdf/pdfinfo -box -meta <span class="variable">$HOME</span>/fuzzing_xpdf/pdf_examples/helloworld.pdf</span></span><br><span class="line"></span><br><span class="line">------------------------------------------------------------------</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">结果如下，说明测试成功</span></span><br><span class="line">Tagged:         no</span><br><span class="line">Pages:          1</span><br><span class="line">Encrypted:      no</span><br><span class="line">Page size:      200 x 200 pts</span><br><span class="line">MediaBox:           0.00     0.00   200.00   200.00</span><br><span class="line">CropBox:            0.00     0.00   200.00   200.00</span><br><span class="line">BleedBox:           0.00     0.00   200.00   200.00</span><br><span class="line">TrimBox:            0.00     0.00   200.00   200.00</span><br><span class="line">ArtBox:             0.00     0.00   200.00   200.00</span><br><span class="line">File size:      678 bytes</span><br><span class="line">Optimized:      no</span><br><span class="line">PDF version:    1.7</span><br></pre></td></tr></table></figure>
+
+<p>搭建<code>Fuzz</code>环境：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">相关依赖</span></span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install -y build-essential python3-dev automake git flex bison libglib2.0-dev libpixman-1-dev python3-setuptools</span><br><span class="line">sudo apt-get install -y lld-11 llvm-11 llvm-11-dev clang-11 || sudo apt-get install -y lld llvm llvm-dev clang </span><br><span class="line">sudo apt-get install -y gcc-$(gcc --version|head -n1|sed &#x27;s/.* //&#x27;|sed &#x27;s/\..*//&#x27;)-plugin-dev libstdc++-$(gcc --version|head -n1|sed &#x27;s/.* //&#x27;|sed &#x27;s/\..*//&#x27;)-dev</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">搭建 Fuzz</span></span><br><span class="line">cd $HOME</span><br><span class="line">git clone https://github.com/AFLplusplus/AFLplusplus &amp;&amp; cd AFLplusplus</span><br><span class="line">export LLVM_CONFIG=&quot;llvm-config-11&quot;</span><br><span class="line">make distrib</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>afl-clang-fast</code>对<code>Xpdf</code>进行插桩：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">清空已经编译</span></span><br><span class="line">cd $HOME/fuzzing_xpdf/xpdf-3.02/</span><br><span class="line">make clean</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">使用 afl-clang-fast 编译</span></span><br><span class="line">export LLVM_CONFIG=&quot;llvm-config-11&quot;</span><br><span class="line">export CC=$HOME/AFLplusplus/afl-clang-fast </span><br><span class="line">export CXX=$HOME/AFLplusplus/afl-clang-fast++</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+
+
+
+<p>开始模糊测试，主要参数设置如下：</p>
+<ul>
+<li><code>-i</code>：设置输入实例的文件夹</li>
+<li><code>-o</code>：设置用于存放模糊测试结果的文件夹</li>
+<li><code>-s</code>：设置一个静态随机数作为种子</li>
+<li><code>--</code>：设置测试目标</li>
+<li><code>@@</code>：占位符，指代每一个输入的文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">关闭核心转储</span></span><br><span class="line">sudo su</span><br><span class="line">echo core &gt;/proc/sys/kernel/core_pattern</span><br><span class="line">exit</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">开始 Fuzz</span></span><br><span class="line">afl-fuzz -i $HOME/fuzzing_xpdf/pdf_examples/ -o $HOME/fuzzing_xpdf/out/ -s 123 -- $HOME/fuzzing_xpdf/xpdf-3.02/xpdf/pdftotext @@ $HOME/fuzzing_xpdf/output</span><br><span class="line"></span><br><span class="line">--------------------------------------------------------------------------------------------</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">该结果是作者在程序崩溃了7次后记录</span></span><br><span class="line">american fuzzy lop ++4.05a &#123;default&#125; (...df/xpdf-3.02/xpdf/pdftotext) [fast]</span><br><span class="line">┌─ process timing ────────────────────────────────────┬─ overall results ────┐</span><br><span class="line">│        run time : 0 days, 0 hrs, 21 min, 8 sec      │  cycles done : 0     │</span><br><span class="line">│   last new find : 0 days, 0 hrs, 0 min, 19 sec      │ corpus count : 977   │</span><br><span class="line">│last saved crash : 0 days, 0 hrs, 0 min, 59 sec      │saved crashes : 7     │</span><br><span class="line">│ last saved hang : 0 days, 0 hrs, 21 min, 1 sec      │  saved hangs : 1     │</span><br><span class="line">├─ cycle progress ─────────────────────┬─ map coverage┴──────────────────────┤</span><br><span class="line">│  now processing : 557.4 (57.0%)      │    map density : 3.53% / 4.86%      │</span><br><span class="line">│  runs timed out : 0 (0.00%)          │ count coverage : 3.98 bits/tuple    │</span><br><span class="line">├─ stage progress ─────────────────────┼─ findings in depth ─────────────────┤</span><br><span class="line">│  now trying : splice 2               │ favored items : 79 (8.09%)          │</span><br><span class="line">│ stage execs : 174/294 (59.18%)       │  new edges on : 138 (14.12%)        │</span><br><span class="line">│ total execs : 1.13M                  │ total crashes : 7 (7 saved)         │</span><br><span class="line">│  exec speed : 931.5/sec              │  total tmouts : 138 (0 saved)       │</span><br><span class="line">├─ fuzzing strategy yields ────────────┴─────────────┬─ item geometry ───────┤</span><br><span class="line">│   bit flips : disabled (default, enable with -D)   │    levels : 10        │</span><br><span class="line">│  byte flips : disabled (default, enable with -D)   │   pending : 825       │</span><br><span class="line">│ arithmetics : disabled (default, enable with -D)   │  pend fav : 0         │</span><br><span class="line">│  known ints : disabled (default, enable with -D)   │ own finds : 974       │</span><br><span class="line">│  dictionary : n/a                                  │  imported : 0         │</span><br><span class="line">│havoc/splice : 712/549k, 269/356k                   │ stability : 100.00%   │</span><br><span class="line">│py/custom/rq : unused, unused, unused, unused       ├───────────────────────┘</span><br><span class="line">│    trim/eff : 2.41%/214k, disabled                 │          [cpu000:350%]</span><br><span class="line">└────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="结果分析"><a href="#结果分析" class="headerlink" title="结果分析"></a>结果分析</h3><p>在<code>fuzzing_xpdf/out/default/crashes</code>文件夹中可以看到导致程序崩溃的输入，作者这里是7个：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">pursue@pursue-virtual-machine:~/桌面/Fuzzing101-main/Exercise 1/fuzzing_xpdf/out/default/crashes$ ls</span><br><span class="line">id:000000,sig:11,src:000532,time:98000,execs:105391,op:havoc,rep:8</span><br><span class="line">id:000001,sig:11,src:000532,time:100895,execs:107844,op:havoc,rep:16</span><br><span class="line">id:000002,sig:11,src:000846,time:592160,execs:473175,op:havoc,rep:8</span><br><span class="line">id:000003,sig:11,src:000729,time:666679,execs:535614,op:havoc,rep:8</span><br><span class="line">id:000004,sig:11,src:000557,time:670840,execs:539289,op:havoc,rep:8</span><br><span class="line">id:000005,sig:11,src:000593,time:944864,execs:788622,op:havoc,rep:16</span><br><span class="line">id:000006,sig:11,src:000607+000580,time:1209629,execs:1067185,op:splice,rep:4</span><br><span class="line">README.txt</span><br></pre></td></tr></table></figure>
+
+<p>接下来，我们就需要将这些文件放入gdb中进行调试，看看到底是哪里出错了？</p>
+<p>首先重新编译带调试的程序：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cd $HOME/fuzzing_xpdf/xpdf-3.02/</span><br><span class="line">make clean</span><br><span class="line">CFLAGS=&quot;-g -O0&quot; CXXFLAGS=&quot;-g -O0&quot;</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+
+<p>开启gdb调试：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">gdb --args $HOME/fuzzing_xpdf/xpdf-3.02/xpdf/pdftotext $HOME/fuzzing_xpdf/out/default/crashes/id:000000,sig:11,src:000532,time:98000,execs:105391,op:havoc,rep:8 $HOME/fuzzing_xpdf/output</span><br><span class="line"></span><br><span class="line">-----------------------------------------------------------------------------</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">gdb</span></span><br><span class="line"><span class="meta prompt_">pwndbg&gt; </span><span class="language-bash">run</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">回溯使用过的函数</span></span><br><span class="line"><span class="meta prompt_">pwndbg&gt; </span><span class="language-bash">bt</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">3977 0x000000000049f0c9 <span class="keyword">in</span> Parser::getObj (this=&lt;optimized out&gt;, obj=0x7fffff85c3c0, fileKey=0x0, encAlgorithm=cryptRC4, keyLength=0, objNum=7, objGen=0) at Parser.cc:94</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">3978 0x00000000004d1641 <span class="keyword">in</span> XRef::fetch (this=0x7965b0, num=7, gen=0, obj=0x7fffff85c3c0) at XRef.cc:823</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">3979 0x000000000049f5e5 <span class="keyword">in</span> Object::dictLookup (this=0x7fffff85c540, key=0x529 &lt;error: Cannot access memory at address 0x529&gt;, obj=0x7fffff85c3c0) at ./Object.h:253</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">3980 Parser::makeStream (this=this@entry=0x2081320, dict=dict@entry=0x7fffff85c540, fileKey=fileKey@entry=0x0, encAlgorithm=encAlgorithm@entry=cryptRC4, keyLength=keyLength@entry=0, objNum=objNum@entry=7, objGen=0) at Parser.cc:156</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">3981 0x000000000049f0c9 <span class="keyword">in</span> Parser::getObj (this=&lt;optimized out&gt;, obj=0x7fffff85c540, fileKey=0x0, encAlgorithm=cryptRC4, keyLength=0, objNum=7, objGen=0) at Parser.cc:94</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">3982 0x00000000004d1641 <span class="keyword">in</span> XRef::fetch (this=0x7965b0, num=7, gen=0, obj=0x7fffff85c540) at XRef.cc:823</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">3983 0x000000000049f5e5 <span class="keyword">in</span> Object::dictLookup (this=0x7fffff85c6c0, key=0x529 &lt;error: Cannot access memory at address 0x529&gt;, obj=0x7fffff85c540) at ./Object.h:253</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">3984 Parser::makeStream (this=this@entry=0x2080e40, dict=dict@entry=0x7fffff85c6c0, fileKey=fileKey@entry=0x0, encAlgorithm=encAlgorithm@entry=cryptRC4, keyLength=keyLength@entry=0, objNum=objNum@entry=7, objGen=0) at Parser.cc:156</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">3985 0x000000000049f0c9 <span class="keyword">in</span> Parser::getObj (this=&lt;optimized out&gt;, obj=0x7fffff85c6c0, fileKey=0x0, encAlgorithm=cryptRC4, keyLength=0, objNum=7, objGen=0) at Parser.cc:94</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">3986 0x00000000004d1641 <span class="keyword">in</span> XRef::fetch (this=0x7965b0, num=7, gen=0, obj=0x7fffff85c6c0) at XRef.cc:823</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">3987 0x000000000049f5e5 <span class="keyword">in</span> Object::dictLookup (this=0x7fffff85c840, key=0x529 &lt;error: Cannot access memory at address 0x529&gt;, obj=0x7fffff85c6c0) at ./Object.h:253</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">3988 Parser::makeStream (this=this@entry=0x2080960, dict=dict@entry=0x7fffff85c840, fileKey=fileKey@entry=0x0, encAlgorithm=encAlgorithm@entry=cryptRC4, keyLength=keyLength@entry=0, objNum=objNum@entry=7, objGen=0) at Parser.cc:156</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">发现一直调用 Parser::getObj 函数</span></span><br></pre></td></tr></table></figure>
+
+<p>查看源码<code>Parser.cc:94</code>：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// stream objects are not allowed inside content streams or</span></span><br><span class="line"><span class="comment">// object streams</span></span><br><span class="line"><span class="keyword">if</span> (allowStreams &amp;&amp; buf2.<span class="built_in">isCmd</span>(<span class="string">&quot;stream&quot;</span>)) &#123;</span><br><span class="line">  <span class="keyword">if</span> ((str = <span class="built_in">makeStream</span>(obj, fileKey, encAlgorithm, keyLength,</span><br><span class="line">   objNum, objGen))) &#123;</span><br><span class="line">      ...</span><br></pre></td></tr></table></figure>
+
+<p>发现问题所在，解决方法：只需在分支中加入递归次数的检测，使得超过一定次数程序退出，由于本人的代码能力不是很强，所以没能自己成功修复bug，学习了<code>Xpdf-4.02</code>中的<code>Parser.cc</code>源码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 增加了递归的上限</span></span><br><span class="line"><span class="comment">// Max number of nested objects.  This is used to catch infinite loops</span></span><br><span class="line"><span class="comment">// in the object structure.</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> recursionLimit 500</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 增加了递归次数的检查</span></span><br><span class="line">  <span class="comment">// array</span></span><br><span class="line">  <span class="keyword">if</span> (!simpleOnly &amp;&amp; recursion &lt; recursionLimit &amp;&amp; buf1.<span class="built_in">isCmd</span>(<span class="string">&quot;[&quot;</span>)) &#123;</span><br><span class="line">      ...</span><br><span class="line">  <span class="comment">// dictionary or stream</span></span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!simpleOnly &amp;&amp; recursion &lt; recursionLimit &amp;&amp; buf1.<span class="built_in">isCmd</span>(<span class="string">&quot;&lt;&lt;&quot;</span>)) &#123;</span><br><span class="line">      ...</span><br><span class="line">    </span><br><span class="line"><span class="comment">// 对比之前版本，发现多了 recursion 这个参数</span></span><br><span class="line">    <span class="comment">// stream objects are not allowed inside content streams or</span></span><br><span class="line">    <span class="comment">// object streams</span></span><br><span class="line">    <span class="keyword">if</span> (allowStreams &amp;&amp; buf2.<span class="built_in">isCmd</span>(<span class="string">&quot;stream&quot;</span>)) &#123;</span><br><span class="line">      <span class="keyword">if</span> ((str = <span class="built_in">makeStream</span>(obj, fileKey, encAlgorithm, keyLength,</span><br><span class="line">			    objNum, objGen, recursion + <span class="number">1</span>))) &#123;</span><br><span class="line">          ...</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Exercise-2：Libexif"><a href="#Exercise-2：Libexif" class="headerlink" title="Exercise 2：Libexif"></a>Exercise 2：Libexif</h2><p>CVE-2009-3895：基于堆缓冲区溢出漏洞，可以劫持程序流。</p>
+<blockquote>
+<p>原文链接：<a target="_blank" rel="noopener" href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-3895">CVE - CVE-2009-3895 (mitre.org)</a></p>
+</blockquote>
+<p>CVE-2012-2836：一个越界读取的漏洞，可以从内存中读取潜在的敏感信息。</p>
+<blockquote>
+<p>原文链接：<a target="_blank" rel="noopener" href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-2836">CVE - CVE-2012-2836 (mitre.org)</a></p>
+</blockquote>
+<h3 id="Fuzz准备-1"><a href="#Fuzz准备-1" class="headerlink" title="Fuzz准备"></a>Fuzz准备</h3><p>首先编译<code>libexif</code>链接库和用于运行这个链接库的程序<code>exif</code>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">cd $HOME</span><br><span class="line">mkdir fuzzing_libexif &amp;&amp; cd fuzzing_libexif/</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">编译和安装 libexif 库文件</span></span><br><span class="line">wget https://sourceforge.net/projects/libexif/files/libexif/0.6.14/libexif-0.6.14.tar.gz</span><br><span class="line">tar -xzvf libexif-0.6.14.tar.gz</span><br><span class="line">cd libexif-0.6.14/</span><br><span class="line">sudo apt-get install autopoint libtool gettext libpopt-dev</span><br><span class="line">autoreconf -fvi		# 自动生成 Makefile</span><br><span class="line">./configure --enable-shared=no --prefix=&quot;$HOME/fuzzing_libexif/install/&quot;	# 使用静态编译</span><br><span class="line">make</span><br><span class="line">make install</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">编译和安装 exif 调用 libexif 库文件</span></span><br><span class="line">cd $HOME/fuzzing_libexif</span><br><span class="line">wget https://sourceforge.net/projects/libexif/files/exif/0.6.15/exif-0.6.15.tar.gz</span><br><span class="line">tar -xzvf exif-0.6.15.tar.gz</span><br><span class="line">cd exif-exif-0_6_15-release/</span><br><span class="line">autoreconf -fvi</span><br><span class="line">./configure --enable-shared=no --prefix=&quot;$HOME/fuzzing_libexif/install/&quot; PKG_CONFIG_PATH=$HOME/fuzzing_libexif/install/lib/pkgconfig</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<p>测试是否编译成功：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">cd $HOME/fuzzing_libexif</span><br><span class="line">git clone https://github.com/ianare/exif-samples.git</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">测试</span></span><br><span class="line">./exif exif-samples-master/jpg/tests/11-tests.jpg</span><br><span class="line">-------------------------------------------------------------------</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">测试结果</span></span><br><span class="line">EXIF tags in &#x27;exif-samples/11-tests.jpg&#x27; (&#x27;英特尔&#x27; byte order):</span><br><span class="line">--------------------+----------------------------------------------------------</span><br><span class="line">Tag                 |Value                                                     </span><br><span class="line">--------------------+----------------------------------------------------------</span><br><span class="line">Manufacturer        |Canon                                                     </span><br><span class="line">Model               |Canon DIGITAL IXUS 40                                     </span><br><span class="line">Date and Time       |2007:09:03 16:03:45                                       </span><br><span class="line">YCbCr Positioning   |centered                                                  </span><br><span class="line">RelatedImageWidth   |2272                                                      </span><br><span class="line">RelatedImageLength  |1704                                                      </span><br><span class="line">Custom Rendered     |正常过程                                              </span><br><span class="line">曝光模式        |自动曝光                                              </span><br><span class="line">白平衡           |自动白平衡                                           </span><br><span class="line">数码变焦倍率  |1.00                                                      </span><br><span class="line">场景捕获类型  |标准                                                    </span><br><span class="line">Exposure Time       |1/500 sec.                                                </span><br><span class="line">FNumber             |f/2.8                                                     </span><br><span class="line">Exif Version        |Exif版本2.2                                             </span><br><span class="line">Date and Time (origi|2007:09:03 16:03:45                                       </span><br><span class="line">Date and Time (digit|2007:09:03 16:03:45                                       </span><br><span class="line">ComponentsConfigurat|Y Cb Cr -                                                 </span><br><span class="line">Compressed Bits per |3.00                                                      </span><br><span class="line">Shutter speed       |8.97 EV (APEX: 22, 1/501 sec.)                            </span><br><span class="line">光圈              |2.97 EV (f/2.8)                                           </span><br><span class="line">曝光偏差        |0.00 EV                                                   </span><br><span class="line">MaxApertureValue    |2.97 EV (f/2.8)                                           </span><br><span class="line">测距模式        |样式                                                    </span><br><span class="line">闪光灯           |Flash did not fire, auto mode.                            </span><br><span class="line">焦距              |5.8 mm                                                    </span><br><span class="line">制作者备忘     |1176 字节未知数据                                   </span><br><span class="line">用户备注        |                                                          </span><br><span class="line">FlashPixVersion     |FlashPix版本 1.0                                        </span><br><span class="line">色彩空间        |sRGB                                                      </span><br><span class="line">PixelXDimension     |2272                                                      </span><br><span class="line">PixelYDimension     |1704                                                      </span><br><span class="line">Focal Plane x-Resolu|10142.86                                                  </span><br><span class="line">Focal Plane y-Resolu|10142.86                                                  </span><br><span class="line">焦平面分辨率�|英寸                                                    </span><br><span class="line">传感方式        |单芯片色彩区域传感器                            </span><br><span class="line">File Source         |DSC                                                       </span><br><span class="line">--------------------+----------------------------------------------------------</span><br></pre></td></tr></table></figure>
+
+<p>测试成功，接下来用<code>afl-clang-lto</code>重新编译：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">重新编译 libexif</span></span><br><span class="line">rm -r $HOME/fuzzing_libexif/install</span><br><span class="line">cd $HOME/fuzzing_libexif/libexif-libexif-0_6_14-release/</span><br><span class="line">make clean</span><br><span class="line">export LLVM_CONFIG=&quot;llvm-config-11&quot;</span><br><span class="line">CC=afl-clang-lto ./configure --enable-shared=no --prefix=&quot;$HOME/fuzzing_libexif/install/&quot;</span><br><span class="line">make</span><br><span class="line">make install</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">重新编译 exif</span></span><br><span class="line">cd $HOME/fuzzing_libexif/exif-exif-0_6_15-release</span><br><span class="line">make clean</span><br><span class="line">export LLVM_CONFIG=&quot;llvm-config-11&quot;</span><br><span class="line">CC=afl-clang-lto ./configure --enable-shared=no --prefix=&quot;$HOME/fuzzing_libexif/install/&quot; PKG_CONFIG_PATH=$HOME/fuzzing_libexif/install/lib/pkgconfig</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<p>这里说明一下<code>afl-clang-fast</code>和<code>afl-clang-lto</code>区别。原文这样解释到：<code>afl-clang-lto</code>是一种无碰撞检测，它比<code>afl-clang-fast</code>更快并提供更好的结果。对于这些编译器在何种情况下适用，原文给出了这样一幅图，可以说是很清晰了：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">+--------------------------------+</span><br><span class="line">| clang/clang++ 11+ is available | --&gt; use LTO mode (afl-clang-lto/afl-clang-lto++)</span><br><span class="line">+--------------------------------+     see [instrumentation/README.lto.md](instrumentation/README.lto.md)</span><br><span class="line">    |</span><br><span class="line">    | if not, or if the target fails with LTO afl-clang-lto/++</span><br><span class="line">    |</span><br><span class="line">    v</span><br><span class="line">+---------------------------------+</span><br><span class="line">| clang/clang++ 6.0+ is available | --&gt; use LLVM mode (afl-clang-fast/afl-clang-fast++)</span><br><span class="line">+---------------------------------+     see [instrumentation/README.llvm.md](instrumentation/README.llvm.md)</span><br><span class="line">    |</span><br><span class="line">    | if not, or if the target fails with LLVM afl-clang-fast/++</span><br><span class="line">    |</span><br><span class="line">    v</span><br><span class="line"> +--------------------------------+</span><br><span class="line"> | gcc 5+ is available            | -&gt; use GCC_PLUGIN mode (afl-gcc-fast/afl-g++-fast)</span><br><span class="line"> +--------------------------------+    see [instrumentation/README.gcc_plugin.md](instrumentation/README.gcc_plugin.md) and</span><br><span class="line">                                       [instrumentation/README.instrument_list.md](instrumentation/README.instrument_list.md)</span><br><span class="line">    |</span><br><span class="line">    | if not, or if you do not have a gcc with plugin support</span><br><span class="line">    |</span><br><span class="line">    v</span><br><span class="line">   use GCC mode (afl-gcc/afl-g++) (or afl-clang/afl-clang++ for clang)</span><br></pre></td></tr></table></figure>
+
+<p>开始Fuzz：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo su</span><br><span class="line">echo core &gt;/proc/sys/kernel/core_pattern</span><br><span class="line">exit</span><br><span class="line"></span><br><span class="line">afl-fuzz -i $HOME/fuzzing_libexif/exif-samples-master/jpg/ -o $HOME/fuzzing_libexif/out/ -s 123 -- $HOME/fuzzing_libexif/install/bin/exif @@</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="结果分析-1"><a href="#结果分析-1" class="headerlink" title="结果分析"></a>结果分析</h3><p>原文是通过<code>Eclipse-CDT</code>来调试的，不过本人更倾向于用pwndbg，主要是省去配置的工作，用一条命令就可以开整；还有就是用习惯了pwndbg，通过pwndbg可以看到更多的内存信息。</p>
+<p>首先重新编译带调试信息的<code>libexif</code>和<code>exif</code>，这样就可以源码调试了：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">libexif</span></span><br><span class="line">rm -r $HOME/fuzzing_libexif/install</span><br><span class="line">cd $HOME/fuzzing_libexif/libexif-libexif-0_6_14-release/</span><br><span class="line">make clean</span><br><span class="line">CFLAGS=&quot;-g -O0&quot; CXXFLAGS=&quot;-g -O0&quot;</span><br><span class="line">make</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">exif</span></span><br><span class="line">cd $HOME/fuzzing_libexif/exif-exif-0_6_15-release</span><br><span class="line">make clean</span><br><span class="line">CFLAGS=&quot;-g -O0&quot; CXXFLAGS=&quot;-g -O0&quot; PKG_CONFIG_PATH=$HOME/fuzzing_libexif/install/lib/pkgconfig</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+
+<p>通过对报错输入的调试，主要有以下两条执行流：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">pwndbg&gt; </span><span class="language-bash">bt</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">0  0x000000000022c1bf <span class="keyword">in</span> exif_get_sshort (buf=0x100451e85 &lt;error: Cannot access memory at address 0x100451e85&gt;, order=EXIF_BYTE_ORDER_MOTOROLA) at exif-utils.c:92</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">1  exif_get_short (buf=0x100451e85 &lt;error: Cannot access memory at address 0x100451e85&gt;, order=EXIF_BYTE_ORDER_MOTOROLA) at exif-utils.c:104</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">2  exif_data_load_data (data=0x452680, d_orig=&lt;optimized out&gt;, ds_orig=&lt;optimized out&gt;) at exif-data.c:819</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">3  0x00000000002214d6 <span class="keyword">in</span> exif_loader_get_data (loader=&lt;optimized out&gt;) at /home/pursue/桌面/Fuzzing101-main/Exercise 2/fuzzing_libexif/libexif-0.6.14/libexif/exif-loader.c:387</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">4  main (argc=&lt;optimized out&gt;, argv=&lt;optimized out&gt;) at main.c:438</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">5  0x00007ffff7cb7d90 <span class="keyword">in</span> ?? () from /lib/x86_64-linux-gnu/libc.so.6</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">6  0x00007ffff7cb7e40 <span class="keyword">in</span> __libc_start_main () from /lib/x86_64-linux-gnu/libc.so.6</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">7  0x000000000021a925 <span class="keyword">in</span> _start ()</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">pwndbg&gt; </span><span class="language-bash">bt</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">0  0x00007ffff7e2eed0 <span class="keyword">in</span> ?? () from /lib/x86_64-linux-gnu/libc.so.6</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">1  0x000000000022efe5 <span class="keyword">in</span> exif_data_load_data_thumbnail (data=0x452610, d=0x451e16 <span class="string">&quot;MM&quot;</span>, ds=2026, offset=702, size=4294967168) at exif-data.c:292</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">2  exif_data_load_data_content (data=&lt;optimized out&gt;, ifd=&lt;optimized out&gt;, d=&lt;optimized out&gt;, ds=&lt;optimized out&gt;, offset=674, recursion_depth=&lt;optimized out&gt;) at exif-data.c:381</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">3  0x000000000022c322 <span class="keyword">in</span> exif_data_load_data (data=0x452610, d_orig=&lt;optimized out&gt;, ds_orig=&lt;optimized out&gt;) at exif-data.c:835</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">4  0x00000000002214d6 <span class="keyword">in</span> exif_loader_get_data (loader=&lt;optimized out&gt;) at /home/pursue/桌面/Fuzzing101-main/Exercise 2/fuzzing_libexif/libexif-0.6.14/libexif/exif-loader.c:387</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">5  main (argc=&lt;optimized out&gt;, argv=&lt;optimized out&gt;) at main.c:438</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">6  0x00007ffff7cb7d90 <span class="keyword">in</span> ?? () from /lib/x86_64-linux-gnu/libc.so.6</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">7  0x00007ffff7cb7e40 <span class="keyword">in</span> __libc_start_main () from /lib/x86_64-linux-gnu/libc.so.6</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">8  0x000000000021a925 <span class="keyword">in</span> _start ()</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>对于<code>libexif</code>中的<code>api</code>，该文档做了功能的解释：<a target="_blank" rel="noopener" href="https://libexif.github.io/api/globals_func.html">EXIF library (libexif) API: Globals</a></p>
+</blockquote>
+<ul>
+<li><p>第一条执行流：<code>main -&gt; exif_loader_get_data -&gt; exif_data_load_data -&gt; exif_get_short -&gt; exif_get_sshort</code></p>
+<p>可以在回溯中看到buf超越到了不可访问的空间：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0x000000000022c1bf in exif_get_sshort (buf=0x100451e85 &lt;error: Cannot access memory at address 0x100451e85&gt;, order=EXIF_BYTE_ORDER_MOTOROLA) at exif-utils.c:92		# Cannot access memory at address 0x100451e85</span><br></pre></td></tr></table></figure>
+
+<p>往回找一下，发现在<code>exif-data.c</code>的819行找到了buf的真相：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">	<span class="comment">/* IFD 1 offset */</span></span><br><span class="line"><span class="comment">// ExifLong offset; unsigned int ds;</span></span><br><span class="line">	<span class="keyword">if</span> (offset + <span class="number">6</span> + <span class="number">2</span> &gt; ds) &#123;		<span class="comment">// 检查</span></span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	n = exif_get_short (d + <span class="number">6</span> + offset, data-&gt;priv-&gt;order);</span><br></pre></td></tr></table></figure>
+
+<p>由于这里因为gdb优化代码编译的原因，所以我们不能从回溯中找到参数的信息。这里通过gdb的动调，找到了<code>offset</code>和<code>ds</code>的值。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">pwndbg</span></span><br><span class="line">──────────────────────────[ REGISTERS / show-flags off / show-compact-regs off ]───────────────────────────</span><br><span class="line">*RBX  0x7c3</span><br><span class="line">*RBP  0xffffffff</span><br><span class="line">───────────────────────────────────[ DISASM / x86-64 / set emulate on ]────────────────────────────────────</span><br><span class="line"> ► 0x22c117 &lt;exif_data_load_data+1239&gt;    lea    eax, [rbp + 8]                &lt;__afl_area_initial&gt;</span><br><span class="line">   0x22c11a &lt;exif_data_load_data+1242&gt;    cmp    eax, ebx</span><br><span class="line">   0x22c11c &lt;exif_data_load_data+1244&gt;    jbe    exif_data_load_data+1306   </span><br></pre></td></tr></table></figure>
+
+<p>可以看到<code>offset</code>的值为<code>0xffffffff</code>，也就是<code>-1</code>，加上8那就是<code>7</code>；而<code>ds</code>的值是<code>0x7c3</code>，显然是可以通过检查的。总结那就是当<code>offset</code>的值在<code>-8 ~ -1</code>之间是能够绕过检查触发程序崩溃的。所以修改如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (offset &gt; <span class="number">0xfffffff0</span> | offset + <span class="number">6</span> + <span class="number">2</span> &gt; ds) &#123;</span><br><span class="line">	<span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+</li>
+<li><p>第二条执行流：<code>main -&gt; exif_loader_get_data -&gt; exif_data_load_data -&gt; exif_data_load_data_content -&gt; exif_data_load_data_thumbnail</code></p>
+<p>可以在回溯中清晰的看到<code>memcpy()</code>函数复制的size过大导致崩溃：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">pwndbg</span></span><br><span class="line">   288 	data-&gt;size = size;</span><br><span class="line">   289 	data-&gt;data = exif_data_alloc (data, data-&gt;size);</span><br><span class="line">   290 	if (!data-&gt;data) </span><br><span class="line">   291 		return;</span><br><span class="line"> ► 292 	memcpy (data-&gt;data, d + offset, data-&gt;size);</span><br><span class="line">   293 &#125;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">bt</span></span><br><span class="line">0x000000000022efe5 in exif_data_load_data_thumbnail (data=0x452610, d=0x451e16 &quot;MM&quot;, ds=2026, offset=702, size=4294967168) at exif-data.c:292	# size=4294967168</span><br></pre></td></tr></table></figure>
+
+<p>以下是<code>exif_data_load_data_thumbnail</code>函数的源码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span></span><br><span class="line"><span class="title function_">exif_data_load_data_thumbnail</span> <span class="params">(ExifData *data, <span class="type">const</span> <span class="type">unsigned</span> <span class="type">char</span> *d,</span></span><br><span class="line"><span class="params">			       <span class="type">unsigned</span> <span class="type">int</span> ds, ExifLong offset, ExifLong size)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// typedef uint32_t	ExifLong;          /* 4 bytes */</span></span><br><span class="line">	<span class="keyword">if</span> (ds &lt; offset + size) &#123;</span><br><span class="line">        <span class="comment">// 在这里，ds=2026, offset=702, size=0xFFFFFF80=-128，显然是可以通过检查的</span></span><br><span class="line">		exif_log (data-&gt;priv-&gt;<span class="built_in">log</span>, EXIF_LOG_CODE_DEBUG, <span class="string">&quot;ExifData&quot;</span>,</span><br><span class="line">			  <span class="string">&quot;Bogus thumbnail offset and size: %i &lt; %i + %i.&quot;</span>,</span><br><span class="line">			  (<span class="type">int</span>) ds, (<span class="type">int</span>) offset, (<span class="type">int</span>) size);</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> (data-&gt;data) </span><br><span class="line">		exif_mem_free (data-&gt;priv-&gt;mem, data-&gt;data);</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    typedef struct _ExifData        ExifData; </span></span><br><span class="line"><span class="comment">    struct _ExifData</span></span><br><span class="line"><span class="comment">	&#123;</span></span><br><span class="line"><span class="comment">		ExifContent *ifd[EXIF_IFD_COUNT];</span></span><br><span class="line"><span class="comment">		unsigned char *data;</span></span><br><span class="line"><span class="comment">		unsigned int size;		// 问题就在此处</span></span><br><span class="line"><span class="comment">		ExifDataPrivate *priv;</span></span><br><span class="line"><span class="comment">	&#125;;</span></span><br><span class="line"><span class="comment">	*/</span></span><br><span class="line">	data-&gt;size = size;		<span class="comment">// 强制转换的时候出现了问题</span></span><br><span class="line">    <span class="comment">// size=0xFFFFFF80=4294967168</span></span><br><span class="line">	data-&gt;data = exif_data_alloc (data, data-&gt;size);</span><br><span class="line">	<span class="keyword">if</span> (!data-&gt;data) </span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	<span class="built_in">memcpy</span> (data-&gt;data, d + offset, data-&gt;size);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>所以只需要更新一下这个检查就行：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ((<span class="type">unsigned</span> <span class="type">long</span> <span class="type">int</span>) ds &lt; (<span class="type">unsigned</span> <span class="type">long</span> <span class="type">int</span>) offset + (<span class="type">unsigned</span> <span class="type">long</span> <span class="type">int</span>) size)&#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>总结一下：不难发现，这两个洞都和<strong>整数溢出</strong>有关。</p>
+<h2 id="Exercise-3：TCPdump"><a href="#Exercise-3：TCPdump" class="headerlink" title="Exercise 3：TCPdump"></a>Exercise 3：TCPdump</h2><p>简单来说，<code>TCPdump</code>就是一款Linux平台下的抓包工具。</p>
+<p>CVE-2017-13028：存在一个越界读取的漏洞。</p>
+<blockquote>
+<p>原文链接：<a target="_blank" rel="noopener" href="https://www.cvedetails.com/cve/CVE-2017-13028/">https://www.cvedetails.com/cve/CVE-2017-13028/</a></p>
+</blockquote>
+<h3 id="Fuzz准备-2"><a href="#Fuzz准备-2" class="headerlink" title="Fuzz准备"></a>Fuzz准备</h3><p>搭建环境：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">cd $HOME</span><br><span class="line">mkdir fuzzing_tcpdump &amp;&amp; cd fuzzing_tcpdump/</span><br><span class="line"></span><br><span class="line">wget https://www.tcpdump.org/release/tcpdump-4.9.2.tar.gz</span><br><span class="line">tar -xzvf tcpdump-4.9.2.tar.gz</span><br><span class="line"></span><br><span class="line">wget https://www.tcpdump.org/release/libpcap-1.8.0.tar.gz</span><br><span class="line">tar -xzvf libpcap-1.8.0.tar.gz</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">编译 libpcap-1.8.0</span></span><br><span class="line">cd $HOME/fuzzing_tcpdump/libpcap-1.8.0/</span><br><span class="line">./configure --enable-shared=no</span><br><span class="line">make</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">编译和安装 tcpdump-4.9.2</span></span><br><span class="line">cd $HOME/fuzzing_tcpdump/tcpdump-4.9.2/</span><br><span class="line">./configure --prefix=&quot;$HOME/fuzzing_tcpdump/install/&quot;</span><br><span class="line">make</span><br><span class="line">make install</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">测试</span></span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">HOME/fuzzing_tcpdump/install/sbin/tcpdump -h</span></span><br><span class="line">--------------------------------------------------------------</span><br><span class="line">pursue@pursue-virtual-machine:~/fuzzing_tcpdump/install/sbin$ ./tcpdump -h</span><br><span class="line">tcpdump version 4.9.2</span><br><span class="line">libpcap version 1.8.0</span><br><span class="line">OpenSSL 3.0.2 15 Mar 2022</span><br><span class="line">Usage: tcpdump [-aAbdDefhHIJKlLnNOpqStuUvxX#] [ -B size ] [ -c count ]</span><br><span class="line">		[ -C file_size ] [ -E algo:secret ] [ -F file ] [ -G seconds ]</span><br><span class="line">		[ -i interface ] [ -j tstamptype ] [ -M secret ] [ --number ]</span><br><span class="line">		[ -Q in|out|inout ]</span><br><span class="line">		[ -r file ] [ -s snaplen ] [ --time-stamp-precision precision ]</span><br><span class="line">		[ --immediate-mode ] [ -T type ] [ --version ] [ -V file ]</span><br><span class="line">		[ -w file ] [ -W filecount ] [ -y datalinktype ] [ -z postrotate-command ]</span><br><span class="line">		[ -Z user ] [ expression ]</span><br></pre></td></tr></table></figure>
+
+<p>接下来使用<code>ASan</code>对其编译，什么是<code>AddressSanitizer(ASan)</code>？原文给出了这样的解释：<code>AddressSanitizer (ASan)</code>是C和C++的快速内存错误检测器。它由编译器插装模块和运行库组成。该工具能够发现堆栈和全局对象的越界访问，以及释放后使用、双重释放和内存泄漏错误。<code>ASan</code>是开源的，从3.1版开始与LLVM编译器工具链集成。虽然它最初是作为LLVM的项目开发的，但它已被移植到GCC，并包含在GCC版本&gt;&#x3D; 4.8中。</p>
+<blockquote>
+<p>参考链接：<a target="_blank" rel="noopener" href="https://clang.llvm.org/docs/AddressSanitizer.html">https://clang.llvm.org/docs/AddressSanitizer.html</a></p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">rm -r $HOME/fuzzing_tcpdump/install</span><br><span class="line">cd $HOME/fuzzing_tcpdump/libpcap-1.8.0/</span><br><span class="line">make clean</span><br><span class="line"></span><br><span class="line">cd $HOME/fuzzing_tcpdump/tcpdump-4.9.2/</span><br><span class="line">make clean</span><br><span class="line"></span><br><span class="line">cd $HOME/fuzzing_tcpdump/libpcap-1.8.0/</span><br><span class="line">export LLVM_CONFIG=&quot;llvm-config-11&quot;</span><br><span class="line">CC=afl-clang-lto ./configure --enable-shared=no --prefix=&quot;$HOME/fuzzing_tcpdump/install/&quot;</span><br><span class="line">AFL_USE_ASAN=1 make</span><br><span class="line"></span><br><span class="line">cd $HOME/fuzzing_tcpdump/tcpdump-4.9.2/</span><br><span class="line">AFL_USE_ASAN=1 CC=afl-clang-lto ./configure --prefix=&quot;$HOME/fuzzing_tcpdump/install/&quot;</span><br><span class="line">AFL_USE_ASAN=1 make</span><br><span class="line">AFL_USE_ASAN=1 make install</span><br></pre></td></tr></table></figure>
+
+<p>但是在编译完成之后，运行程序发现报错：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">pursue@pursue-virtual-machine:~/桌面/Fuzzing101-main/Exercise 3/fuzzing_tcpdump/tcpdump-4.9.2$ ./tcpdump -h</span><br><span class="line">==59267==ERROR: AddressSanitizer failed to allocate 0x0 (0) bytes of SetAlternateSignalStack (error code: 22)</span><br><span class="line">==59267==Process memory map follows:</span><br><span class="line">	0x000000200000-0x0000003ac000	/home/pursue/桌面/Fuzzing101-main/Exercise 3/fuzzing_tcpdump/tcpdump-4.9.2/tcpdump</span><br><span class="line">	0x0000003ac000-0x00000086b000	/home/pursue/桌面/Fuzzing101-main/Exercise 3/fuzzing_tcpdump/tcpdump-4.9.2/tcpdump</span><br><span class="line">	0x00000086b000-0x000000870000	/home/pursue/桌面/Fuzzing101-main/Exercise 3/fuzzing_tcpdump/tcpdump-4.9.2/tcpdump</span><br><span class="line">	0x000000870000-0x000000998000	/home/pursue/桌面/Fuzzing101-main/Exercise 3/fuzzing_tcpdump/tcpdump-4.9.2/tcpdump</span><br><span class="line">	0x000000998000-0x0000015f6000	</span><br><span class="line">	0x00007fff7000-0x00008fff7000	</span><br><span class="line">	0x00008fff7000-0x02008fff7000	</span><br><span class="line">	0x02008fff7000-0x10007fff8000	</span><br><span class="line">	0x7f7b2d5fe000-0x7f7b2d962000	</span><br><span class="line">	0x7f7b2d962000-0x7f7b2d98a000	/usr/lib/x86_64-linux-gnu/libc.so.6</span><br><span class="line">	0x7f7b2d98a000-0x7f7b2db1f000	/usr/lib/x86_64-linux-gnu/libc.so.6</span><br><span class="line">	0x7f7b2db1f000-0x7f7b2db77000	/usr/lib/x86_64-linux-gnu/libc.so.6</span><br><span class="line">	0x7f7b2db77000-0x7f7b2db7b000	/usr/lib/x86_64-linux-gnu/libc.so.6</span><br><span class="line">	0x7f7b2db7b000-0x7f7b2db7d000	/usr/lib/x86_64-linux-gnu/libc.so.6</span><br><span class="line">	0x7f7b2db7d000-0x7f7b2db8a000	</span><br><span class="line">	0x7f7b2db8a000-0x7f7b2db8d000	/usr/lib/x86_64-linux-gnu/libgcc_s.so.1</span><br><span class="line">	0x7f7b2db8d000-0x7f7b2dba4000	/usr/lib/x86_64-linux-gnu/libgcc_s.so.1</span><br><span class="line">	0x7f7b2dba4000-0x7f7b2dba8000	/usr/lib/x86_64-linux-gnu/libgcc_s.so.1</span><br><span class="line">	0x7f7b2dba8000-0x7f7b2dba9000	/usr/lib/x86_64-linux-gnu/libgcc_s.so.1</span><br><span class="line">	0x7f7b2dba9000-0x7f7b2dbaa000	/usr/lib/x86_64-linux-gnu/libgcc_s.so.1</span><br><span class="line">	0x7f7b2dbaa000-0x7f7b2dbb8000	/usr/lib/x86_64-linux-gnu/libm.so.6</span><br><span class="line">	0x7f7b2dbb8000-0x7f7b2dc34000	/usr/lib/x86_64-linux-gnu/libm.so.6</span><br><span class="line">	0x7f7b2dc34000-0x7f7b2dc8f000	/usr/lib/x86_64-linux-gnu/libm.so.6</span><br><span class="line">	0x7f7b2dc8f000-0x7f7b2dc90000	/usr/lib/x86_64-linux-gnu/libm.so.6</span><br><span class="line">	0x7f7b2dc90000-0x7f7b2dc91000	/usr/lib/x86_64-linux-gnu/libm.so.6</span><br><span class="line">	0x7f7b2dc91000-0x7f7b2dd43000	/usr/lib/x86_64-linux-gnu/libcrypto.so.3</span><br><span class="line">	0x7f7b2dd43000-0x7f7b2dfa0000	/usr/lib/x86_64-linux-gnu/libcrypto.so.3</span><br><span class="line">	0x7f7b2dfa0000-0x7f7b2e072000	/usr/lib/x86_64-linux-gnu/libcrypto.so.3</span><br><span class="line">	0x7f7b2e072000-0x7f7b2e0cd000	/usr/lib/x86_64-linux-gnu/libcrypto.so.3</span><br><span class="line">	0x7f7b2e0cd000-0x7f7b2e0d0000	/usr/lib/x86_64-linux-gnu/libcrypto.so.3</span><br><span class="line">	0x7f7b2e0d0000-0x7f7b2e0d3000	</span><br><span class="line">	0x7f7b2e0d9000-0x7f7b2e0e5000	</span><br><span class="line">	0x7f7b2e0e5000-0x7f7b2e0e7000	/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2</span><br><span class="line">	0x7f7b2e0e7000-0x7f7b2e111000	/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2</span><br><span class="line">	0x7f7b2e111000-0x7f7b2e11c000	/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2</span><br><span class="line">	0x7f7b2e11c000-0x7f7b2e11d000	</span><br><span class="line">	0x7f7b2e11d000-0x7f7b2e11f000	/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2</span><br><span class="line">	0x7f7b2e11f000-0x7f7b2e121000	/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2</span><br><span class="line">	0x7ffe26590000-0x7ffe265b1000	[stack]</span><br><span class="line">	0x7ffe265bf000-0x7ffe265c3000	[vvar]</span><br><span class="line">	0x7ffe265c3000-0x7ffe265c5000	[vdso]</span><br><span class="line">	0xffffffffff600000-0xffffffffff601000	[vsyscall]</span><br><span class="line">==59267==End of process memory map.</span><br><span class="line">==59267==AddressSanitizer CHECK failed: /build/llvm-toolchain-11-mnvtwk/llvm-toolchain-11-11.1.0/compiler-rt/lib/sanitizer_common/sanitizer_common.cpp:54 &quot;((0 &amp;&amp; &quot;unable to mmap&quot;)) != (0)&quot; (0x0, 0x0)</span><br><span class="line">    &lt;empty stack&gt;</span><br></pre></td></tr></table></figure>
+
+<p><strong>原因是用的Ubuntu版本不对，错误是在Ubuntu22.04上出现的，而在Ubuntu20.04上正常。</strong></p>
+<p>开始Fuzz：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo su</span><br><span class="line">echo core &gt;/proc/sys/kernel/core_pattern</span><br><span class="line">exit</span><br><span class="line"></span><br><span class="line">afl-fuzz -m none -i tcpdump-4.9.2/tests/ -o out/ -s 123 -- $HOME/fuzzing_tcpdump/install/sbin/tcpdump -vvvvXX -ee -nn -r @@</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="结果分析-2"><a href="#结果分析-2" class="headerlink" title="结果分析"></a>结果分析</h3><p>Fuzz的过程有点漫长，近乎跑了半天的程序。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230113105602933.png" alt="image-20230113105602933"></p>
+<p>运行其中的一个crash样本</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tcpdump-4.9.2/tcpdump -vvvvXX -ee -nn -r out/default/crashes/id:000000,sig:06,src:010739,time:56472860,execs:16241028,op:havoc,rep:8</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230113110117052.png" alt="image-20230113110117052"></p>
+<h2 id="Exercise-4：LibTIFF"><a href="#Exercise-4：LibTIFF" class="headerlink" title="Exercise 4：LibTIFF"></a>Exercise 4：LibTIFF</h2><p><code>libtiff库</code>是读取和写入tiff文件最主要的一个开源库。</p>
+<p>CVE-2016-9297：越界读取漏洞，可通过构建的<code>TIFF_SETGET_C16_ASCII</code>或<code>TIFF_SETGET_C32_ASCII</code>标记值触发。</p>
+<blockquote>
+<p>原文链接：<a target="_blank" rel="noopener" href="https://cwe.mitre.org/data/definitions/125.html">https://cwe.mitre.org/data/definitions/125.html</a></p>
+</blockquote>
+<p>该挑战我们可以学习到：</p>
+<ul>
+<li>如何使用LCOV测量代码覆盖率</li>
+<li>如何使用代码覆盖率数据来提高模糊测试的有效性</li>
+</ul>
+<p>代码覆盖率是一个软件指标，显示每行代码被触发的次数。通过使用代码覆盖率，我们将了解模糊器到达了代码的哪些部分，并可视化模糊处理过程。</p>
+<h3 id="Fuzz准备-3"><a href="#Fuzz准备-3" class="headerlink" title="Fuzz准备"></a>Fuzz准备</h3><p>源码环境搭建：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install lcov</span><br><span class="line"></span><br><span class="line">cd $HOME</span><br><span class="line">mkdir fuzzing_tiff &amp;&amp; cd fuzzing_tiff/</span><br><span class="line"></span><br><span class="line">wget https://download.osgeo.org/libtiff/tiff-4.0.4.tar.gz</span><br><span class="line">tar -xzvf tiff-4.0.4.tar.gz</span><br><span class="line"></span><br><span class="line">cd tiff-4.0.4/</span><br><span class="line">export LDFLAGS=&quot;--coverage&quot;</span><br><span class="line">export CFLAGS=&quot;--coverage&quot;</span><br><span class="line">./configure --prefix=&quot;$HOME/fuzzing_tiff/install/&quot; --disable-shared</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<p>测试程序是否编译成功，这里加上各种参数是为了提高代码出现bug的机会：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$</span><span class="language-bash">HOME/fuzzing_tiff/install/bin/tiffinfo -D -j -c -r -s -w <span class="built_in">test</span>/images/miniswhite-1c-1b.tiff</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230111121333366.png" alt="image-20230111121333366"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">cd $HOME/fuzzing_tiff/tiff-4.0.4/</span><br><span class="line">lcov --zerocounters --directory ./		# 重置以前的计数器</span><br><span class="line">lcov --capture --initial --directory ./ --output-file app.info		# 返回“基线”覆盖数据文件，其中包含每个检测行的零覆盖率</span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">HOME/fuzzing_tiff/install/bin/tiffinfo -D -j -c -r -s -w <span class="variable">$HOME</span>/fuzzing_tiff/tiff-4.0.4/test/images/palette-1c-1b.tiff</span></span><br><span class="line">lcov --no-checksum --directory ./ --capture --output-file app2.info		# 将当前覆盖状态保存到 app2.info 文件中</span><br><span class="line"></span><br><span class="line">genhtml --highlight --legend -output-directory ./html-coverage/ ./app2.info		# 通过html页面显示</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意：在该项目里必须要有<code>.gcno</code>文件才能够进行lcov，否则很有可能是编译失败了。</strong></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230111164840859.png" alt="image-20230111164840859"></p>
+<p>html页面的路径为<code>./html-coverage/index.html</code>：</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230111165018618.png" alt="image-20230111165018618"></p>
+<p>接下来进行插桩编译：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">export LLVM_CONFIG=&quot;llvm-config-11&quot;</span><br><span class="line">export CC=afl-clang-lto</span><br><span class="line">./configure --prefix=&quot;$HOME/fuzzing_tiff/install/&quot; --disable-shared</span><br><span class="line">AFL_USE_ASAN=1 make</span><br><span class="line">AFL_USE_ASAN=1 make install</span><br></pre></td></tr></table></figure>
+
+<p>开始Fuzz：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo su</span><br><span class="line">echo core &gt;/proc/sys/kernel/core_pattern</span><br><span class="line">exit</span><br><span class="line"></span><br><span class="line">afl-fuzz -m none -i tiff-4.0.4/test/images/ -o out/ -s 123 -- $HOME/fuzzing_tiff/install/bin/tiffinfo -D -j -c -r -s -w @@</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="结果分析-3"><a href="#结果分析-3" class="headerlink" title="结果分析"></a>结果分析</h3><p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230112175827228.png" alt="image-20230112175827228"></p>
+<p>运行crash的实例就可以得到ASAN提示：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$</span><span class="language-bash">HOME/fuzzing_tiff/install/bin/tiffinfo -D -j -c -r -s -w <span class="built_in">id</span>:000000,sig:06,src:000016,time:52157,execs:64042,op:havoc,rep:2</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230112195957445.png" alt="image-20230112195957445"></p>
+<ul>
+<li>蓝色部分为读取操作，大概意思就是在线程为T0中，在<code>0x6020000000b1</code>处读取了大小为2的数据，并显示了函数栈的信息。</li>
+<li>绿色部分为溢出的情况，其中还显示了堆块分配的函数栈。</li>
+</ul>
+<p>由于第一次阅读这样的ASAN报告，不是很熟练，所以对着CVE做了一下源码的分析，CVE告诉我们漏洞是通过<code>TIFF_SETGET_C16_ASCII</code>或<code>TIFF_SETGET_C32_ASCII</code>这两个标志触发的，发现在<code>tif_dirread.c</code>中出现，这里以后者举例：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> TIFF_SETGET_C32_ASCII:</span><br><span class="line">	&#123;</span><br><span class="line">		uint8* data;</span><br><span class="line">		assert(fip-&gt;field_readcount==TIFF_VARIABLE2);</span><br><span class="line">		assert(fip-&gt;field_passcount==<span class="number">1</span>);</span><br><span class="line">		err=TIFFReadDirEntryByteArray(tif,dp,&amp;data);</span><br><span class="line">		<span class="keyword">if</span> (err==TIFFReadDirEntryErrOk)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="type">int</span> m;</span><br><span class="line">			m=TIFFSetField(tif,dp-&gt;tdir_tag,(uint32)(dp-&gt;tdir_count),data);</span><br><span class="line">			<span class="keyword">if</span> (data!=<span class="number">0</span>)</span><br><span class="line">				_TIFFfree(data);</span><br><span class="line">			<span class="keyword">if</span> (!m)</span><br><span class="line">				<span class="keyword">return</span>(<span class="number">0</span>);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里<code>TIFFSetField()</code>函数的作用在官方文档的解释是根据引用或值获取标记值，对比一下<code>4.2.0</code>版本的源码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> TIFF_SETGET_C32_ASCII:</span><br><span class="line">	&#123;</span><br><span class="line">		uint8* data;</span><br><span class="line">		assert(fip-&gt;field_readcount==TIFF_VARIABLE2);</span><br><span class="line">		assert(fip-&gt;field_passcount==<span class="number">1</span>);</span><br><span class="line">		err=TIFFReadDirEntryByteArray(tif,dp,&amp;data);</span><br><span class="line">		<span class="keyword">if</span> (err==TIFFReadDirEntryErrOk)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="type">int</span> m;</span><br><span class="line">			<span class="keyword">if</span>( data != <span class="number">0</span> &amp;&amp; dp-&gt;tdir_count &gt; <span class="number">0</span> &amp;&amp; data[dp-&gt;tdir_count<span class="number">-1</span>] != <span class="string">&#x27;\0&#x27;</span> )</span><br><span class="line">			&#123;</span><br><span class="line">			    TIFFWarningExt(tif-&gt;tif_clientdata,module,<span class="string">&quot;ASCII value for tag \&quot;%s\&quot; does not end in null byte. Forcing it to be null&quot;</span>,fip-&gt;field_name);</span><br><span class="line">                                          data[dp-&gt;tdir_count<span class="number">-1</span>] = <span class="string">&#x27;\0&#x27;</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			m=TIFFSetField(tif,dp-&gt;tdir_tag,(uint32)(dp-&gt;tdir_count),data);</span><br><span class="line">			<span class="keyword">if</span> (data!=<span class="number">0</span>)</span><br><span class="line">				_TIFFfree(data);</span><br><span class="line">			<span class="keyword">if</span> (!m)</span><br><span class="line">				<span class="keyword">return</span>(<span class="number">0</span>);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>很清楚，这里限制了<code>data</code>这个变量的最后一个字节必须为空字节，用<code>4.2.0</code>版本运行crash的样本，发现没有了ASAN的报告。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230112213219005.png" alt="image-20230112213219005"></p>
+<h2 id="Exercise-5：LibXML2"><a href="#Exercise-5：LibXML2" class="headerlink" title="Exercise 5：LibXML2"></a>Exercise 5：LibXML2</h2><p>LibXML2是C语言的一个库，可以方便对XML文档的各种操作。</p>
+<p>CVE-2017-9048：堆栈缓冲区溢出漏洞</p>
+<p>在该挑战中我们可以学习到：</p>
+<ul>
+<li>使用自定义的字典帮助fuzzer找到新的执行路径</li>
+<li>使用多核并行fuzzing提高效率</li>
+</ul>
+<blockquote>
+<p>原文链接：<a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2017-9048">https://nvd.nist.gov/vuln/detail/CVE-2017-9048</a></p>
+</blockquote>
+<h3 id="Fuzz准备-4"><a href="#Fuzz准备-4" class="headerlink" title="Fuzz准备"></a>Fuzz准备</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">cd $HOME</span><br><span class="line">mkdir Fuzzing_libxml2 &amp;&amp; cd Fuzzing_libxml2</span><br><span class="line"></span><br><span class="line">wget http://xmlsoft.org/download/libxml2-2.9.4.tar.gz</span><br><span class="line">tar xvf libxml2-2.9.4.tar.gz &amp;&amp; cd libxml2-2.9.4/</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">build libxml2</span></span><br><span class="line">sudo apt-get install python-dev</span><br><span class="line">export CC=afl-clang-lto </span><br><span class="line">export CXX=afl-clang-lto++ </span><br><span class="line">export CFLAGS=&quot;-fsanitize=address&quot; </span><br><span class="line">export CXXFLAGS=&quot;-fsanitize=address&quot; </span><br><span class="line">export LDFLAGS=&quot;-fsanitize=address&quot;</span><br><span class="line">AFL_USE_ASAN=1 ./configure --prefix=&quot;$HOME/Fuzzing_libxml2/libxml2-2.9.4/install&quot; --disable-shared --without-debug --without-ftp --without-http --without-legacy --without-python LIBS=&#x27;-ldl&#x27;</span><br><span class="line">AFL_USE_ASAN=1 make -j$(nproc)</span><br><span class="line">AFL_USE_ASAN=1 make install</span><br></pre></td></tr></table></figure>
+
+<p>似乎编译的时间挺长，检查一下编译后的二进制文件</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230130194549115.png" alt="image-20230130194549115"></p>
+<p>需要XML实例和字典</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mkdir afl_in</span><br><span class="line">cp ./SampleInput.xml afl_in/</span><br><span class="line"></span><br><span class="line">mkdir dictionaries &amp;&amp; cd dictionaries</span><br><span class="line">wget https://github.com/AFLplusplus/AFLplusplus/blob/stable/dictionaries/xml.dict</span><br><span class="line">cd ..</span><br></pre></td></tr></table></figure>
+
+<p>关于fuzz参数的使用</p>
+<ul>
+<li><code>-x</code>：标记使用的字典</li>
+<li><code>-D</code>：表示启用了确定性突变</li>
+<li><code>-M</code>：表示主模糊器</li>
+<li><code>-S</code>：表示从模糊器</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">afl-fuzz -m none -i ./afl_in -o afl_out -s 123 -x ./dictionaries/xml.dict -D -M master -- ./libxml2-2.9.4/xmllint --memory --noenc --nocdata --dtdattr --loaddtd --valid --xinclude @@</span><br><span class="line"></span><br><span class="line">afl-fuzz -m none -i ./afl_in -o afl_out -s 234 -S slave1 -- ./libxml2-2.9.4/xmllint --memory --noenc --nocdata --dtdattr --loaddtd --valid --xinclude @@</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="结果分析-4"><a href="#结果分析-4" class="headerlink" title="结果分析"></a>结果分析</h3><p>暂时还未fuzz出结果</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Fuzz/" rel="tag"># Fuzz</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/11/28/CTF/2022%E7%A5%A5%E4%BA%91%E6%9D%AF/" rel="next" title="2022 祥云杯">
+                <i class="fa fa-chevron-left"></i> 2022 祥云杯
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/01/22/Pwn/Kernel/" rel="prev" title="Kernel Pwn">
+                Kernel Pwn <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/wechat.jpg"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">61</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">43</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/pursuezhou" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:pursuezhou@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.eonew.cn/" title="Ex" target="_blank">Ex</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://xianbeil.github.io/" title="XianBei" target="_blank">XianBei</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://whoamianony.top/" title="WHOAMI" target="_blank">WHOAMI</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://blog.e4l4.com/" title="E4L4" target="_blank">E4L4</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://tokameine.top/" title="Tokameine" target="_blank">Tokameine</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://toleleyjl.github.io/" title="Tolele" target="_blank">Tolele</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          <div class="wechat_OA">
+    <br>
+    <span>Welcome to my wechat</span>
+    <p></p>
+    <img src ="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/wechat.jpg" width="150" height="150">
+</div>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exercise-1%EF%BC%9AXpdf"><span class="nav-number">2.</span> <span class="nav-text">Exercise 1：Xpdf</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Fuzz%E5%87%86%E5%A4%87"><span class="nav-number">2.1.</span> <span class="nav-text">Fuzz准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%9C%E5%88%86%E6%9E%90"><span class="nav-number">2.2.</span> <span class="nav-text">结果分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exercise-2%EF%BC%9ALibexif"><span class="nav-number">3.</span> <span class="nav-text">Exercise 2：Libexif</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Fuzz%E5%87%86%E5%A4%87-1"><span class="nav-number">3.1.</span> <span class="nav-text">Fuzz准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%9C%E5%88%86%E6%9E%90-1"><span class="nav-number">3.2.</span> <span class="nav-text">结果分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exercise-3%EF%BC%9ATCPdump"><span class="nav-number">4.</span> <span class="nav-text">Exercise 3：TCPdump</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Fuzz%E5%87%86%E5%A4%87-2"><span class="nav-number">4.1.</span> <span class="nav-text">Fuzz准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%9C%E5%88%86%E6%9E%90-2"><span class="nav-number">4.2.</span> <span class="nav-text">结果分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exercise-4%EF%BC%9ALibTIFF"><span class="nav-number">5.</span> <span class="nav-text">Exercise 4：LibTIFF</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Fuzz%E5%87%86%E5%A4%87-3"><span class="nav-number">5.1.</span> <span class="nav-text">Fuzz准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%9C%E5%88%86%E6%9E%90-3"><span class="nav-number">5.2.</span> <span class="nav-text">结果分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exercise-5%EF%BC%9ALibXML2"><span class="nav-number">6.</span> <span class="nav-text">Exercise 5：LibXML2</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Fuzz%E5%87%86%E5%A4%87-4"><span class="nav-number">6.1.</span> <span class="nav-text">Fuzz准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%9C%E5%88%86%E6%9E%90-4"><span class="nav-number">6.2.</span> <span class="nav-text">结果分析</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pursue</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

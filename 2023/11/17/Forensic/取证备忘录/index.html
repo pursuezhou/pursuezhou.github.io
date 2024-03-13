@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/hacker.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hacker.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hacker.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/hacker.svg?v=5.1.4" color="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="PhoneAndroid android 各镜像文件img总结   &#x2F;data&#x2F;data&#x2F;[包名]：存储配置文件、聊天数据等。 &#x2F;storage&#x2F;emulated&#x2F;0&#x2F;Android&#x2F;[包名]：包含了缓存、配置文件等。 &#x2F;storage&#x2F;emulated&#x2F;0&#x2F;[应用名]：这个大多数情况下都有。 &#x2F;storage&#x2F;emulated&#x2F;0&#x2F;[包名]：这个少有，多半是空文件夹。  Iphone IOS 设">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于取证的备忘录">
+<meta property="og:url" content="https://pursuezhou.github.io/2023/11/17/Forensic/%E5%8F%96%E8%AF%81%E5%A4%87%E5%BF%98%E5%BD%95/index.html">
+<meta property="og:site_name" content="Pursue">
+<meta property="og:description" content="PhoneAndroid android 各镜像文件img总结   &#x2F;data&#x2F;data&#x2F;[包名]：存储配置文件、聊天数据等。 &#x2F;storage&#x2F;emulated&#x2F;0&#x2F;Android&#x2F;[包名]：包含了缓存、配置文件等。 &#x2F;storage&#x2F;emulated&#x2F;0&#x2F;[应用名]：这个大多数情况下都有。 &#x2F;storage&#x2F;emulated&#x2F;0&#x2F;[包名]：这个少有，多半是空文件夹。  Iphone IOS 设">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231102200902380.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231108111418056.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231101160916764.png">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-02971255a86505e1d51ff69b10efc311_720w.webp">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231107094310061.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231107100859271.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231118145911972.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231118145919276.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231108183621934.png">
+<meta property="article:published_time" content="2023-11-16T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-03-13T11:54:31.022Z">
+<meta property="article:author" content="Pursue">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231102200902380.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://pursuezhou.github.io/2023/11/17/Forensic/取证备忘录/"/>
+
+
+
+
+
+  <title>关于取证的备忘录 | Pursue</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pursue</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Better to light one candle than to curse the darkness.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2023/11/17/Forensic/%E5%8F%96%E8%AF%81%E5%A4%87%E5%BF%98%E5%BD%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/wechat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pursue">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">关于取证的备忘录</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-11-17T00:00:00+08:00">
+                2023-11-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Forensic/" itemprop="url" rel="index">
+                    <span itemprop="name">Forensic</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="Phone"><a href="#Phone" class="headerlink" title="Phone"></a>Phone</h2><h3 id="Android"><a href="#Android" class="headerlink" title="Android"></a>Android</h3><blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/lijunjun1120/article/details/108720372">android 各镜像文件img总结</a></p>
+</blockquote>
+<ul>
+<li><code>/data/data/[包名]</code>：存储配置文件、聊天数据等。</li>
+<li><code>/storage/emulated/0/Android/[包名]</code>：包含了缓存、配置文件等。</li>
+<li><code>/storage/emulated/0/[应用名]</code>：这个大多数情况下都有。</li>
+<li><code>/storage/emulated/0/[包名]</code>：这个少有，多半是空文件夹。</li>
+</ul>
+<h3 id="Iphone"><a href="#Iphone" class="headerlink" title="Iphone"></a>Iphone</h3><blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/ios8/p/ios-store1.html">IOS 设备备份文件详解</a></p>
+</blockquote>
+<p><strong>Manifest.plist</strong>可以看到屏保密码的形式：</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231102200902380.png" alt="image-20231102200902380"></p>
+<p>passware导入<strong>Manifest.plist</strong>可以恢复苹果的备份密码。</p>
+<span id="more"></span>
+
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231108111418056.png" alt="image-20231108111418056"></p>
+<p>相册相关数据库<strong>Photos.sqlite</strong>，位置位于<code>/CameraRollDomain/Media/PhotoData/Photos.sqlite</code>，在<strong>ZADDITIONALASSETATTRIBUTES</strong>表中可以找到需要的信息。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231101160916764.png" alt="image-20231101160916764"></p>
+<p>隔空投送（com.apple.sharingd）的照片和之前的照片名字上的数字不连贯， 并且时间不连续。元数据是否被修改可以看创建日期是否和修改日期相同。如果聊天分享不发原图的话，EXIF元数据文件就没了。实况照片会创建一个小的MOV。</p>
+<p>GSM媒体访问控制地址就是Mac地址，看无线地址就可以。</p>
+<h2 id="Computer"><a href="#Computer" class="headerlink" title="Computer"></a>Computer</h2><h3 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h3><p>MBR又叫做主引导扇区，是计算机开机后访问磁盘时读取的首个扇区，即位于硬盘的0号柱面(Cylinder)、0号磁头(Side)、1号扇区(Sector)。该扇区占 512 字节（bytes）。它由三个部分组成：主引导程序 446 bytes（boot loader，即主引导记录，现在linux一般由grub2作为boot loader）；硬盘分区表 64 bytes （Disk Partition Table，存放磁盘分区数据的表）；结束标志位 2 bytes （固定为十六进制的55AA）。</p>
+<p>MBR与GPT的区别在于硬盘分区表，这是由于MBR分区方式的缺陷导致的：硬盘分区表是用来记录硬盘里面有多少个分区以及每一分区的大小，一共占 64 字节，即 16*4 ，所以最多只有4 个分区信息可以写到第一个扇区中，所以就称这4个分区为4个主分区 ( primary partion )，每个分区占16 bytes。在有限的空间内，需要记录分区表的详细情况：</p>
+<p><img src="https://pic2.zhimg.com/80/v2-02971255a86505e1d51ff69b10efc311_720w.webp" alt="img"></p>
+<table>
+<thead>
+<tr>
+<th align="left">16进制值</th>
+<th align="left">最大容量</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">00h</td>
+<td align="left"></td>
+<td align="left">未用</td>
+</tr>
+<tr>
+<td align="left">01h</td>
+<td align="left">2 Mb</td>
+<td align="left">FAT12</td>
+</tr>
+<tr>
+<td align="left">02h</td>
+<td align="left"></td>
+<td align="left">XENIX Root</td>
+</tr>
+<tr>
+<td align="left">03h</td>
+<td align="left"></td>
+<td align="left">XENIX User</td>
+</tr>
+<tr>
+<td align="left">04h</td>
+<td align="left">32 Mb</td>
+<td align="left">FAT16 （CHS 寻址模式，分区最大为 32 Mb）</td>
+</tr>
+<tr>
+<td align="left">05h</td>
+<td align="left">2 Gb</td>
+<td align="left">扩展分区（CHS 寻址模式）</td>
+</tr>
+<tr>
+<td align="left">06h</td>
+<td align="left">2 Gb</td>
+<td align="left">FAT16 （CHS 寻址模式，分区大小大于 32 Mb)</td>
+</tr>
+<tr>
+<td align="left">07h</td>
+<td align="left">16 Eb</td>
+<td align="left">NTFS</td>
+</tr>
+<tr>
+<td align="left">08h</td>
+<td align="left"></td>
+<td align="left">AIX</td>
+</tr>
+<tr>
+<td align="left">09h</td>
+<td align="left"></td>
+<td align="left">AIX Bootable</td>
+</tr>
+<tr>
+<td align="left">0Ah</td>
+<td align="left"></td>
+<td align="left">Bootmanager</td>
+</tr>
+<tr>
+<td align="left">0Bh</td>
+<td align="left">2 Gb</td>
+<td align="left">FAT32 （CHS 寻址模式）</td>
+</tr>
+<tr>
+<td align="left">0Ch</td>
+<td align="left">2 Tb</td>
+<td align="left">FAT32 （LBA 寻址模式）</td>
+</tr>
+<tr>
+<td align="left">0Eh</td>
+<td align="left">2 Gb</td>
+<td align="left">FAT16 （LBA address mode）</td>
+</tr>
+<tr>
+<td align="left">0Fh</td>
+<td align="left">2 Tb</td>
+<td align="left">扩展分区 （LBA 寻址模式）</td>
+</tr>
+<tr>
+<td align="left">10h</td>
+<td align="left"></td>
+<td align="left">OPUS</td>
+</tr>
+<tr>
+<td align="left">12h</td>
+<td align="left"></td>
+<td align="left">CPQ Diagnostics</td>
+</tr>
+<tr>
+<td align="left">14h</td>
+<td align="left">2^89 bytes</td>
+<td align="left">Omega FS （用于 Maverick OS）</td>
+</tr>
+<tr>
+<td align="left">15h</td>
+<td align="left"></td>
+<td align="left">Swap 分区</td>
+</tr>
+</tbody></table>
+<p>可以将MBR磁盘转换为GPT磁盘，并且只有在磁盘为空的情况下，才可以将GPT磁盘转换为MBR磁盘。</p>
+<p>一个GPT磁盘可以分为两大部分：保护MBR部分和EFI部分。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231107094310061.png" alt="image-20231107094310061"></p>
+<p>FAT32 文件系统结构：</p>
+<table>
+<thead>
+<tr>
+<th align="center">BOOT</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">BOOT备份</td>
+</tr>
+<tr>
+<td align="center">FAT1</td>
+</tr>
+<tr>
+<td align="center">FAT2</td>
+</tr>
+<tr>
+<td align="center">根目录，FAT12&#x2F;FAT16</td>
+</tr>
+<tr>
+<td align="center">数据区</td>
+</tr>
+</tbody></table>
+<p>Boot Sector (FAT32)：</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231107100859271.png" alt="image-20231107100859271"></p>
+<p>NTFS 文件系统结构：</p>
+<table>
+<thead>
+<tr>
+<th align="center">BOOT</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">MFTMirr</td>
+</tr>
+<tr>
+<td align="center">BITMAP</td>
+</tr>
+<tr>
+<td align="center">子目录</td>
+</tr>
+<tr>
+<td align="center">数据区（当分区大小大于32G时，大小固定为3G）</td>
+</tr>
+<tr>
+<td align="center">MFT</td>
+</tr>
+<tr>
+<td align="center">数据区</td>
+</tr>
+<tr>
+<td align="center">LOGFIRE（位置一般在DBR往后十几个G处）</td>
+</tr>
+<tr>
+<td align="center">数据区</td>
+</tr>
+<tr>
+<td align="center">BOOT备份</td>
+</tr>
+</tbody></table>
+<p>NTFS使用逻辑簇号（LCN，Logical Cluster Number）和虚拟簇号（VCN，Virtual Cluster Number）来对簇进行定位。LCN是对卷中所有簇从头到尾进行简单编号，VCN则是对属于特定文件的簇从头到尾进行编号，以便引用文件中的数据。NTFS卷通过Bitmap文件记录所有簇的使用情况。</p>
+<p><strong>NTFS结构基于MFT。卷上的任何事物都是文件，文件通过主文件表MFT来确定其在卷上的位置，MFT是一个与文件相对应的数据库，由一系列文件FILE记录组成——卷中每一个文件（夹）都有一个文件记录，对于大型文件，还可以有多个记录与之对应。主文件表自身也有它自己的文件记录$MFT。MFT占用的存储空间可以是连续的，也可以是分块的。</strong></p>
+<p>对于 Mft2Csv 的结果做一个中文的翻译：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br></pre></td><td class="code"><pre><span class="line">RecordOffset：记录偏移</span><br><span class="line">Signature：签名</span><br><span class="line">IntegrityCheck：完整性检查</span><br><span class="line">Style：样式</span><br><span class="line">HEADER_MFTRecordNumber：MFT记录号</span><br><span class="line">HEADER_SequenceNo：序列号</span><br><span class="line">Header_HardLinkCount：硬链接计数</span><br><span class="line">FN_ParentReferenceNo：父引用号</span><br><span class="line">FN_ParentSequenceNo：父序列号</span><br><span class="line">FN_FileName：文件名</span><br><span class="line">FilePath：文件路径</span><br><span class="line">HEADER_Flags：标志</span><br><span class="line">RecordActive：记录激活</span><br><span class="line">FileSizeBytes：文件大小（字节）</span><br><span class="line">SI_FilePermission：文件权限</span><br><span class="line">FN_Flags：文件名标志</span><br><span class="line">FN_NameType：文件名类型</span><br><span class="line">ADS：备用数据流</span><br><span class="line">SI_CTime：创建时间</span><br><span class="line">SI_ATime：访问时间</span><br><span class="line">SI_MTime：修改时间</span><br><span class="line">SI_RTime：记录时间</span><br><span class="line">MSecTest：毫秒测试</span><br><span class="line">FN_CTime：文件名创建时间</span><br><span class="line">FN_ATime：文件名访问时间</span><br><span class="line">FN_MTime：文件名修改时间</span><br><span class="line">FN_RTime：文件名记录时间</span><br><span class="line">CTimeTest：创建时间测试</span><br><span class="line">FN_AllocSize：文件名分配大小</span><br><span class="line">FN_RealSize：文件名实际大小</span><br><span class="line">FN_EaSize：文件名扩展属性大小</span><br><span class="line">SI_USN：USN（更新序列号）</span><br><span class="line">DATA_Name：数据名</span><br><span class="line">DATA_Flags：数据标志</span><br><span class="line">DATA_LengthOfAttribute：属性长度</span><br><span class="line">DATA_IndexedFlag：索引标志</span><br><span class="line">DATA_VCNs：VCN（虚拟簇号）</span><br><span class="line">DATA_NonResidentFlag：非驻留标志</span><br><span class="line">DATA_CompressionUnitSize：压缩单元大小</span><br><span class="line">HEADER_LSN：LSN（日志序列号）</span><br><span class="line">HEADER_RecordRealSize：记录实际大小</span><br><span class="line">HEADER_RecordAllocSize：记录分配大小</span><br><span class="line">HEADER_BaseRecord：基础记录</span><br><span class="line">HEADER_BaseRecSeqNo：基础记录序列号</span><br><span class="line">HEADER_NextAttribID：下一个属性ID</span><br><span class="line">DATA_AllocatedSize：数据分配大小</span><br><span class="line">DATA_RealSize：数据实际大小</span><br><span class="line">DATA_InitializedStreamSize：初始化流大小</span><br><span class="line">SI_HEADER_Flags：头部标志</span><br><span class="line">SI_MaxVersions：最大版本数</span><br><span class="line">SI_VersionNumber：版本号</span><br><span class="line">SI_ClassID：类别ID</span><br><span class="line">SI_OwnerID：所有者ID</span><br><span class="line">SI_SecurityID：安全性ID</span><br><span class="line">SI_Quota：配额</span><br><span class="line">FN_CTime_2：文件名创建时间（第二部分）</span><br><span class="line">FN_ATime_2：文件名访问时间（第二部分）</span><br><span class="line">FN_MTime_2：文件名修改时间（第二部分）</span><br><span class="line">FN_RTime_2：文件名记录时间（第二部分）</span><br><span class="line">FN_AllocSize_2：文件名分配大小（第二部分）</span><br><span class="line">FN_RealSize_2：文件名实际大小（第二部分）</span><br><span class="line">FN_EaSize_2：文件名扩展属性大小（第二部分）</span><br><span class="line">FN_Flags_2：文件名标志（第二部分）</span><br><span class="line">FN_NameLength_2：文件名长度（第二部分）</span><br><span class="line">FN_NameType_2：文件名类型（第二部分）</span><br><span class="line">FN_FileName_2：文件名（第二部分）</span><br><span class="line">GUID_ObjectID：对象ID的GUID</span><br><span class="line">GUID_BirthVolumeID：出生卷的GUID</span><br><span class="line">GUID_BirthObjectID：出生对象的GUID</span><br><span class="line">GUID_DomainID：域的GUID</span><br><span class="line">VOLUME_NAME_NAME：卷名称</span><br><span class="line">VOL_INFO_NTFS_VERSION：NTFS版本</span><br><span class="line">VOL_INFO_FLAGS：卷信息标志</span><br><span class="line">FN_CTime_3：文件名创建时间（第三部分）</span><br><span class="line">FN_ATime_3：文件名访问时间（第三部分）</span><br><span class="line">FN_MTime_3：文件名修改时间（第三部分）</span><br><span class="line">FN_RTime_3：文件名记录时间（第三部分）</span><br><span class="line">FN_AllocSize_3：文件名分配大小（第三部分）</span><br><span class="line">FN_RealSize_3：文件名实际大小（第三部分）</span><br><span class="line">FN_EaSize_3：文件名扩展属性大小（第三部分）</span><br><span class="line">FN_Flags_3：文件名标志（第三部分）</span><br><span class="line">FN_NameLength_3：文件名长度（第三部分）</span><br><span class="line">FN_NameType_3：文件名类型（第三部分）</span><br><span class="line">FN_FileName_3：文件名（第三部分）</span><br><span class="line">DATA_Name_2：数据名（第二部分）</span><br><span class="line">DATA_NonResidentFlag_2：非驻留标志（第二部分）</span><br><span class="line">DATA_Flags_2：数据标志（第二部分）</span><br><span class="line">DATA_LengthOfAttribute_2：属性长度（第二部分）</span><br><span class="line">DATA_IndexedFlag_2：索引标志（第二部分）</span><br><span class="line">DATA_StartVCN_2：起始VCN（第二部分）</span><br><span class="line">DATA_LastVCN_2：最后VCN（第二部分）</span><br><span class="line">DATA_VCNs_2：VCN（虚拟簇号，第二部分）</span><br><span class="line">DATA_CompressionUnitSize_2：压缩单元大小（第二部分）</span><br><span class="line">DATA_AllocatedSize_2：数据分配大小（第二部分）</span><br><span class="line">DATA_RealSize_2：数据实际大小（第二部分）</span><br><span class="line">DATA_InitializedStreamSize_2：初始化流大小（第二部分）</span><br><span class="line">DATA_Name_3：数据名（第三部分）</span><br><span class="line">DATA_NonResidentFlag_3：非驻留标志（第三部分）</span><br><span class="line">DATA_Flags_3：数据标志（第三部分）</span><br><span class="line">DATA_LengthOfAttribute_3：属性长度（第三部分）</span><br><span class="line">DATA_IndexedFlag_3：索引标志（第三部分）</span><br><span class="line">DATA_StartVCN_3：起始VCN（第三部分）</span><br><span class="line">DATA_LastVCN_3：最后VCN（第三部分）</span><br><span class="line">DATA_VCNs_3：VCN（虚拟簇号，第三部分）</span><br><span class="line">DATA_CompressionUnitSize_3：压缩单元大小（第三部分）</span><br><span class="line">DATA_AllocatedSize_3：数据分配大小（第三部分）</span><br><span class="line">DATA_RealSize_3：数据实际大小（第三部分）</span><br><span class="line">DATA_InitializedStreamSize_3：初始化流大小（第三部分）</span><br><span class="line">STANDARD_INFORMATION_ON：标准信息是否存在</span><br><span class="line">ATTRIBUTE_LIST_ON：属性列表是否存在</span><br><span class="line">FILE_NAME_ON：文件名是否存在</span><br><span class="line">OBJECT_ID_ON：对象ID是否存在</span><br><span class="line">SECURITY_DESCRIPTOR_ON：安全描述符是否存在</span><br><span class="line">VOLUME_NAME_ON：卷名称是否存在</span><br><span class="line">VOLUME_INFORMATION_ON：卷信息是否存在</span><br><span class="line">DATA_ON：数据是否存在</span><br><span class="line">INDEX_ROOT_ON：索引根是否存在</span><br><span class="line">INDEX_ALLOCATION_ON：索引分配是否存在</span><br><span class="line">BITMAP_ON：位图是否存在</span><br><span class="line">REPARSE_POINT_ON：重新解释点是否存在</span><br><span class="line">EA_INFORMATION_ON：扩展属性信息是否存在</span><br><span class="line">EA_ON：扩展属性是否存在</span><br><span class="line">PROPERTY_SET_ON：属性集是否存在</span><br><span class="line">LOGGED_UTILITY_STREAM_ON：记录的实用流是否存在</span><br><span class="line">DT_DataRun：数据运行</span><br></pre></td></tr></table></figure>
+
+<p>MFT中比较重要的 0x80 属性表：</p>
+<ul>
+<li><p>常驻</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231118145911972.png" alt="image-20231118145911972"></p>
+</li>
+<li><p>非常驻</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231118145919276.png" alt="image-20231118145919276"></p>
+</li>
+</ul>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/430917018">MBR与GPT：磁盘分区方式</a></p>
+<p><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903664235069454#heading-0">磁盘分区原理：从MBR到GPT</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/csdn66_2016/article/details/88066637">FAT32文件系统格式详解</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/tianjin_ren/article/details/127241467">NTFS文件系统详解</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/dzqxwzoe/article/details/132819639">Windows 取证之$MFT</a></p>
+</blockquote>
+<p><strong>hiberfil.sys</strong>是一个系统文件会实时备份内存数据，在早期版本的Windows中， Hiberfil.sys 文件的大小等同于物理内存大小；而在Windows 7中，Hiberfil.sys可以在物理内存大小的50% - 100%的范围自行调整。</p>
+<p>在Windows系统中一个文件被删除，并不是真的被删除，这是发生了两个操作：一个是把被删除的文件重命名为<code>$R****.ext</code>文件放入到该盘的回收站下，一个是生成一个<code>$I****.ext</code>文件记录文件信息，这两个文件一般是对应的，并且<code>****</code>部分的名字完全相同。</p>
+<p>时间线信息存放在<strong>ActivitiesCache.db</strong>数据库中。</p>
+<p>卷影复制服务VSS，Windows日志中可以找到。</p>
+<p>用户标识符就是SUID短划线最后一段。</p>
+<p>控制面板可以看到软件安装的时间。</p>
+<p>当打开一个文件的时候，会在&#x2F;Users&#x2F;[username]&#x2F;AppData&#x2F;Roaming&#x2F;Microsoft&#x2F;Windows&#x2F;Recent下创建一个链接。</p>
+<p>TeamViewer 倾向于通过端口<strong>5938</strong>进行对外的 TCP 和 UDP 连接（这是TeamViewer 的主要端口），并且TeamViewer 在使用此端口时具有最佳性能。如果TeamViewer 无法通过端口5938进行连接，接下来会尝试通过TCP端口<strong>443</strong>进行连接。如果TeamViewer 无法通过端口5938或443进行连接，则会尝试通过TCP端口<strong>80</strong>进行连接。由于会产生额外消耗，并且如果连接断开也不会自动重新连接，所以通过此端口的连接速度比通过端口5938或443慢，可靠性也较低。因此，端口80仅作为最后备用选择。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// 注册表</span><br><span class="line">HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\Main\Start Page			// 浏览器主页</span><br><span class="line">SOFTWARE/Microsoft/Windows NT/CurrentVersion		// 计算机系统安装时间</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tasklist /m		<span class="comment"># 查看调用的dll</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/wtsgtc/p/14956884.html">查看SecureCRT会话中保存的密文</a></p>
+</blockquote>
+<h3 id="Mac"><a href="#Mac" class="headerlink" title="Mac"></a>Mac</h3><p>苹果电脑的硬件配置可以在<strong>hardwareConfig.json</strong>中看到。</p>
+<ul>
+<li><p>macOS 自动登录配置文件：&#x2F;Library&#x2F;Preferences&#x2F;com.apple.loginwindow.plist </p>
+</li>
+<li><p>macOS 自动登录密码设置文件：&#x2F;etc&#x2F;kcpassword</p>
+</li>
+<li><p>macoS 版本号存储文件：&#x2F;System&#x2F;Library&#x2F;CoreServices&#x2F;SystemVersion.plist</p>
+</li>
+</ul>
+<p><code>.DocumentRevisions-V100</code> 是 macOS 中用于支持版本控制功能的目录。这个目录包含了与文档版本控制相关的数据。版本控制允许用户在保存文档时保留历史版本，并在需要时还原到先前的版本。</p>
+<h3 id="Memory"><a href="#Memory" class="headerlink" title="Memory"></a>Memory</h3><p>关于内存取证，由于安装比较复杂，记录一下防止忘记，最好是在Linux上使用。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">wget http://downloads.volatilityfoundation.org/releases/2.6/volatility-2.6.zip</span><br><span class="line">unzip volatility-2.6.zip</span><br><span class="line"></span><br><span class="line">cd volatility-2.6/</span><br><span class="line">python2 setup.py build</span><br><span class="line">python2 setup.py install</span><br><span class="line"></span><br><span class="line">python2 -m pip install pycryptodome</span><br><span class="line">python2 -m pip install distorm3</span><br><span class="line"></span><br><span class="line">// 添加单个模块</span><br><span class="line">cp mimikatz.py /usr/local/lib/python2.7/dist-packages/volatility/plugins</span><br><span class="line">python2 -m pip install construct==2.5.5-reupload</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/q851579181q/article/details/110956485">volatility2各类外部插件使用简介</a></p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">// volatility2</span><br><span class="line"></span><br><span class="line">python2 ./vol.py -f memdump.mem imageinfo</span><br><span class="line">python2 ./vol.py -f ./memdump.mem --profile=Win7SP1x64 hashdump</span><br><span class="line">python2 ./vol.py -f ./memdump.mem --profile=Win7SP1x64 mimikatz</span><br><span class="line">python2 ./vol.py -f ./memdump.mem --profile=Win7SP1x64 pslist</span><br><span class="line">python2 ./vol.py -f ./memdump.mem --profile=Win7SP1x64 pstree</span><br><span class="line">python2 ./vol.py -f ./memdump.mem --profile=Win7SP1x64 dlllist</span><br><span class="line">python2 ./vol.py -f ./memdump.mem --profile=Win7SP1x64 getsids</span><br><span class="line">python2 ./vol.py -f ./memdump.mem --profile=Win7SP1x64 netscan</span><br><span class="line">python2 ./vol.py -f ./memdump.mem --profile=Win7SP1x64 hivelist			// 打印注册表配置单元列表</span><br><span class="line">python2 ./vol.py -f ./memdump.mem --profile=Win7SP1x64 timeliner		// 时间线</span><br><span class="line">python2 ./vol.py --plugins=./community/JamesHall_KevinBreen -f ./memdump.mem --profile=Win7SP1x64 usbstor</span><br><span class="line">python2 ./vol.py -f ./memdump.mem --profile=Win7SP1x64 shellbags &gt; shellbags.txt		// 文件夹</span><br></pre></td></tr></table></figure>
+
+<h2 id="Server"><a href="#Server" class="headerlink" title="Server"></a>Server</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/ApatheCrazyFan/article/details/89454436">LINUX - LVM原理及PV、VG、LV、PE、LE关系图</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/166374034?utm_id=0#">Linux磁盘操作：分区、格式化、挂载</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_44895681/article/details/105657604">利用mdadm工具构建RAID 0&#x2F;1&#x2F;5&#x2F;6&#x2F;10磁盘阵列实战</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/51170719">各种RAID磁盘阵列视图</a></p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/tjcwt2011/article/details/125484870">Linux shell加密解密方法（gzexe、shc）</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.runoob.com/linux/linux-comm-crontab.html">Linux crontab 命令（计划任务）</a></p>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1183385">Linux 终端tty pty pts描述</a></p>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1683126">Linux用户登录日志查询：utmp、wtmp、btmp文件</a></p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/houhj168/article/details/80436073">Linux中vsftpd配置文件vsftpd.conf详解</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/hanease/p/15890509.html">nginx详细参数配置</a></p>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/2106399">Apache配置详解</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/WXjzc/p/17738053.html">解决服务器取证过程中宝塔强制绑定手机号的问题</a></p>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/news/399413">七种方式解决WordPress忘记后台密码</a></p>
+</blockquote>
+<p>关于Linux进入单用户修改密码的步骤：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">ro	-&gt;	rw init=/sysroot/bin/sh</span><br><span class="line">Ctrl + x</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">mount -o remount,rw /sysroot</span></span><br><span class="line">chroot /sysroot/</span><br><span class="line">passwd</span><br><span class="line">touch / .autorelabel</span><br><span class="line"></span><br><span class="line">cat /etc/selinux/config</span><br><span class="line">getenforce</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">enforcing 执行中</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">permissive 不执行但产生警告</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">disabled 关闭</span></span><br></pre></td></tr></table></figure>
+
+<p>查看硬盘、分区等信息：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">df [-h | -T]</span><br><span class="line">parted -l		# 列出磁盘的分区信息</span><br><span class="line">blkid		# 查看设备 UUID</span><br><span class="line">lsblk -f		# 列出所有设备信息</span><br><span class="line">fdisk -l</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">zpool status	# 查看储存池RAID</span><br><span class="line">zpool history	# 查看储存池历史</span><br><span class="line">zfs list -t snapshot		# 查看快照</span><br><span class="line">zfs rollback media0/mediastorage@version1		# 恢复快照</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/zhangguosheng1121/p/13389051.html">zfs详解</a></p>
+<p><a target="_blank" rel="noopener" href="https://bbs.huaweicloud.com/blogs/379558">使用 zpool 命令示例在 Linux 上设置 ZFS 文件系统</a></p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">uname -a</span><br><span class="line">dpkg --get -selections | grep linux-image</span><br><span class="line">find / -type f -exec grep -l &quot;&lt;text&gt;&quot; &#123;&#125; +</span><br></pre></td></tr></table></figure>
+
+<p>var&#x2F;log&#x2F;auth.log 记录sudo、ssh等用户认证日志，只有root用户才可写入。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql	my.cnf</span><br><span class="line">redis	redis.conf</span><br></pre></td></tr></table></figure>
+
+<p>必要时可以向my.cnf里面写入<strong>skip-grant-tables</strong>来跳过登录的验证，但是进入不能修改密码。</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_43423484/article/details/124408565">Windows安装mysql详细步骤</a></p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">show variables like &#x27;%datadir%&#x27;;			# 数据库文件的位置</span><br><span class="line"></span><br><span class="line"># mysql 5.7</span><br><span class="line">select host, user, authentication_string from mysql.user;</span><br><span class="line">create user &#x27;test&#x27;@&#x27;%&#x27; identified by &#x27;123456&#x27;;</span><br><span class="line">alter user &#x27;root&#x27;@&#x27;localhost&#x27; identified by &#x27;123456&#x27;;</span><br><span class="line">update mysql.user set host = &#x27;%&#x27; where user = &#x27;root&#x27;;</span><br><span class="line">flush privileges;</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意网站重构后要附上正确的权限，包括网站目录和数据库目录</strong>。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">chown -R mysql:mysql /www/server/data</span><br><span class="line"></span><br><span class="line">chown -R redis:redis /var/log/redis</span><br><span class="line">chmod -R u+rwX,g+rwX,u+rx /var/log/redis</span><br><span class="line"></span><br><span class="line">chgrp -R nginx admin.paofen.com/</span><br></pre></td></tr></table></figure>
+
+<p>恢复数据库</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysqldump -u&lt;user&gt; -p&lt;passwd&gt; --database &lt;database&gt; &gt; &lt;backup.sql&gt;</span><br><span class="line">mysql -u&lt;user&gt; -p&lt;passwd&gt; &lt;database&gt; &lt; &lt;backup.sql&gt;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_40230682/article/details/118703478">阿里云Mysql5.7 数据库恢复 qp.xb文件恢复数据</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/xddtrue/article/details/105699975">恢复XB后缀数据库</a></p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">kubectl cluster-info</span><br><span class="line">kubectl get nodes -o wide</span><br><span class="line">kubectl get pods --all-namespaces -o wide</span><br><span class="line">kubectl get configmap kubeadm-config -n kube-system -o yaml</span><br><span class="line">kubectl get namespaces</span><br><span class="line">kubectl get secrets</span><br><span class="line">kubectl get pv</span><br><span class="line">kubectl get pvc --all-namespaces</span><br><span class="line">kubectl describe svc &lt;svc&gt; -n &lt;ns&gt;</span><br><span class="line">kubectl describe pod &lt;pod&gt; -n &lt;ns&gt;</span><br><span class="line">kubectl describe secret &lt;secret&gt;</span><br><span class="line">kubectl get secret &lt;secret-name&gt; -n &lt;namespace&gt; -o jsonpath=&#x27;&#123;.data.\.dockerconfigjson&#125;&#x27;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/yprufeng/article/details/105652059">人手一套k8s常用命令集合-CSDN博客</a></p>
+</blockquote>
+<h2 id="Other"><a href="#Other" class="headerlink" title="Other"></a>Other</h2><p>常见的文件头：</p>
+<table>
+<thead>
+<tr>
+<th>文件格式</th>
+<th>文件头</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>JPEG (jpg)</td>
+<td>FFD8FFE1</td>
+</tr>
+<tr>
+<td>PNG (png)</td>
+<td>89504E47</td>
+</tr>
+<tr>
+<td>ZIP (zip)</td>
+<td>504B0304</td>
+</tr>
+<tr>
+<td>RAR (rar)</td>
+<td>52617221</td>
+</tr>
+<tr>
+<td>xls or doc</td>
+<td>D0CF11E0</td>
+</tr>
+</tbody></table>
+<p>时间戳和时间转换：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">dt = <span class="string">&quot;2023-09-25 07:51:18&quot;</span></span><br><span class="line">timeArray = time.strptime(dt, <span class="string">&quot;%Y-%m-%d %H:%M:%S&quot;</span>)</span><br><span class="line">timestamp = time.mktime(timeArray)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">timestamp = <span class="number">702012111.637933</span></span><br><span class="line">time_local = time.localtime(timestamp)</span><br><span class="line">dt = time.strftime(<span class="string">&quot;%Y-%m-%d %H:%M:%S&quot;</span>,time_local)</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231108183621934.png" alt="image-20231108183621934"></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/11/16/CTF/2023%E9%B9%8F%E5%9F%8E%E6%9D%AF/" rel="next" title="2023 鹏城杯">
+                <i class="fa fa-chevron-left"></i> 2023 鹏城杯
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/11/18/Forensic/2023MeiyaIndividual/" rel="prev" title="2023 美亚杯 资格赛">
+                2023 美亚杯 资格赛 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/wechat.jpg"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">61</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">43</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/pursuezhou" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:pursuezhou@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.eonew.cn/" title="Ex" target="_blank">Ex</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://xianbeil.github.io/" title="XianBei" target="_blank">XianBei</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://whoamianony.top/" title="WHOAMI" target="_blank">WHOAMI</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://blog.e4l4.com/" title="E4L4" target="_blank">E4L4</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://tokameine.top/" title="Tokameine" target="_blank">Tokameine</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://toleleyjl.github.io/" title="Tolele" target="_blank">Tolele</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          <div class="wechat_OA">
+    <br>
+    <span>Welcome to my wechat</span>
+    <p></p>
+    <img src ="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/wechat.jpg" width="150" height="150">
+</div>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Phone"><span class="nav-number">1.</span> <span class="nav-text">Phone</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Android"><span class="nav-number">1.1.</span> <span class="nav-text">Android</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Iphone"><span class="nav-number">1.2.</span> <span class="nav-text">Iphone</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Computer"><span class="nav-number">2.</span> <span class="nav-text">Computer</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Windows"><span class="nav-number">2.1.</span> <span class="nav-text">Windows</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mac"><span class="nav-number">2.2.</span> <span class="nav-text">Mac</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Memory"><span class="nav-number">2.3.</span> <span class="nav-text">Memory</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Server"><span class="nav-number">3.</span> <span class="nav-text">Server</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Other"><span class="nav-number">4.</span> <span class="nav-text">Other</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pursue</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

