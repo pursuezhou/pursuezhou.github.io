@@ -425,9 +425,7 @@
 
       
         
-          <h2 id="Reverse"><a href="#Reverse" class="headerlink" title="Reverse"></a>Reverse</h2><h3 id="re694"><a href="#re694" class="headerlink" title="re694"></a>re694</h3><p>魔改了特征码，需要用010将FUK改成UPX，然后用<code>upx -d</code>进行脱壳，读者也可以用upxfix进行尝试，用IDA打开脱壳后的程序，发现进行了两次加密，还是比较简单的。</p>
-<p>WP如下：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">s = [<span class="number">0x4B</span>, <span class="number">0x48</span>, <span class="number">0x79</span>, <span class="number">0x13</span>, <span class="number">0x45</span>, <span class="number">0x30</span>, <span class="number">0x5C</span>, <span class="number">0x49</span>, <span class="number">0x5A</span>, <span class="number">0x79</span>, </span><br><span class="line">    <span class="number">0x13</span>, <span class="number">0x70</span>, <span class="number">0x6D</span>, <span class="number">0x78</span>, <span class="number">0x13</span>, <span class="number">0x6F</span>, <span class="number">0x48</span>, <span class="number">0x5D</span>, <span class="number">0x64</span>, <span class="number">0x64</span>]</span><br><span class="line">flag = <span class="string">&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> s:</span><br><span class="line">    flag += <span class="built_in">chr</span>(((i ^ <span class="number">80</span>) - <span class="number">10</span>) ^ <span class="number">102</span>)</span><br><span class="line"></span><br><span class="line">flag = <span class="string">&#x27;flag&#123;&#x27;</span> + flag + <span class="string">&#x27;&#125;&#x27;</span></span><br><span class="line"><span class="built_in">print</span>(flag)</span><br></pre></td></tr></table></figure>
+           
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2022/08/31/CTF/2022%E7%BD%91%E9%BC%8E%E6%9D%AF/#more" rel="contents">
@@ -573,7 +571,7 @@
 
       
         
-          <h2 id="glibc-master"><a href="#glibc-master" class="headerlink" title="glibc_master"></a>glibc_master</h2><p>存在uaf，并且只能分配largebin大小的chunk，主要问题是没给libc，需要结合远程调试，可以通过泄露main_arena的地址，然后通过寻找libc的数据库来确定libc的版本，推荐一个网站：<a target="_blank" rel="noopener" href="https://libc.rip/">libc-database</a>。有了libc的版本就好处理了，一开始采用的是<code>house_of_cat</code>，但是rcx寄存器为0过不了检查，所以采用<code>house_of_apple2</code>。</p>
+           
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2022/08/25/CTF/2022%E9%95%BF%E5%9F%8E%E6%9D%AF/#more" rel="contents">
@@ -719,8 +717,7 @@
 
       
         
-          <h2 id="Gift"><a href="#Gift" class="headerlink" title="Gift"></a>Gift</h2><p>流程不复杂，在释放堆块时存在uaf的漏洞，在bargain的功能里存在一个整数溢出的漏洞（我们打折优惠的钱是一个有符号的整数）。所以基本的思路就是对已经释放的堆块进行bargain操作，这样就能使这个堆块指向我们构造的fake_chunk（控制size就可以被放入unsortedbin中），再次申请就可以拿到我们的fake_chunk，有了堆叠一切就都好处理了。</p>
-<p>这道题听说没给libc，需要结合本地和远程一起调，推测是存在tcache的，否则我们构造的fake_chunk的size域和fastbin索引的大小不同会报错，自然也就泄露不了libc了。</p>
+           
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2022/08/23/CTF/2022%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A2/#more" rel="contents">
@@ -1166,7 +1163,7 @@
 
       
         
-          <h2 id="devnull"><a href="#devnull" class="headerlink" title="devnull"></a>devnull</h2><p>存在两次溢出，第一次溢出使得fd为0，即相当于我们可以控制read的内容，第二次溢出就是经典的栈溢出，完成栈迁移。有几个注意的点：一是mprotect函数的port为1而不是7，需要我们重新伪造一个port为7的mprotect函数，在最后输出给我们<code>Thanks\n</code>信息之后会将rdx设置成7，rdi的值我们可以通过以下的两端神奇汇编来解决，<code>mov rax, [rbp-0x18]; leave; ret</code>和<code>mov esi, 0x1000; mov rdi, rax; call _mprotect; nop; pop rbp; ret</code>；二是在栈迁移的时候要注意迁移到可写的段上；三是注意我们shellcode的长度；四是注意程序关闭了标准输出，所以我们可以采用shell命令<code>exec 1&gt;&amp;2</code>来讲标准输出和标准错误给绑定到一起。</p>
+           
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2022/08/07/CTF/2022%E5%BC%BA%E7%BD%91%E6%9D%AF/#more" rel="contents">
@@ -1312,7 +1309,7 @@
 
       
         
-          <h2 id="fuzzerinstrospector"><a href="#fuzzerinstrospector" class="headerlink" title="fuzzerinstrospector"></a>fuzzerinstrospector</h2><p>scanf绕过，当我们每次输入<code>+\n</code>或者<code>-\n</code>的时候，就能绕过一个字节不去覆盖它，由此可以泄露残留在unsortedbin中的chunk的fd，也就是泄露libc。同时，题目给了我们一个后门的功能，相信都能看出来。还需要注意的一个问题是<code>Bitmap</code>，这个就相当于一个字典的作用，虽然程序只能打印从bk开始的数据，但是这些泄露的数据是根据fd位置的值来确定的，也就相当于泄露了fd中的数据。</p>
+           
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2022/07/24/CTF/2022dsctf/#more" rel="contents">
@@ -1458,14 +1455,7 @@
 
       
         
-          <h2 id="duck"><a href="#duck" class="headerlink" title="duck"></a>duck</h2><p>一道glibc2.34的经典堆题，存在uaf的漏洞，学习两种利用方法。</p>
-<blockquote>
-<p>参考文章：<a target="_blank" rel="noopener" href="http://blog.nsfocus.net/glibc-234/">浅谈glibc新版本保护机制及绕过方法 – 绿盟科技技术博客 (nsfocus.net)</a></p>
-</blockquote>
-<h3 id="IO利用-IO-doallocbuf"><a href="#IO利用-IO-doallocbuf" class="headerlink" title="IO利用(_IO_doallocbuf)"></a>IO利用(_IO_doallocbuf)</h3><p>首先修改IO_doallocbuf为one_gadget，然后清空stdout结构体指针，使得libc重新调用IO_doallocbuf函数。</p>
-<blockquote>
-<p>第一次做glibc2.34的tcache有点不太熟练，比赛最后one_gadget错了，就差临门一脚，有点可惜。≧ ﹏ ≦</p>
-</blockquote>
+           
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2022/07/21/CTF/2022ciscn%E5%A4%8D%E8%B5%9B/#more" rel="contents">
@@ -1757,18 +1747,7 @@
 
       
         
-          <h2 id="login"><a href="#login" class="headerlink" title="login"></a>login</h2><p>主要是对程序逻辑的分析和可见字符的shellcode的编写，同时要注意shellcode的编写规则，这里是使用<code>rdx</code>进行触发。</p>
-<blockquote>
-<p> 参考文章：<a target="_blank" rel="noopener" href="https://blog.csdn.net/SmalOSnail/article/details/105236336">(8条消息) 手把手教你写纯字符ascii shellcode——最通俗易懂的alphanumeric shellcode生成指南_TaQini852的博客-CSDN博客_ascii shellcode</a></p>
-</blockquote>
-<p>使用alpha3的基本步骤：</p>
-<ol>
-<li><p>python运行以下脚本生成shellcode</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.arch = <span class="string">&#x27;amd64&#x27;</span></span><br><span class="line">f = <span class="built_in">open</span>(<span class="string">&#x27;shellcode_x64&#x27;</span>, <span class="string">&#x27;wb&#x27;</span>)	<span class="comment"># 注意打开的格式是wb</span></span><br><span class="line">payload = asm(shellcraft.sh())	<span class="comment"># 可以手写</span></span><br><span class="line">f.write(payload)</span><br><span class="line">f.close()</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>使用命令生成可见字符的shellcode</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python2 ./ALPHA3.py x64 ascii mixedcase rdx --input=&quot;shellcode_x64&quot;</span><br></pre></td></tr></table></figure></li>
-</ol>
+           
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2022/07/01/CTF/2022ciscn%E5%88%9D%E8%B5%9B/#more" rel="contents">
@@ -1874,7 +1853,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>

@@ -425,7 +425,16 @@
 
       
         
-          srop的学习与思考。
+          <h2 id="srop利用原理"><a href="#srop利用原理" class="headerlink" title="srop利用原理"></a>srop利用原理</h2><h3 id="signal机制"><a href="#signal机制" class="headerlink" title="signal机制"></a>signal机制</h3><p>当有中断或者异常产生时，内核会向某个进程发送一个signal，该进程被挂起并进入内核，然后内核为其保存相应的上下文（<strong>主要是将所有寄存器压入栈中，以及压入 signal 信息，以及指向sigreturn 的系统调用地址，需要注意的是，这一部分是在用户进程的地址空间的</strong>），在跳转到之前注册好的signal handler中进行处理，等到signal handler返回后，内核为该进程恢复保存的上下文，最终恢复执行。</p>
+<p>具体步骤如下：</p>
+<ol>
+<li>一个signal frame被添加到栈，这个frame中包含了当前寄存器的值和一些signal信息</li>
+<li>一个新的返回地址被添加到栈顶，其指向了sigreturn</li>
+<li>signal handler被调用，signal handler的行动取决于收到什么signal</li>
+<li><strong>signal handler执行完之后，返回地址用于执行sigreturn系统调用</strong></li>
+<li><strong>sigreturn利用signal frame恢复寄存器回到之前的状态</strong></li>
+<li>程序继续执行</li>
+</ol>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2022/04/16/Pwn/Srop/#more" rel="contents">
@@ -531,7 +540,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>

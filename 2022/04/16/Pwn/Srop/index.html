@@ -129,18 +129,18 @@
 
 
 
-<meta name="description" content="srop的学习与思考。">
+<meta name="description" content="srop利用原理signal机制当有中断或者异常产生时，内核会向某个进程发送一个signal，该进程被挂起并进入内核，然后内核为其保存相应的上下文（主要是将所有寄存器压入栈中，以及压入 signal 信息，以及指向sigreturn 的系统调用地址，需要注意的是，这一部分是在用户进程的地址空间的），在跳转到之前注册好的signal handler中进行处理，等到signal handler返回后，">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Srop">
 <meta property="og:url" content="https://pursuezhou.github.io/2022/04/16/Pwn/Srop/index.html">
 <meta property="og:site_name" content="Pursue">
-<meta property="og:description" content="srop的学习与思考。">
+<meta property="og:description" content="srop利用原理signal机制当有中断或者异常产生时，内核会向某个进程发送一个signal，该进程被挂起并进入内核，然后内核为其保存相应的上下文（主要是将所有寄存器压入栈中，以及压入 signal 信息，以及指向sigreturn 的系统调用地址，需要注意的是，这一部分是在用户进程的地址空间的），在跳转到之前注册好的signal handler中进行处理，等到signal handler返回后，">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://s1.ax1x.com/2022/10/16/xBmL3F.png">
 <meta property="og:image" content="https://s1.ax1x.com/2022/10/16/xBmq9U.png">
 <meta property="og:image" content="https://s1.ax1x.com/2022/10/16/xBmHhT.png">
 <meta property="article:published_time" content="2022-04-15T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-03-13T12:03:37.763Z">
+<meta property="article:modified_time" content="2024-03-14T01:54:18.096Z">
 <meta property="article:author" content="Pursue">
 <meta property="article:tag" content="Srop">
 <meta name="twitter:card" content="summary">
@@ -440,7 +440,7 @@
 <li><strong>sigreturn利用signal frame恢复寄存器回到之前的状态</strong></li>
 <li>程序继续执行</li>
 </ol>
-<!-- more -->
+<span id="more"></span>
 
 <h3 id="x86和x64的sigcontext"><a href="#x86和x64的sigcontext" class="headerlink" title="x86和x64的sigcontext"></a>x86和x64的sigcontext</h3><ul>
 <li><strong>x86：</strong></li>
@@ -644,7 +644,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>

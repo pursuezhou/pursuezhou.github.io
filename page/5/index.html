@@ -425,8 +425,7 @@
 
       
         
-          <h2 id="bitheap"><a href="#bitheap" class="headerlink" title="bitheap"></a>bitheap</h2><p>漏洞在读取堆块内容时多了一个比特，为<code>off-by-one-bit</code>，这样我们就可以置堆块size的末尾为0，即上一个堆块处于释放状态，通过构造可以形成堆叠。由于涉及到二进制的读写，而且要考虑到<strong>小端序</strong>的问题，所以我们在写入的时候，<strong>需要从值的低位开始写</strong>。</p>
-<p>先学习一下程序是怎么读写二进制的，在IDA中我们可以看到：</p>
+           
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2022/11/28/CTF/2022%E7%A5%A5%E4%BA%91%E6%9D%AF/#more" rel="contents">
@@ -572,7 +571,7 @@
 
       
         
-          <h2 id="MIMIC"><a href="#MIMIC" class="headerlink" title="MIMIC"></a>MIMIC</h2><h3 id="pwn1"><a href="#pwn1" class="headerlink" title="pwn1"></a>pwn1</h3>
+           
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2022/11/20/CTF/2022%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%81/#more" rel="contents">
@@ -680,8 +679,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Re/" itemprop="url" rel="index">
-                    <span itemprop="name">Re</span>
+                  <a href="/categories/Reverse/" itemprop="url" rel="index">
+                    <span itemprop="name">Reverse</span>
                   </a>
                 </span>
 
@@ -869,7 +868,7 @@
 
       
         
-          <h2 id="Pwn"><a href="#Pwn" class="headerlink" title="Pwn"></a>Pwn</h2><h3 id="1-5"><a href="#1-5" class="headerlink" title="1!5!"></a>1!5!</h3><p>限制字符的shellcode编写，一开始是想着直接调用<code>execve</code>来获取shell，但是发现<code>/bin/sh</code>怎么也写不进去，看了wp，想到程序还开辟了一段可执行区域，所以想到写shellcode调用read向其中写入调用shell的汇编即可，主要利用了<strong>跳转汇编处的寄存器残留</strong>。</p>
+           
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2022/11/05/CTF/2022dasctf_x_gfctf/#more" rel="contents">
@@ -1163,17 +1162,7 @@
 
       
         
-          <h2 id="toolkit"><a href="#toolkit" class="headerlink" title="toolkit"></a>toolkit</h2><blockquote>
-<p>一道利用C++异常机制来pwn的题目</p>
-</blockquote>
-<p>在gift功能里面存在溢出使得我们能够泄露elf文件的基地址。之后便是在Tool2中的Func2功能里面，对于读入的变量是有符号整数，输入负数产生栈溢出。同时程序开启了沙盒，我们只能owr。但是问题来了，无法泄露canary怎么办？</p>
-<p>这里就涉及到C++的异常机制，具体的理论可以阅读下面的两篇文章：</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/89855#h2-4">Shanghai-DCTF-2017 线下攻防Pwn题-安全客 - 安全资讯平台 (anquanke.com)</a></li>
-<li>[C++异常机制的实现方式和开销分析 (baiy.cn)</li>
-<li>主要的逻辑就是从报出异常的函数开始，进行栈回溯（staack unind），寻找catch的代码段，那我们通过溢出将栈上的catach代码段给修改了，就可以控制程序执行流，并且不会造成canary的报错。这里通过具体的调试来做说明：</li>
-</ul>
-<p>首先进入<code>__cxa_throw</code>函数后抛出错误，之后程序进入<code>_Unwind_RaiseException</code>进行栈回溯，寻找catch代码段。找到之后，会调用<code>__cxa_begin_catch</code>进行捕获，最后调用<code>__cxa_end_catch</code>结束捕获。最终，可以发现程序回到了上一层的函数中进行捕获，具体如下：</p>
+           
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2022/10/11/CTF/2022%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4/#more" rel="contents">
@@ -1465,8 +1454,7 @@
 
       
         
-          <h2 id="初赛"><a href="#初赛" class="headerlink" title="初赛"></a>初赛</h2><h3 id="escape-shellcode"><a href="#escape-shellcode" class="headerlink" title="escape_shellcode"></a>escape_shellcode</h3><p>一道开启沙盒的shellcode题目，只允许我们用read和write，恶心的是居然把除了rip寄存器之外的所有寄存器都给覆盖成垃圾数据，导致我们不能泄露地址，也不能使用栈结构，最多能搜刮是rip里面存储的堆地址。所以我们采取爆破的方式来找flag，我们flag的低位保持0x120不变，所以只要往高位爆破就好。</p>
-<p>注意几点：一个是我们会发现每次rip中的地址和堆起始地址的偏移不一样，所以要用位运算来解决，不能用sub汇编来解决求取堆起始地址的问题；第二是我们不能在汇编之外进行循环，要在汇编里面完成循环，否则地址随机化会导致爆破不成功；第三是注意rip不可访问的问题。</p>
+           
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2022/09/25/CTF/2022%E8%93%9D%E5%B8%BD%E6%9D%AF/#more" rel="contents">
@@ -1612,7 +1600,7 @@
 
       
         
-          <h2 id="note1"><a href="#note1" class="headerlink" title="note1"></a>note1</h2><p>存在两个漏洞，一个是在更新tag的时候<code>scanf(&quot;%s&quot;)</code>会将tag填充满，并将字符串的结尾附上<code>\x00</code>，注意在开始用gets对tag输入时是填不满的，如果输入8个字符是会报错的；二是在更新name的时候没有及时更新name的长度，导致产生堆块的溢出。</p>
+           
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2022/09/19/CTF/2022%E6%9F%8F%E9%B9%AD%E6%9D%AF/#more" rel="contents">
@@ -1758,7 +1746,7 @@
 
       
         
-          <h2 id="fakeNoOutput"><a href="#fakeNoOutput" class="headerlink" title="fakeNoOutput"></a>fakeNoOutput</h2><p>一道http的pwn题，题目漏洞出现在upload这个功能里，存在栈溢出，主要难度在于控制输入的格式，使得程序执行到漏洞所在，还有注意程序是32位的。</p>
+           
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2022/09/19/CTF/2022%E7%BE%8A%E5%9F%8E%E6%9D%AF/#more" rel="contents">
@@ -1864,7 +1852,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>

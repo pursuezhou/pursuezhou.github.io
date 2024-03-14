@@ -740,10 +740,7 @@
 
       
         
-          <h2 id="Pwn"><a href="#Pwn" class="headerlink" title="Pwn"></a>Pwn</h2><h3 id="6502"><a href="#6502" class="headerlink" title="6502"></a>6502</h3><p>涉及到需要下载Ubuntu18.04的软件包，需要我们先修改&#x2F;etc&#x2F;pat&#x2F;sources.list，然后再找软件包。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32</span><br><span class="line">apt-get update</span><br><span class="line"></span><br><span class="line">aptitude search libncurses5</span><br><span class="line">aptitude search libtinfo</span><br><span class="line">aptitude download libncurses5-dbg</span><br><span class="line">aptitude download libtinfo5-dbg</span><br><span class="line">dpkg -x libncurses5-dbg_6.1-1ubuntu1.18.04.1_amd64.deb libncurses5/</span><br><span class="line">dpkg -x libtinfo5-dbg_6.1-1ubuntu1.18.04.1_amd64.deb libtinfo5/</span><br></pre></td></tr></table></figure>
-
-<p>漏洞点在于 STA 和 LDA 指令能够向内存写入和读取数据，并且存在负数向上溢出使得访问到 Got 表中的项目。</p>
+           
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2023/11/16/CTF/2023%E9%B9%8F%E5%9F%8E%E6%9D%AF/#more" rel="contents">
@@ -889,9 +886,7 @@
 
       
         
-          <h2 id="Pwn"><a href="#Pwn" class="headerlink" title="Pwn"></a>Pwn</h2><h3 id="fmt"><a href="#fmt" class="headerlink" title="fmt"></a>fmt</h3><p>盲打字符串，给了key的位置，只要把key写到110就反弹到shell了。</p>
-<p>收集栈信息的脚本：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">context.log_level = <span class="string">&#x27;error&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">2</span>, <span class="number">40</span>):</span><br><span class="line">    <span class="keyword">try</span>: </span><br><span class="line">        sh = remote(<span class="string">&quot;192.168.2.236&quot;</span>, <span class="number">15082</span>)</span><br><span class="line">        sh.recvuntil(<span class="string">&quot;give me your name!\n&quot;</span>)</span><br><span class="line">        y = <span class="string">&#x27;abbbb&#x27;</span></span><br><span class="line">        x = y + <span class="string">&quot;%&quot;</span> + <span class="built_in">str</span>(i) + <span class="string">&quot;$p&quot;</span></span><br><span class="line">        sh.sendline(x)</span><br><span class="line">        sh.recvuntil(<span class="string">b&quot;welcome &quot;</span> + y.encode())</span><br><span class="line">        txt = sh.recvuntil(<span class="string">b&quot;\nBut key&quot;</span>).split(<span class="string">b&quot;\nBut key&quot;</span>)[<span class="number">0</span>]</span><br><span class="line">        <span class="built_in">print</span>(<span class="built_in">str</span>(i).encode() + <span class="string">b&quot; --- &quot;</span> + txt)</span><br><span class="line">    <span class="keyword">except</span> KeyboardInterrupt:</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+           
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2023/10/22/CTF/2023%E7%A7%91%E6%9D%A5%E6%9D%AF/#more" rel="contents">
@@ -1037,7 +1032,7 @@
 
       
         
-          <h2 id="Pwn"><a href="#Pwn" class="headerlink" title="Pwn"></a>Pwn</h2><h3 id="move"><a href="#move" class="headerlink" title="move"></a>move</h3><p>简单的栈迁移</p>
+           
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2023/10/18/CTF/2023%E9%A6%99%E5%B1%B1%E6%9D%AF/#more" rel="contents">
@@ -1634,7 +1629,7 @@
 
       
         
-          <h2 id="初赛"><a href="#初赛" class="headerlink" title="初赛"></a>初赛</h2><h3 id="Pwn"><a href="#Pwn" class="headerlink" title="Pwn"></a>Pwn</h3><h4 id="takeway"><a href="#takeway" class="headerlink" title="takeway"></a>takeway</h4><p>题目比较简单。程序存在UAF，但是分配的次数太少了，所以第一次先改分配的次数并且泄露stdout的地址拿到libc的基地址，第二次直接打__free_hook就行。</p>
+           
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2023/09/17/CTF/2023%E8%93%9D%E5%B8%BD%E6%9D%AF/#more" rel="contents">
@@ -1780,9 +1775,7 @@
 
       
         
-          <h2 id="初赛"><a href="#初赛" class="headerlink" title="初赛"></a>初赛</h2><h3 id="secretnote"><a href="#secretnote" class="headerlink" title="secretnote"></a>secretnote</h3><p>还是有点难度的一道题，比赛时候拿了二血。</p>
-<p>乘着这个机会，学习一下C语言的socket编程吧。写了一个最简单的demo，包含服务端和客户端，实现了接收数据和发送数据的功能。</p>
-<p>服务端（<code>socket() -&gt; bind() -&gt; listen() -&gt; accept()</code>）：</p>
+           
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2023/09/05/CTF/2023%E9%A2%86%E8%88%AA%E6%9D%AF/#more" rel="contents">
@@ -1888,7 +1881,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>

