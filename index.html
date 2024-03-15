@@ -333,6 +333,155 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2024/03/14/Virus%20AV/Shellcode%E6%89%A7%E8%A1%8C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/wechat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pursue">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2024/03/14/Virus%20AV/Shellcode%E6%89%A7%E8%A1%8C/" itemprop="url">Shellcode 常见加载方式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-03-14T00:00:00+08:00">
+                2024-03-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Virus-AV/" itemprop="url" rel="index">
+                    <span itemprop="name">Virus AV</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="指针执行"><a href="#指针执行" class="headerlink" title="指针执行"></a>指针执行</h2><p>注意shellcode是写在.data段中的，需要改为可执行。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">pragma</span> comment(linker, <span class="string">&quot;/section:.data,RWE&quot;</span>)</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    ((<span class="built_in">void</span>(*)(<span class="type">void</span>)) &amp; hexData)();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="线程执行"><a href="#线程执行" class="headerlink" title="线程执行"></a>线程执行</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">pragma</span> comment(linker, <span class="string">&quot;/subsystem:\&quot;Windows\&quot; /entry:\&quot;mainCRTStartup\&quot;&quot;</span>)</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">    LPVOID pAddress = <span class="built_in">VirtualAlloc</span>(<span class="literal">NULL</span>, <span class="built_in">sizeof</span>(shellCode), MEM_COMMIT, PAGE_EXECUTE_READWRITE);</span><br><span class="line">    <span class="built_in">RtlCopyMemory</span>(pAddress, shellCode, <span class="built_in">sizeof</span>(shellCode));</span><br><span class="line">    HANDLE handle = <span class="built_in">CreateThread</span>(<span class="literal">NULL</span>, <span class="number">0</span>, (LPTHREAD_START_ROUTINE)pAddress, <span class="literal">NULL</span>, <span class="number">0</span>, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="built_in">WaitForSingleObject</span>(handle, INFINITE);</span><br><span class="line">    <span class="built_in">CloseHandle</span>(handle);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2024/03/14/Virus%20AV/Shellcode%E6%89%A7%E8%A1%8C/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2024/03/13/Reverse/Windows%20API%20%E8%BF%9B%E7%A8%8B%E6%93%8D%E4%BD%9C/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -425,19 +574,35 @@
 
       
         
-          <h2 id="进程启动"><a href="#进程启动" class="headerlink" title="进程启动"></a>进程启动</h2><h3 id="WinExec"><a href="#WinExec" class="headerlink" title="WinExec"></a>WinExec</h3><p>函数在<strong>winbase.h</strong>中声明。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">UINT <span class="title">WinExec</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">  [in] LPCSTR lpCmdLine,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in] UINT   uCmdShow</span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span>;</span><br></pre></td></tr></table></figure>
+          <h2 id="进程启动"><a href="#进程启动" class="headerlink" title="进程启动"></a>进程启动</h2><h3 id="CreateProcess"><a href="#CreateProcess" class="headerlink" title="CreateProcess"></a>CreateProcess</h3><p>函数在<strong>processthreadsapi.h</strong>中声明。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">CreateProcessA</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, optional]      LPCSTR                lpApplicationName,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, out, optional] LPSTR                 lpCommandLine,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, optional]      LPSECURITY_ATTRIBUTES lpProcessAttributes,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, optional]      LPSECURITY_ATTRIBUTES lpThreadAttributes,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in]                BOOL                  bInheritHandles,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in]                DWORD                 dwCreationFlags,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, optional]      LPVOID                lpEnvironment,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, optional]      LPCSTR                lpCurrentDirectory,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in]                LPSTARTUPINFOA        lpStartupInfo,</span></span></span><br><span class="line"><span class="params"><span class="function">  [out]               LPPROCESS_INFORMATION lpProcessInformation</span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span>;</span><br></pre></td></tr></table></figure>
 
 <ul>
-<li>lpCmdLine：命令行参数</li>
-<li>uCmdShow：显示选项，在<strong>winuser.h</strong>中定义，重点关注：<ul>
-<li>SW_HIDE：隐藏窗口。</li>
-<li>SW_SHOWNORMAL：激活并显示窗口。</li>
-<li>SW_SHOW：激活窗口并以当前大小和位置显示窗口。</li>
+<li><p>lpApplicationName：要执行的模块的名称。为NULL则是lpCommandLine中第一个空格分隔的标记。</p>
+</li>
+<li><p>lpCommandLine：要执行的命令行。</p>
+</li>
+<li><p>lpProcessAttributes：指向 SECURITY_ATTRIBUTES 结构（确定子进程是否可以继承新进程对象的返回句柄）的指针。可以为NULL。</p>
+</li>
+<li><p>lpThreadAttributes：基本同lpProcessAttributes。</p>
+</li>
+<li><p>bInheritHandles：TRUE则调用进程中的每个可继承句柄都由新进程继承。</p>
+</li>
+<li><p>dwCreationFlags：控制优先级类和进程的创建的标志。</p>
+<ul>
+<li>CREATE_NEW_CONSOLE：新进程有一个新的控制台，而不是继承其父进程的控制台（默认）。</li>
+<li>CREATE_NO_WINDOW：该进程是一个在没有控制台窗口的情况下运行的控制台应用程序。</li>
 </ul>
 </li>
+<li><p>lpEnvironment：指向新进程的环境块的指针。 如果此参数为NULL，则新进程将使用调用进程的环境。</p>
+</li>
+<li><p>lpCurrentDirectory：进程当前目录的完整路径。如果此参数为 NULL，则新进程将具有与调用进程相同的当前驱动器和目录。</p>
+</li>
+<li><p>lpStartupInfo：指向 STARTUPINFO 或 STARTUPINFOEX 结构的指针。</p>
+</li>
+<li><p>lpProcessInformation：指向接收有关新进程的标识信息的 PROCESS_INFORMATION 结构的指针。</p>
+</li>
 </ul>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">WinExec</span>(<span class="string">&quot;calc.exe&quot;</span>, SW_SHOWNORMAL);</span><br><span class="line"><span class="built_in">WinExec</span>(<span class="string">&quot;C:\\Windows\\System32\\cmd.exe&quot;</span>, SW_HIDE);</span><br></pre></td></tr></table></figure>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2024/03/13/Reverse/Windows%20API%20%E8%BF%9B%E7%A8%8B%E6%93%8D%E4%BD%9C/#more" rel="contents">
@@ -510,7 +675,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2024/02/14/Virus%20AV/Shellcode%E7%BC%96%E5%86%99/" itemprop="url">Shellcode编写</a></h1>
+                <a class="post-title-link" href="/2024/02/14/Virus%20AV/Shellcode%E7%BC%96%E5%86%99/" itemprop="url">Shellcode 编写</a></h1>
         
 
         <div class="post-meta">
@@ -660,7 +825,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2024/02/12/Reverse/PE%E7%BB%93%E6%9E%84/" itemprop="url">PE结构学习</a></h1>
+                <a class="post-title-link" href="/2024/02/12/Reverse/PE%E7%BB%93%E6%9E%84/" itemprop="url">PE 结构学习</a></h1>
         
 
         <div class="post-meta">
@@ -1688,153 +1853,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2023/11/25/Penetration/%E9%93%81%E4%B8%89%E5%9F%9F%E6%8E%A7/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/wechat.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Pursue">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2023/11/25/Penetration/%E9%93%81%E4%B8%89%E5%9F%9F%E6%8E%A7/" itemprop="url">铁三域控</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-11-25T00:00:00+08:00">
-                2023-11-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Penetration/" itemprop="url" rel="index">
-                    <span itemprop="name">Penetration</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h2><p>fscan探测主机。</p>
-<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231121185345767.png"></p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2023/11/25/Penetration/%E9%93%81%E4%B8%89%E5%9F%9F%E6%8E%A7/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1889,7 +1907,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">61</span>
+                  <span class="site-state-item-count">62</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
