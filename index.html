@@ -576,33 +576,6 @@
         
           <h2 id="进程启动"><a href="#进程启动" class="headerlink" title="进程启动"></a>进程启动</h2><h3 id="CreateProcess"><a href="#CreateProcess" class="headerlink" title="CreateProcess"></a>CreateProcess</h3><p>函数在<strong>processthreadsapi.h</strong>中声明。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">CreateProcessA</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, optional]      LPCSTR                lpApplicationName,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, out, optional] LPSTR                 lpCommandLine,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, optional]      LPSECURITY_ATTRIBUTES lpProcessAttributes,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, optional]      LPSECURITY_ATTRIBUTES lpThreadAttributes,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in]                BOOL                  bInheritHandles,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in]                DWORD                 dwCreationFlags,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, optional]      LPVOID                lpEnvironment,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, optional]      LPCSTR                lpCurrentDirectory,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in]                LPSTARTUPINFOA        lpStartupInfo,</span></span></span><br><span class="line"><span class="params"><span class="function">  [out]               LPPROCESS_INFORMATION lpProcessInformation</span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>lpApplicationName：要执行的模块的名称。为NULL则是lpCommandLine中第一个空格分隔的标记。</p>
-</li>
-<li><p>lpCommandLine：要执行的命令行。</p>
-</li>
-<li><p>lpProcessAttributes：指向 SECURITY_ATTRIBUTES 结构（确定子进程是否可以继承新进程对象的返回句柄）的指针。可以为NULL。</p>
-</li>
-<li><p>lpThreadAttributes：基本同lpProcessAttributes。</p>
-</li>
-<li><p>bInheritHandles：TRUE则调用进程中的每个可继承句柄都由新进程继承。</p>
-</li>
-<li><p>dwCreationFlags：控制优先级类和进程的创建的标志。</p>
-<ul>
-<li>CREATE_NEW_CONSOLE：新进程有一个新的控制台，而不是继承其父进程的控制台（默认）。</li>
-<li>CREATE_NO_WINDOW：该进程是一个在没有控制台窗口的情况下运行的控制台应用程序。</li>
-</ul>
-</li>
-<li><p>lpEnvironment：指向新进程的环境块的指针。 如果此参数为NULL，则新进程将使用调用进程的环境。</p>
-</li>
-<li><p>lpCurrentDirectory：进程当前目录的完整路径。如果此参数为 NULL，则新进程将具有与调用进程相同的当前驱动器和目录。</p>
-</li>
-<li><p>lpStartupInfo：指向 STARTUPINFO 或 STARTUPINFOEX 结构的指针。</p>
-</li>
-<li><p>lpProcessInformation：指向接收有关新进程的标识信息的 PROCESS_INFORMATION 结构的指针。</p>
-</li>
-</ul>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2024/03/13/Reverse/Windows%20API%20%E8%BF%9B%E7%A8%8B%E6%93%8D%E4%BD%9C/#more" rel="contents">
