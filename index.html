@@ -333,7 +333,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2024/03/14/Virus%20AV/Shellcode%E6%89%A7%E8%A1%8C/">
+    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2024/03/18/Virus%20AV/Shellcode%E5%8A%A0%E5%AF%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -352,7 +352,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2024/03/14/Virus%20AV/Shellcode%E6%89%A7%E8%A1%8C/" itemprop="url">Shellcode 常见加载方式</a></h1>
+                <a class="post-title-link" href="/2024/03/18/Virus%20AV/Shellcode%E5%8A%A0%E5%AF%86/" itemprop="url">浅谈 Shellcode 加密</a></h1>
         
 
         <div class="post-meta">
@@ -364,8 +364,301 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-03-14T00:00:00+08:00">
-                2024-03-14
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-03-18T00:00:00+08:00">
+                2024-03-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Virus-AV/" itemprop="url" rel="index">
+                    <span itemprop="name">Virus AV</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>常用的编码和加密方式有 Xor、Base64、AES、RC4、RSA 等等。对于这些加密的方式，我们可以通过调用库来实现，但这并不符合Opsec的规范，杀软会对API的调用进行检查，所以采用自实现加密的方式变得更加Opsec一点。除此以外，为了降低程序的熵值，我们通常会把shellcode转化成 UUID、IPV4地址或者是IPV6地址，甚至是英文单词，也可以填充一些垃圾代码。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2024/03/18/Virus%20AV/Shellcode%E5%8A%A0%E5%AF%86/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2024/03/16/Penetration/%E6%98%A5%E7%A7%8B%E4%BA%91%E9%95%9CHospital/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/wechat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pursue">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2024/03/16/Penetration/%E6%98%A5%E7%A7%8B%E4%BA%91%E9%95%9CHospital/" itemprop="url">春秋云镜 Hospital</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-03-16T00:00:00+08:00">
+                2024-03-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Penetration/" itemprop="url" rel="index">
+                    <span itemprop="name">Penetration</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="Flag1"><a href="#Flag1" class="headerlink" title="Flag1"></a>Flag1</h2><p>拿到IP，看一下端口，8080端口开了web服务。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20240316144242089.png" alt="image-20240316144242089"></p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2024/03/16/Penetration/%E6%98%A5%E7%A7%8B%E4%BA%91%E9%95%9CHospital/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2024/03/15/Virus%20AV/Shellcode%E6%89%A7%E8%A1%8C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/wechat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pursue">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2024/03/15/Virus%20AV/Shellcode%E6%89%A7%E8%A1%8C/" itemprop="url">Shellcode 常见加载方式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-03-15T00:00:00+08:00">
+                2024-03-15
               </time>
             
 
@@ -431,7 +724,7 @@
 <h2 id="线程执行"><a href="#线程执行" class="headerlink" title="线程执行"></a>线程执行</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">pragma</span> comment(linker, <span class="string">&quot;/subsystem:\&quot;Windows\&quot; /entry:\&quot;mainCRTStartup\&quot;&quot;</span>)</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">    LPVOID pAddress = <span class="built_in">VirtualAlloc</span>(<span class="literal">NULL</span>, <span class="built_in">sizeof</span>(shellCode), MEM_COMMIT, PAGE_EXECUTE_READWRITE);</span><br><span class="line">    <span class="built_in">RtlCopyMemory</span>(pAddress, shellCode, <span class="built_in">sizeof</span>(shellCode));</span><br><span class="line">    HANDLE handle = <span class="built_in">CreateThread</span>(<span class="literal">NULL</span>, <span class="number">0</span>, (LPTHREAD_START_ROUTINE)pAddress, <span class="literal">NULL</span>, <span class="number">0</span>, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="built_in">WaitForSingleObject</span>(handle, INFINITE);</span><br><span class="line">    <span class="built_in">CloseHandle</span>(handle);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2024/03/14/Virus%20AV/Shellcode%E6%89%A7%E8%A1%8C/#more" rel="contents">
+            <a class="btn" href="/2024/03/15/Virus%20AV/Shellcode%E6%89%A7%E8%A1%8C/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -482,7 +775,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2024/03/13/Reverse/Windows%20API%20%E8%BF%9B%E7%A8%8B%E6%93%8D%E4%BD%9C/">
+    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2024/03/13/Reverse/Windows%20API/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -501,7 +794,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2024/03/13/Reverse/Windows%20API%20%E8%BF%9B%E7%A8%8B%E6%93%8D%E4%BD%9C/" itemprop="url">Windows API 学习记录</a></h1>
+                <a class="post-title-link" href="/2024/03/13/Reverse/Windows%20API/" itemprop="url">Windows API 学习记录</a></h1>
         
 
         <div class="post-meta">
@@ -578,7 +871,7 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">CreateProcessA</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, optional]      LPCSTR                lpApplicationName,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, out, optional] LPSTR                 lpCommandLine,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, optional]      LPSECURITY_ATTRIBUTES lpProcessAttributes,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, optional]      LPSECURITY_ATTRIBUTES lpThreadAttributes,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in]                BOOL                  bInheritHandles,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in]                DWORD                 dwCreationFlags,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, optional]      LPVOID                lpEnvironment,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, optional]      LPCSTR                lpCurrentDirectory,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in]                LPSTARTUPINFOA        lpStartupInfo,</span></span></span><br><span class="line"><span class="params"><span class="function">  [out]               LPPROCESS_INFORMATION lpProcessInformation</span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span>;</span><br></pre></td></tr></table></figure>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2024/03/13/Reverse/Windows%20API%20%E8%BF%9B%E7%A8%8B%E6%93%8D%E4%BD%9C/#more" rel="contents">
+            <a class="btn" href="/2024/03/13/Reverse/Windows%20API/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -1534,298 +1827,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2023/12/03/Web/Web%E4%BB%8E0%E5%88%B01/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/wechat.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Pursue">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2023/12/03/Web/Web%E4%BB%8E0%E5%88%B01/" itemprop="url">Web从0到1</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-12-03T00:00:00+08:00">
-                2023-12-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Web/" itemprop="url" rel="index">
-                    <span itemprop="name">Web</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="爆破"><a href="#爆破" class="headerlink" title="爆破"></a>爆破</h2><h3 id="端口服务的爆破"><a href="#端口服务的爆破" class="headerlink" title="端口服务的爆破"></a>端口服务的爆破</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">http 80</span><br><span class="line">https 443</span><br><span class="line">ftp 21</span><br><span class="line">ssh 22</span><br><span class="line">mysql 3306</span><br><span class="line">mssql 1433</span><br><span class="line">rsync 873</span><br><span class="line">oracle 1521</span><br><span class="line">mongo 28017</span><br><span class="line">redis 6379</span><br><span class="line">tomcat 8080</span><br><span class="line">smtp 25</span><br><span class="line">POP3 110</span><br><span class="line">dns 53</span><br><span class="line">telent 23</span><br><span class="line">vnc 5900</span><br><span class="line">pcanywhere 5632</span><br><span class="line">Apache/Tomcat/Nginx/Axis2/resin/jboss 80|8080</span><br><span class="line">WebLogic 7001</span><br><span class="line">Jenkins 8080 8089</span><br><span class="line">SNMP 161</span><br><span class="line">Zabbix 8069</span><br><span class="line">elasticsearch 9200 9300</span><br><span class="line">rdp 3389</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2023/12/03/Web/Web%E4%BB%8E0%E5%88%B01/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://pursuezhou.github.io/2023/12/01/CTF/2023DASCTF%20X%200psu3/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/wechat.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Pursue">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2023/12/01/CTF/2023DASCTF%20X%200psu3/" itemprop="url">2023 DASCTF X 0psu3</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-12-01T00:00:00+08:00">
-                2023-12-01
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/CTF/" itemprop="url" rel="index">
-                    <span itemprop="name">CTF</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-           
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2023/12/01/CTF/2023DASCTF%20X%200psu3/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1880,7 +1881,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">62</span>
+                  <span class="site-state-item-count">64</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
