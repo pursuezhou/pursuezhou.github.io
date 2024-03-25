@@ -425,10 +425,8 @@
 
       
         
-          
-          首先熟悉一下csgo的指令，方便我们后面调试：
-123456sv_cheats 1                # 作弊模式开启bot_stop 1                 # bot停止移动mp_roundtime_defuse 60     # 设置回合时间为60分钟mp_restar
-          ...
+          <p>首先熟悉一下csgo的指令，方便我们后面调试：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sv_cheats 1                # 作弊模式开启</span><br><span class="line">bot_stop 1                 # bot停止移动</span><br><span class="line">mp_roundtime_defuse 60     # 设置回合时间为60分钟</span><br><span class="line">mp_restartgame 1           # 1秒后刷新游戏</span><br><span class="line">hurtme 2                   # 攻击自己2滴血</span><br><span class="line">mp_startmoney 16000        # 出生金钱为16000</span><br></pre></td></tr></table></figure>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2024/03/25/Reverse/csgo%E7%BB%93%E6%9E%84%E4%BD%93/#more" rel="contents">
@@ -574,10 +572,8 @@
 
       
         
-          
-          基础知识在正式开始之前需要理解DLL导出函数的过程和原理，首先VS创建一个DLL工程，尝试导出一个函数。
-1234567891011121314151617181920212223// dllmain.cpp : 定义 DLL 应用程序的入口点。#include &quot;pch.h&quot;/
-          ...
+          <h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><p>在正式开始之前需要理解DLL导出函数的过程和原理，首先VS创建一个DLL工程，尝试导出一个函数。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// dllmain.cpp : 定义 DLL 应用程序的入口点。</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;pch.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 以C语言格式导出</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> __declspec(dllexport) <span class="function"><span class="type">int</span> <span class="title">TestFunction</span><span class="params">(<span class="type">int</span> sin)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> sin + <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">BOOL APIENTRY <span class="title">DllMain</span><span class="params">( HMODULE hModule,</span></span></span><br><span class="line"><span class="params"><span class="function">                       DWORD  ul_reason_for_call,</span></span></span><br><span class="line"><span class="params"><span class="function">                       LPVOID lpReserved</span></span></span><br><span class="line"><span class="params"><span class="function">                     )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">switch</span> (ul_reason_for_call)</span><br><span class="line">    &#123;</span><br><span class="line">    <span class="keyword">case</span> DLL_PROCESS_ATTACH:</span><br><span class="line">    <span class="keyword">case</span> DLL_THREAD_ATTACH:</span><br><span class="line">    <span class="keyword">case</span> DLL_THREAD_DETACH:</span><br><span class="line">    <span class="keyword">case</span> DLL_PROCESS_DETACH:</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2024/03/22/Virus%20AV/DLL%E5%8A%AB%E6%8C%81/#more" rel="contents">
